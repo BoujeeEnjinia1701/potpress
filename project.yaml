@@ -1,0 +1,17 @@
+# Card metadata consumed by https://amishchadha.com
+name: PotPress
+slug: potpress
+area: Water Security
+status: concept          # concept | design | prototype | tested | released
+shortlisted: false
+pitch: >-
+  Hydraulic press with printable mold geometry for silver-treated ceramic pot filters, plus a QC flow-rate test jig.
+problem: >-
+  Ceramic pot filters work well, but local producers have no low-cost way to form them consistently.
+budget_usd: 600
+difficulty: 3  # 1 easiest, 5 hardest
+hero_image: media/hero.png
+licenses:
+  hardware: CERN-OHL-S-2.0
+  software: MIT
+tags: [water-security, open-hardware, cern-ohl-s]
