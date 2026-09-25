@@ -1,5 +1,20 @@
 item,qty,spec,supplier,unit_cost_usd,make_buy,notes
-20 t bottle jack,,,,,,
-Welded press frame,,,,,,
-Aluminum or cast mold halves,,,,,,
-Flow-test rig,,,,,,
+1 Base and feet,1,"UPN 100 channel crossbeam 920 mm on two 640 mm channel feet, welded",Local steel stockist,40.00,make,Indicative price
+2 Uprights,2,"Pairs of UPN 100 channel, back to back, about 1.2 m",Local steel stockist,25.00,make,Indicative price; about $50 for both
+3 Top crossbeam,1,"Two UPN 160 channels, 840 mm, with a square guide collar for the male mold stem",Local steel stockist,45.00,make,Indicative price; section to be checked at TRL 3
+4 20 t bottle jack,1,"20 t hydraulic bottle jack, about 150 mm stroke, with screw extension and release valve",Hardware store,50.00,buy,Indicative price; long-ram option in PPR-PRC-001
+5 Moving platen with guide sleeves,1,"20 mm steel plate 520 x 320 mm with two welded sleeves riding on the uprights",Local steel stockist,40.00,make,Indicative price
+6 Return springs,2,"Tension springs, about 300 N each, with hooks",Hardware store,5.00,buy,Indicative price
+7 Mold carriage and slide rails,1,"Steel flat-bar rails on the platen, carriage with end stops, pull handle and tilt pivot for demolding",Local fabrication shop,35.00,make,Indicative price
+8 Female mold,1,"Cast aluminum shell about 20 kg, cavity for the reference filter, rim counterbore; cast from printed pattern",Local foundry,110.00,make,Indicative price; about 20 kg of scrap alloy plus foundry fee
+9 Male mold,1,"Cast aluminum plug about 12 kg with rim-forming flange; cast from printed pattern",Local foundry,75.00,make,Indicative price
+10 Male mold slide and crank,1,"Square steel stem, hand-crank lead screw lift, two 30 mm load pins",Local fabrication shop,45.00,make,Indicative price; load pins take the press force; the screw carries only the mold weight
+11 Pressed filter pot,1,"Product: reference filter, about 8 kg of mix",Factory,0.00,make,Shown for context; not a press cost
+12 QC flow-test rack,1,"Steel angle or hardwood rack with 4 filter stations, 800 x 440 x 560 mm",Local fabrication shop,35.00,make,Indicative price; two stations modeled
+13 Printed T-gauges,4,"PETG dipstick with a scale in L/h generated from the filter geometry",Maker space,2.00,make,Indicative price
+14 Collection buckets,4,"20 L food-grade polyethylene buckets",Market,4.00,buy,Indicative price
+15 Printed casting patterns,1,"PLA patterns for items 8 and 9 in segments, about 3.5 kg of filament, sealed and waxed",Maker space,70.00,make,Indicative price; not modeled
+16 Guards and front gate,1,"Welded mesh side and back guards, hinged front gate with interlock on the jack release",Local fabrication shop,45.00,make,Indicative price; not modeled
+17 Release liners and trim tool,1,"Food-grade polyethylene liner sheets, wire trim tool, sponge",Market,10.00,buy,Indicative price; not modeled
+18 Fasteners and finish,1,"Bolts, washers, rubber feet, primer and paint (lead-free, not on mold faces)",Hardware store,20.00,buy,Indicative price; not modeled
+19 QC timer and thermometer,1,"Kitchen timer and a 0 to 50 C thermometer for water temperature",Market,12.00,buy,Indicative price; not modeled

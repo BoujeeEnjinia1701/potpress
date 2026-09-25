@@ -6,28 +6,33 @@
 
 Hydraulic press with printable mold geometry for silver-treated ceramic pot filters, plus a QC flow-rate test jig.
 
+![PotPress concept](media/hero.png)
+
+[Interactive 3D model](media/viewer.html) · [Concept blueprint (PDF)](media/concept-blueprint.pdf) · [Review note](docs/REVIEW.md)
+
 ## Problem
 
-Ceramic pot filters work well, but local producers have no low-cost way to form them consistently.
+Ceramic pot filters work well, but local producers have no low-cost way to form them consistently. Imported presses cost about $3,000 to $3,500, locally built ones are one-off designs, and filter quality depends on an even wall and a consistent flow-rate check. Design with, not for: requirements must come from co-design sessions and trials with a working filter factory through a local partner.
 
 ## Concept
 
-Hydraulic press with printable mold geometry for silver-treated ceramic pot filters, plus a QC flow-rate test jig.
+A 20 t bottle jack on the base lifts a guided platen carrying a cast aluminum female mold against a fixed male mold, forming one filter (about 280 mm across and 10 L working volume) per stroke. The male mold is pinned to the top crossbeam for pressing and raised by a hand crank for loading, and the female mold slides out on a carriage for demolding. One parametric filter geometry drives the molds, their 3D-printed casting patterns and a printed T-gauge for the four-station, one-hour flow-rate test rack. First-order estimates: a cycle of about 5 min, 50 or more pots per shift, and about $716 in parts, over the $600 target (see the [review note](docs/REVIEW.md)).
 
 Full design precis: [docs/02-concept.md](docs/02-concept.md)
 
 ## Key components
 
-- 20 t bottle jack
-- Welded press frame
-- Aluminum or cast mold halves
-- Flow-test rig
+- Welded steel channel frame: base, uprights and top crossbeam
+- 20 t bottle jack, guided moving platen and return springs
+- Cast aluminum female and male molds, cast from 3D-printed patterns
+- Mold carriage with slide rails, and male mold slide with hand crank and load pins
+- Four-station QC flow-test rack with printed T-gauges and collection buckets
 
 The working bill of materials is in [bom/bom.csv](bom/bom.csv).
 
 ## Safety
 
-> Hydraulic presses store significant energy. Guard pinch points and never exceed the jack rating.
+> **Safety:** Hydraulic presses store significant energy. Guard pinch points, press only with the gate closed and both load pins home, and never exceed the jack rating. Molds are heavy; clay dust contains silica; silver compounds are corrosive. Passing the flow test does not prove a filter removes pathogens. See the safety section of the [design precis](docs/02-concept.md).
 
 ## Repository layout
 
