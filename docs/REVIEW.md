@@ -1,5 +1,71 @@
 # Review note: PotPress
 
+## Session 2026-09-25: TRL 3
+
+Authority: Amish wrote on 2026-09-25, "proceed with all of your recommendations across all batches. Make sure we don't proceed to TRL 4 on any of them." `project.yaml` now shows `trl: 3` and `trl_target: 3`. **TRL 4 is on hold by Amish's instruction.**
+
+### What was done
+
+- `docs/decisions/0001-trl2-review-decisions.md` (PPR-DDR-001 v0.1): TRL 2 items 1 to 8 recorded as decided by Amish, 2026-09-25: go with recommendation; item 9 and new items 10 to 15 left open.
+- `docs/04-calcs/01-sizing.md` (PPR-CAL-001 v0.1) and `docs/04-calcs/sizing.py`: geometry, mix and masses, pressure, frame, pin, welds, mold shells, deflection chain, travel, jack, crank, cycle, alignment stack, patterns, QC gauge and temperature correction, masses from the model, tipping, cost, and a results table for R1 to R12. The script reads `cad/src/model.py` and `bom/bom.csv` and prints every quoted number.
+- `cad/src/model.py`: parametric build123d model (filter, shell molds with locating lip and flash groove, UPN channel frame, platen with sleeves, rails and carriage, stem, 60 mm pin, lead screw and handwheel, 2 x 2 QC rack). Exports `cad/step/potpress-assembly.step`, `potpress-press.step`, `female-mold.step`, `male-mold.step`, `filter-pot.step`, `t-gauge.step` and matching STLs in `cad/stl/`.
+- `cad/src/sheets.py` and `cad/drawings/PPR-DWG-001.svg`, `.pdf`, `.png`: general arrangement at Rev P1, 1:20, marked "CONCEPT, NOT FOR FABRICATION" and "PRELIMINARY, NOT FOR FABRICATION". The concept sheet keeps PPR-DWG-010.
+- `bom/bom.csv`: 19 lines, all priced with supplier types, total $926; `bom/bom-notes.md` updated.
+- `cad/src/concept_media.py` now builds from the model and the calc; all media in `media/` regenerated and checked; temporary `media/_views*` folders deleted.
+- `docs/01-problem.md`, `docs/02-concept.md`, `docs/03-requirements.md` moved to v0.3; `README.md` updated; `project.yaml` set to TRL 3 with the evidence list and `budget_usd: 720`.
+
+### Requirements at TRL 3 (not met first)
+
+| ID | Result | Status |
+| --- | --- | --- |
+| R3 | Strength met (beams 190 MPa, pin 258 MPa of 650, uprights 54 MPa at 294 kN); deflection between molds 1.84 mm at 294 kN against 1 mm (0.61 mm at 10 t) | **Not met** |
+| R10 | $926 against $720 (press $845, QC rack $81) | **Not met**, 29 % over |
+| R11 | Four 345 mm rims need a 780 x 780 mm rack against 0.8 x 0.5 m; press frame 840 x 640 mm but 970 mm deep with the fixed rail extension | **Not met** |
+| R2 | Wall ±1.40 mm as cast; ±0.43 mm if hand-finished to templates | At risk |
+| R7 | 16 pattern segments on a 250 mm printer; finishing without a lathe unproven | At risk |
+| R8 | Heaviest part 38.9 kg as fabricated, but the welded frame is 147 kg in one piece | At risk |
+| R9 | Guards and interlocks only in the BOM, not modeled | At risk |
+| R1, R4, R5, R6, R12 | Filter geometry from one file; 5.2 min cycle and 69 pots per 6 h; 310 mm opening against 270 mm; 1.69 mm per 0.1 L; product-safe faces | Met on paper |
+
+TRL 2 errors corrected: the single UPN 100 base (about 1,071 MPa), the two 30 mm pins (about 1,034 MPa in bending), solid molds (would be 57 and 41 kg), the four-station rack in 800 x 440 mm (cannot fit), press mass 180 kg (now 298 kg) and cost $716 (now $926).
+
+### Decisions recorded
+
+Decided by Amish, 2026-09-25: go with recommendation (PPR-DDR-001): jack below; crank lift with a load pin and a standard jack; cast aluminum molds from printed patterns (concrete-backed variant documented only); welded frame; slide-out and tilt demolding; manual QC rack and T-gauge; default band 1.0 to 2.5 L/h corrected to 25 °C; `budget_usd` raised to $720.
+
+### Proposed, awaiting Amish
+
+1. First co-design partner (item 9): left open under the portfolio rule; no choice made.
+2. R3: judge deflection at the 10 t working force with the molds closing on a metal stop (recommended), rather than at 294 kN.
+3. R11: allow 0.8 x 0.8 m for the 2 x 2 QC rack (recommended); also a hinged front rail extension for the press depth.
+4. Frame joints: bolt the four upright joints (4 x M20 8.8 each) so no part exceeds 40 kg (recommended).
+5. Load pin: one 60 mm 42CrMo4 pin with a pin-presence interlock (recommended, as modeled) or two pins at two stations.
+6. Cost gap of $206: raise `budget_usd` to about $930 (recommended), or cost the QC rack separately and build the concrete-backed molds first.
+7. Scrap aluminum must be lead-free (recommended) or new A356 ingot.
+
+### Safety concerns
+
+- The single load pin carries the whole press force; a missing or half-inserted pin ejects the male mold. The pin-presence interlock is essential, not optional.
+- Guards, gate and interlocks are BOM lines, not yet modeled or designed (R9 at risk).
+- The press is about 298 kg with its center of mass about 0.8 m up; about 740 N at 1 m tips it forward. Anchor it.
+- Handwheel at about 1.8 m: awkward overhead cranking; the self-locking screw holds the mold if released.
+- Lead in scrap aluminum could contaminate a drinking-water product; specify lead-free scrap.
+- Silica dust, silver compounds and kiln heat in the same workshop; a passing flow test is not proof of pathogen removal.
+- All strengths are paper values; a proof load test by a competent person is needed before any use, and that is TRL 4 work.
+
+### Citations
+
+- Henry, Maley and Mehta, "Designing a Low-Cost Ceramic Water Filter Press", *IJSLE* 8 (1), 2013: checked this session through a public PDF copy. It confirms the $2,300 Potters Without Borders press (over $3,000 with labor), a target under $200 built by two people in two days, and a 2 t car jack for round-bottom filters. The journal page itself blocks automated fetching.
+- CMWG (2011) best practice recommendations: title confirmed by web search, but the PDF returned HTTP 403, so it is still cited for scope only, not for specific numbers. Flag kept.
+
+### Existing TRL 4 material
+
+None found. `build-log/README.md` is the scaffold header only; `electronics/` and `firmware/` are empty. Nothing was added to them.
+
+### Recommended next step
+
+Amish to decide items 2 to 7 above (and the partner when the area is ready), after which the requirement and cost changes can be folded into v0.4 of the documents at TRL 3. **TRL 4 is on hold by Amish's instruction.** For reference only, TRL 4 would need: a built press and molds, a proof load test to 294 kN with the pin interlock working, measured mold gap deflection and wall thickness on sectioned pots, a timed cycle trial, T-gauge calibration by volume, a test report (TST) with `environment: lab` and build log entries. None of this should start without a new instruction.
+
 ## Session 2026-09-25: /populate to a strong TRL 2 (overnight batch run)
 
 ### What was done

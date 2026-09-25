@@ -1,13 +1,13 @@
 # BOM notes
 
-Prices are indicative concept estimates (TRL 2) and will be confirmed with named suppliers at TRL 3. Item numbers match the exploded view (`media/exploded.png`). Items 15 to 19 are not modeled.
+Prices are indicative 2026 estimates for regional small-town suppliers, derived in PPR-CAL-001 (`python docs/04-calcs/sizing.py`) from the model masses: steel at $1.30/kg, cast aluminum at 1.35 kg poured per kg of casting and $2.00/kg scrap plus a $1.50/kg foundry fee, and PLA at $20/kg. Bought items are regional retail estimates. They are not quotes. Item numbers match the exploded view (`media/exploded.png`). Items 15 to 19 are not modeled.
 
-Item 11, the pressed filter pot, is the product. It is listed so the numbering matches the exploded view and carries no cost.
+Item 11, the pressed filter pot, is the product. It is listed so the numbering matches the exploded view and is priced at $0.
 
-| Group | Items | Indicative cost |
+| Group | Items | Cost |
 | --- | --- | --- |
-| Press | 1 to 10, 15 to 18 | about $645 |
-| QC rack | 12 to 14, 19 | about $71 |
-| **Total** | all | **about $716** |
+| Press | 1 to 10, 15 to 18 | $845 |
+| QC rack | 12 to 14, 19 | $81 |
+| **Total** | all | **$926** |
 
-The total is about $116 (19 %) over the $600 target in requirement R10 and the `project.yaml` budget. The molds and patterns (items 8, 9 and 15) are about $255 of it. Options are set out in `docs/REVIEW.md`; the budget is unchanged until Amish decides.
+The total is $206 (29 %) over the $720 budget that Amish set on 2026-09-25, so requirement R10 is not met. The largest items are the patterns ($112), the female mold ($102), the male mold slide with its alloy-steel pin and lead screw ($92) and the uprights ($77). Options are in PPR-DDR-001 item 14, awaiting Amish. Mold scrap must be lead-free (item 15).

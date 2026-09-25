@@ -1,20 +1,20 @@
 item,qty,spec,supplier,unit_cost_usd,make_buy,notes
-1 Base and feet,1,"UPN 100 channel crossbeam 920 mm on two 640 mm channel feet, welded",Local steel stockist,40.00,make,Indicative price
-2 Uprights,2,"Pairs of UPN 100 channel, back to back, about 1.2 m",Local steel stockist,25.00,make,Indicative price; about $50 for both
-3 Top crossbeam,1,"Two UPN 160 channels, 840 mm, with a square guide collar for the male mold stem",Local steel stockist,45.00,make,Indicative price; section to be checked at TRL 3
-4 20 t bottle jack,1,"20 t hydraulic bottle jack, about 150 mm stroke, with screw extension and release valve",Hardware store,50.00,buy,Indicative price; long-ram option in PPR-PRC-001
-5 Moving platen with guide sleeves,1,"20 mm steel plate 520 x 320 mm with two welded sleeves riding on the uprights",Local steel stockist,40.00,make,Indicative price
-6 Return springs,2,"Tension springs, about 300 N each, with hooks",Hardware store,5.00,buy,Indicative price
-7 Mold carriage and slide rails,1,"Steel flat-bar rails on the platen, carriage with end stops, pull handle and tilt pivot for demolding",Local fabrication shop,35.00,make,Indicative price
-8 Female mold,1,"Cast aluminum shell about 20 kg, cavity for the reference filter, rim counterbore; cast from printed pattern",Local foundry,110.00,make,Indicative price; about 20 kg of scrap alloy plus foundry fee
-9 Male mold,1,"Cast aluminum plug about 12 kg with rim-forming flange; cast from printed pattern",Local foundry,75.00,make,Indicative price
-10 Male mold slide and crank,1,"Square steel stem, hand-crank lead screw lift, two 30 mm load pins",Local fabrication shop,45.00,make,Indicative price; load pins take the press force; the screw carries only the mold weight
-11 Pressed filter pot,1,"Product: reference filter, about 8 kg of mix",Factory,0.00,make,Shown for context; not a press cost
-12 QC flow-test rack,1,"Steel angle or hardwood rack with 4 filter stations, 800 x 440 x 560 mm",Local fabrication shop,35.00,make,Indicative price; two stations modeled
-13 Printed T-gauges,4,"PETG dipstick with a scale in L/h generated from the filter geometry",Maker space,2.00,make,Indicative price
-14 Collection buckets,4,"20 L food-grade polyethylene buckets",Market,4.00,buy,Indicative price
-15 Printed casting patterns,1,"PLA patterns for items 8 and 9 in segments, about 3.5 kg of filament, sealed and waxed",Maker space,70.00,make,Indicative price; not modeled
-16 Guards and front gate,1,"Welded mesh side and back guards, hinged front gate with interlock on the jack release",Local fabrication shop,45.00,make,Indicative price; not modeled
-17 Release liners and trim tool,1,"Food-grade polyethylene liner sheets, wire trim tool, sponge",Market,10.00,buy,Indicative price; not modeled
-18 Fasteners and finish,1,"Bolts, washers, rubber feet, primer and paint (lead-free, not on mold faces)",Hardware store,20.00,buy,Indicative price; not modeled
-19 QC timer and thermometer,1,"Kitchen timer and a 0 to 50 C thermometer for water temperature",Market,12.00,buy,Indicative price; not modeled
+1 Base beam feet and jack plate,1,"Two UPN 160 channels 840 mm with a 100 mm gap between webs, 200 x 180 x 20 mm jack bearing plate, two UPN 100 feet 640 mm bolted on; S275; about 51 kg",Local steel stockist (sections and plate),66.00,make,PPR-CAL-001 mass x $1.30/kg; beam weldment about 37 kg; feet about 7 kg each
+2 Upright pair,2,"Two UPN 100 channels back to back (100 x 100 mm) about 1.40 m long, sandwiched between the beam channels; S275; about 30 kg per pair",Local steel stockist (sections),38.50,make,PPR-CAL-001 mass x $1.30/kg; 54 MPa at 294 kN
+3 Top crossbeam with pin doublers,1,"Two UPN 160 channels 840 mm, 12 mm web doublers 200 mm long at the pin, 62 mm pin bore, UHMW-PE stem guide liners; S275; about 37 kg",Local steel stockist (sections and plate); plastics supplier (UHMW-PE),56.00,make,Steel about $48 plus liners about $8; 190 MPa at 294 kN
+4 20 t bottle jack,1,"20 t hydraulic bottle jack, about 150 mm stroke, about 60 mm ram, screw extension, release valve; about 13 kg",Hardware or automotive tool store,60.00,buy,Regional retail estimate; 110 mm of stroke used
+5 Moving platen with guide sleeves,1,"Two UPN 140 channels 480 mm, 6 mm deck, 20 mm jack pad, two 10 mm plate guide sleeves 150 mm tall on the uprights (1 mm diametral clearance); about 39 kg",Local steel stockist (sections and plate),51.00,make,PPR-CAL-001 mass x $1.30/kg; 98 MPa at 294 kN
+6 Return springs,2,"Tension springs, about 300 N each, with hooks, base to platen",Hardware store,5.00,buy,Gravity alone returns the platen; springs keep it seated on the ram
+7 Rails and mold carriage,1,"Four 30 x 15 mm flat-bar rails at 60 and 170 mm each side of the axis, extending 430 mm to the front, UHMW-PE slide strips, back end stop, carriage frame with pull handle and tilt pivots; about 20 kg",Local fabrication shop; plastics supplier (UHMW-PE),34.00,make,Steel about $26 plus slide strips about $8
+8 Female mold,1,"Cast aluminum-silicon shell 20 mm on a 30 mm solid base, 410 mm flange with 10 mm locating lip, rim counterbore, flash groove; about 24 kg; cavity finished to printed templates",Local aluminum foundry (sand casting),102.00,make,24 kg x 1.35 poured x $2.00/kg scrap plus $1.50/kg foundry fee; scrap must be lead-free (no free-machining alloys)
+9 Male mold,1,"Cast aluminum-silicon hollow plug, 15 mm shell, 30 mm tip, 390 mm rim-forming flange that centers in the female lip; about 18 kg",Local aluminum foundry (sand casting),75.00,make,Same basis as item 8
+10 Male mold slide and crank,1,"SHS 90 x 90 x 8 stem with adapter plate and pin block, one 60 mm load pin in 42CrMo4 quenched and tempered (about 5 kg), crank bracket, Tr24 x 5 lead screw and nut, 260 mm handwheel; about 36 kg",Local steel stockist; bearing and transmission supplier (lead screw),92.00,make,Steel about $40 plus pin bar $15 plus screw and nut $25 plus handwheel $12; screw lifts only
+11 Pressed filter pot,1,"Product: reference filter, about 7.5 kg of mix",Filter factory (product),0.00,make,Shown for context; the product is not a press cost
+12 QC flow-test rack,1,"2 x 2 station rack 780 x 780 x 550 mm: 40 x 40 x 4 steel angle legs and edge frames, plywood pot shelf with four 316 mm holes, bucket shelf",Local fabrication shop; timber merchant,45.00,make,About 31 kg; rack area misses R11 (PPR-CAL-001)
+13 Printed T-gauge,4,"PETG dipstick, 340 mm crossbar, 100 mm scale in liters generated from the filter geometry (1.0 L is about 16.7 mm)",Maker space or university 3D printer,2.00,make,About 55 g each
+14 Collection bucket,4,"20 L food-grade HDPE bucket, about 300 mm diameter",Market,4.00,buy,Regional retail estimate
+15 Printed casting patterns,1,"PLA patterns for items 8 and 9 with 1.3 % shrink allowance, 16 segments for a 250 mm printer (about 5.1 kg of filament), sealed and waxed",Maker space or university 3D printer; filament supplier,112.00,make,5.1 kg x $20/kg plus $10 sealer and wax
+16 Guards and front gate,1,"Welded mesh side and back guards on angle frames, hinged front gate with an interlock on the jack release, load pin presence switch or blocking plate",Local fabrication shop,55.00,make,Not modeled; about 2.5 m2 of mesh plus 10 kg of angle plus interlock hardware
+17 Release liners and trim tool,1,"Food-grade polyethylene liner sheets, wire trim tool, sponge",Market,10.00,buy,Not modeled
+18 Fasteners consumables and finish,1,"M20 and M12 bolts for feet and guards, rubber pads, welding electrodes (about 5 kg E6013), grinding discs, lead-free primer and paint (not on mold faces)",Hardware store,45.00,buy,Not modeled
+19 QC timer and thermometer,1,"Kitchen timer and a 0 to 50 C thermometer for the water temperature correction",Market,12.00,buy,Not modeled

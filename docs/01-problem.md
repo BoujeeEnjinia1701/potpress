@@ -3,7 +3,7 @@ doc_id: PPR-PRB-001
 title: PotPress problem statement
 project: PotPress
 doc_type: Problem statement
-version: "0.2"
+version: "0.3"
 status: Draft
 date: '2026-09-25'
 author: Amish Chadha
@@ -17,6 +17,10 @@ revisions:
   date: '2026-09-25'
   author: Amish Chadha
   change: Populate to TRL 2 (users, context, constraints, out of scope, prior work with sources, co-design checklist)
+- version: "0.3"
+  date: '2026-09-25'
+  author: Amish Chadha
+  change: Budget constraint $720 as decided by Amish (PPR-DDR-001); Penn State press paper checked; partner question left open
 ---
 
 # PotPress problem statement
@@ -31,7 +35,7 @@ The ceramic pot filter is one of the best-studied household options. It is a flo
 
 The technology is proven, but making it well is hard for a small workshop:
 
-1. **The press is the costly item.** The Potters for Peace press uses a 20 t hydraulic jack, a removable female mold and a male mold on a movable shaft, and costs about $3,000 to $3,500 imported before shipping and duties. A press built locally in Nigeria from cast iron, steel and scrap aluminum cost about $1,000 ([Manufacturing a Ceramic Water Filter Press for Use in Nigeria, IntechOpen](https://www.intechopen.com/chapters/71402)), and a Penn State team showed a proof-of-concept press that two people built in two days for about one-tenth of the cost of popular presses ([Henry, Maley and Mehta](https://sites.psu.edu/hese/2016/03/16/designing-a-low-cost-ceramic-water-filter-press/); [paper, IJSLE](https://ojs.library.queensu.ca/index.php/ijsle/article/view/4532)). Neither is maintained as an open, parametric design.
+1. **The press is the costly item.** The Potters for Peace press uses a 20 t hydraulic jack, a removable female mold and a male mold on a movable shaft, and costs about $3,000 to $3,500 imported before shipping and duties. A press built locally in Nigeria from cast iron, steel and scrap aluminum cost about $1,000 ([Manufacturing a Ceramic Water Filter Press for Use in Nigeria, IntechOpen](https://www.intechopen.com/chapters/71402)), and a Penn State team designed a press to cost under $200 and be built by two people in two days, against $2,300 for the Potters Without Borders press (over $3,000 with labor), forming round-bottom filters with a 2 t car jack ([Henry, Maley and Mehta](https://sites.psu.edu/hese/2016/03/16/designing-a-low-cost-ceramic-water-filter-press/); [paper, IJSLE 8 (1), 2013](https://ojs.library.queensu.ca/index.php/ijsle/article/view/4532)). Neither is maintained as an open, parametric design.
 2. **Mold making needs tools the workshop may not have.** The Nigerian team had trouble finding a lathe large enough to finish the cast molds, and dimensioning errors in the drawings had to be corrected during machining (IntechOpen chapter above).
 3. **Consistency decides whether a filter works.** Flow rate and bacteria removal depend on the burnout ratio, burnout particle size and firing temperature; for example, larger rice husk particles raised flow but cut E. coli log reduction from 2.8 to 0.7 ([Heijman et al., 2015](https://www.academia.edu/68960939/Critical_parameters_in_the_production_of_ceramic_pot_filters_for_household_water_treatment_in_developing_countries)). An even wall, pressed to the same thickness every time, is the part of that chain the press controls.
 4. **Quality control is manual and varies by factory.** Factories soak each fired filter for 4 to 24 h, fill it and measure the drop after one hour with a calibrated dipstick (a "T-device"), but acceptance bands differ: 2.0 to 3.0 L/h at one factory, 1.5 to 3.0 L/h at another and 1.0 to 2.5 L/h in the first hour in Nicaragua ([Rayner, 2009, WEDC](https://bdd.pseau.org/outils/ouvrages/wedc_current_practices_in_manufacturing_locally_made_ceramic_pot_filters_2009.pdf)). Industry guidance is gathered in the Ceramics Manufacturing Working Group's best practice recommendations ([CMWG, 2011](https://www.ircwash.org/sites/default/files/CMWG-2011-Best.pdf)).
@@ -55,7 +59,7 @@ The technology is proven, but making it well is hard for a small workshop:
 
 ## Constraints
 
-- Garage-buildable prototype, about $600 USD in parts.
+- Garage-buildable prototype, $720 USD in parts (raised from $600 by Amish on 2026-09-25, PPR-DDR-001).
 - Frame buildable with a stick welder, grinder and drill press; no machining that needs a large lathe or mill.
 - No mains power needed to press or to run the flow test; hand-pumped hydraulics only.
 - Mold geometry defined parametrically so that a factory can change size or wall thickness and generate new patterns and gauges from the same source.
@@ -77,7 +81,7 @@ The technology is proven, but making it well is hard for a small workshop:
 
 ## Open questions
 
-- Which partner factory or organization first (for example an existing Potters for Peace network factory, an NGO planning a new factory, or a university ceramics lab)? Proposed, awaiting Amish.
+- Which partner factory or organization first (for example an existing Potters for Peace network factory, an NGO planning a new factory, or a university ceramics lab)? Proposed, awaiting Amish; under the portfolio rule, partners are picked per area later.
 - Which reference filter size to model first: the common 280 by 250 mm form, or the partner's own mold?
 - Is a local aluminum foundry within reach of the first partner, or must the molds use another material?
 - What flow acceptance band does the partner use, and does it correct for water temperature?
