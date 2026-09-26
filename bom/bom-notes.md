@@ -6,8 +6,8 @@ Item 11, the pressed filter pot, is the product. It is listed so the numbering m
 
 | Group | Items | Cost |
 | --- | --- | --- |
-| Press | 1 to 10, 15 to 18 | $845 |
+| Press | 1 to 10, 15 to 18 | $903 |
 | QC rack | 12 to 14, 19 | $81 |
-| **Total** | all | **$926** |
+| **Total** | all | **$984** |
 
-The total is $206 (29 %) over the $720 budget that Amish set on 2026-09-25, so requirement R10 is not met. The largest items are the patterns ($112), the female mold ($102), the male mold slide with its alloy-steel pin and lead screw ($92) and the uprights ($77). Options are in PPR-DDR-001 item 14, awaiting Amish. Mold scrap must be lead-free (item 15).
+The total is $54 (6 %) over the $930 budget that Amish set on 2026-09-25 (PPR-DDR-002), so requirement R10 is not met. The $930 figure covered the earlier $926 total; the decided bolted upright joints (16 M20 x 150 grade 8.8 bolt sets at $3.00, in item 2) and the hinged rail extension (hinges and stop lugs, $10, in item 7) add $58. The largest items are the uprights with their bolts ($124), the patterns ($112), the female mold ($102) and the male mold slide with its alloy-steel pin and lead screw ($92). Options for the remaining gap are proposed in PPR-DDR-002, awaiting Amish. Mold scrap must be lead-free (decided, PPR-DDR-001 item 15), and item 16 includes the decided pin-presence interlock (item 13).

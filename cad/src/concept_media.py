@@ -34,7 +34,7 @@ render_all(
                  f"About {m['charge']:.1f} kg mix per pot; about {m['fired']:.1f} kg fired (est.)",
                  f"Cycle about {c['total_min']:.1f} min; about {c['pots_6h']:.0f} pots per 6 h (est.)",
                  "QC: 1.0 to 2.5 L/h in the first hour, at 25 C",
-                 "Press 840 x 640 x 1,806 mm, about 300 kg (est.)"],
+                 "Press 840 x 655 x 1,806 mm, rails folded; about 300 kg (est.)"],
     cut_exclude=("Return springs", "Printed T-gauge"),
     flow={"title": "material flow per filter, mixed charge to passed filter (all values are estimates)", "unit": "kg",
           "stages": [("Mixed charge", round(m["charge"], 1)), ("Pressed pot", round(m["pressed"], 1)),

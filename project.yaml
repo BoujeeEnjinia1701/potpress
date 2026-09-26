@@ -1,4 +1,4 @@
-# Card metadata consumed by https://amishchadha.com
+# Card metadata consumed by https://designmolecule.com
 name: PotPress
 slug: potpress
 area: Water Security
@@ -9,6 +9,7 @@ trl_evidence:
   - docs/02-concept.md
   - docs/03-requirements.md
   - docs/decisions/0001-trl2-review-decisions.md
+  - docs/decisions/0002-recommendations-accepted.md
   - docs/04-calcs/01-sizing.md
   - docs/04-calcs/sizing.py
   - cad/src/model.py
@@ -21,7 +22,7 @@ pitch: >-
   Hydraulic press with printable mold geometry for silver-treated ceramic pot filters, plus a QC flow-rate test jig.
 problem: >-
   Ceramic pot filters work well, but local producers have no low-cost way to form them consistently.
-budget_usd: 720  # raised from 600 by Amish, 2026-09-25 (PPR-DDR-001)
+budget_usd: 930  # raised from 600 to 720, then to 930 by Amish, 2026-09-25 (PPR-DDR-001, PPR-DDR-002)
 difficulty: 3  # 1 easiest, 5 hardest
 hero_image: media/hero.png
 licenses:

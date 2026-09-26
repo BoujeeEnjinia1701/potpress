@@ -51,6 +51,8 @@ PATTERN_FILL = 0.25                     # printed pattern mass fraction of a sol
 PLA_RHO = 1240.0
 AL_SHRINK = 0.013                       # linear pattern shrink allowance
 BED = 250.0                             # printer bed, mm (R7)
+BOLT_USD = 3.00                         # M20 x 150 8.8 bolt, nut and two washers, regional retail
+HINGE_USD = 10.0                        # two weld-on barrel hinges and stop lugs for the rail extension
 
 
 def frustum(r0, r1, h):
@@ -136,6 +138,9 @@ def frame():
     f["weld_tau_design"] = (F_DESIGN / 2) / (f["weld_len"] * 6 * 0.707)
     # Bolted option: 4 x M20 8.8 in double shear per joint (thread in the shear plane)
     f["bolt_tau_design"] = (F_DESIGN / 2) / (4 * 2 * 245)
+    f["bolt_brg_web_design"] = (F_DESIGN / 2) / (4 * 2) / (P["JOINT_BOLT_D"] * b["tw"])     # on each beam web
+    f["bolt_brg_flg_design"] = (F_DESIGN / 2) / (4 * 2) / (P["JOINT_BOLT_D"] * u["tf"])     # on each upright flange
+    f["n_bolts"] = 4 * 4
     # Platen: rails at +-60 and +-170 mm, F/4 each, support at the jack
     xr = P["RAIL_X"]
     Wp = 2 * pl["Wx"]; Ip = 2 * pl["Ix"]
@@ -287,6 +292,12 @@ def masses():
         rho = {8: RHO_AL, 9: RHO_AL, 11: 1640.0, 12: RHO_PLY, 13: 1270.0, 14: 950.0}.get(bom, RHO_ST)
         ms[bom] = v * rho
     ms[3] -= v_guides * (RHO_ST - RHO_UHMW)
+    # Joint bolts are modeled in item 2; report them separately (M20 x 150 8.8 with nut, about 0.45 kg each)
+    ms["bolts"] = 16 * 0.45
+    b_ = S[P["BEAM_SEC"]]; rb_ = P["JOINT_BOLT_D"] / 2; yb = P["BEAM_GAP"] / 2 + b_["tw"]
+    v_bolt = math.pi * rb_ ** 2 * (2 * yb + 38) + 2 * math.pi * (1.5 * rb_) ** 2 * 14.5 - \
+        math.pi * rb_ ** 2 * (2 * b_["tw"] + 2 * S[P["UPRIGHT_SEC"]]["tf"])     # less the holes it fills
+    ms[2] -= 16 * v_bolt / 1e9 * RHO_ST
     # QC rack: legs are steel angle 40 x 40 x 4 (2.42 kg/m), shelves plywood; recompute legs as angle
     leg_len = 4 * P["QC_SHELF_Z"] / 1000
     leg_vol = 4 * P["QC_LEG"] ** 2 * P["QC_SHELF_Z"] / 1e9
@@ -306,6 +317,9 @@ def tipping(ms, ctr):
     cz = sum(ms[i] * ctr[i].Z for i in press) / M
     t["mass"], t["cg_y"], t["cg_z"] = M, cy, cz
     moving = ms[8] + 7.4 + 8.0                                   # female mold, charge, carriage frame
+    t["moving"] = moving
+    t["hinge_Nm"] = moving * G * (P["CARRIAGE_OUT"] - P["RAIL_HINGE"]) / 1000     # on the hinged extension
+    t["hinge_lug_N"] = t["hinge_Nm"] / 0.012 / 2                  # two stop lugs, 12 mm below the hinge line
     cy_out = (M * cy - moving * P["CARRIAGE_OUT"]) / M
     edge = -P["FOOT_L"] / 2
     t["cg_y_out"] = cy_out
@@ -317,11 +331,11 @@ def tipping(ms, ctr):
 def costs(ms, pat):
     c = {}
     steel = lambda i: ms[i] * STEEL_USD_KG
-    c[1] = steel(1); c[2] = steel(2); c[3] = steel(3) + 8.0   # UHMW guide liners
+    c[1] = steel(1); c[2] = steel(2) + 16 * BOLT_USD; c[3] = steel(3) + 8.0   # joint bolts; UHMW guide liners
     c[4] = 60.0
     c[5] = steel(5)
     c[6] = 2 * 5.0
-    c[7] = steel(7) + 8.0                                       # UHMW slide strips
+    c[7] = steel(7) + 8.0 + HINGE_USD                           # UHMW slide strips; extension hinges and lugs
     for i in (8, 9):
         c[i] = ms[i] * POUR_FACTOR * AL_SCRAP_USD_KG + ms[i] * FOUNDRY_USD_KG
     pin_kg = math.pi * (P["PIN_D"] / 2) ** 2 * P["PIN_L"] / 1e9 * RHO_ST
@@ -381,7 +395,7 @@ def main():
     print(f"  pin bearing on web plus doubler {f['pin_brg_web_design']:.0f} MPa (web alone {f['pin_brg_web_nodbl_design']:.0f}); on pin block {f['pin_brg_blk_design']:.0f} MPa; tear-out, ligament {f['pin_ligament']:.1f} mm, {f['pin_tear_design']:.0f} MPa")
     print(f"  TRL 2 pins (2 x 30 mm) at 30 t: shear {f['pin30_tau_design']:.0f} MPa, bending {f['pin30_sig_design']:.0f} MPa")
     print(f"  stem SHS {P['STEM']:.0f} x {P['STEM_T']:.0f}: A {f['stem_A']:.0f} mm2, {f['stem_sig_design']:.0f} MPa at 30 t")
-    print(f"  upright joint welds {f['weld_len']:.0f} mm of 6 mm fillet: {f['weld_tau_design']:.0f} MPa at 30 t (allow {WELD_ALLOW:.0f}); bolted option 4 x M20 8.8 double shear {f['bolt_tau_design']:.0f} MPa")
+    print(f"  upright joint welds {f['weld_len']:.0f} mm of 6 mm fillet: {f['weld_tau_design']:.0f} MPa at 30 t (allow {WELD_ALLOW:.0f}); bolted (chosen) 4 x M20 8.8 per joint, double shear {f['bolt_tau_design']:.0f} MPa, bearing on beam web {f['bolt_brg_web_design']:.0f} MPa, on upright flange {f['bolt_brg_flg_design']:.0f} MPa")
     print(f"  platen {P['PLATEN_SEC']} pair: {f['platen_sig_rated']:.0f} MPa at 20 t, {f['platen_sig_design']:.0f} MPa at 30 t")
     for tag, lab in (("work", "10 t"), ("rated", "20 t"), ("design", "30 t")):
         print(f"  {lab}: p {f['p_'+tag]:.2f} MPa; female floor {f['fm_floor_sig_'+tag]:.0f} MPa, male tip {f['mm_tip_sig_'+tag]:.0f} MPa, hoop female {f['fm_hoop_'+tag]:.0f} / male {f['mm_hoop_'+tag]:.0f} MPa (cast Al yield about {FY_AL:.0f})")
@@ -423,16 +437,17 @@ def main():
     print(f"  viscosity 20/25/30 C: {q['mu20']*1e3:.3f}/{q['mu25']*1e3:.3f}/{q['mu30']*1e3:.3f} mPa s; {q['per_C']:.1f} % per C at 25 C")
     print(f"  flow at 30 C / flow at 20 C = {q['ratio_30_20']:.2f}; correction to 25 C: x{q['corr_20']:.3f} at 20 C, x{q['corr_30']:.3f} at 30 C")
     print("10 Masses from the model (kg)")
-    print("  " + ", ".join(f"{i}: {v:.1f}" for i, v in sorted(ms.items()) if v is not None))
+    print("  " + ", ".join(f"{i}: {v:.1f}" for i, v in sorted((k_, v_) for k_, v_ in ms.items() if isinstance(k_, int)) if v is not None))
     frame_weld = ms[1] + ms[2] + ms[3]
-    print(f"  press items 1 to 10 {t['mass']:.0f} kg; welded frame (1 to 3) {frame_weld:.0f} kg; heaviest part as handled {max(ms[1] - 2 * 0.64 * 10.6, ms[2] / 2, ms[3], ms[5], ms[8], ms[9], ms[10]):.1f} kg")
-    print(f"  parts as handled (feet bolted): base beam {ms[1] - 2 * 0.64 * 10.6:.1f} kg, each foot {0.64 * 10.6:.1f} kg, each upright pair {ms[2] / 2:.1f} kg, top beam {ms[3]:.1f} kg, platen {ms[5]:.1f} kg, slide {ms[10]:.1f} kg")
+    print(f"  press items 1 to 10 {t['mass']:.0f} kg (plus joint bolts {ms['bolts']:.1f} kg); frame (1 to 3) {frame_weld:.0f} kg if fully welded; heaviest part as handled, bolted {max(ms[1] - 2 * 0.64 * 10.6, ms[2] / 2, ms[3], ms[5], ms[8], ms[9], ms[10]):.1f} kg")
+    print(f"  parts as handled (feet and upright joints bolted): base beam {ms[1] - 2 * 0.64 * 10.6:.1f} kg, each foot {0.64 * 10.6:.1f} kg, each upright pair {ms[2] / 2:.1f} kg, top beam {ms[3]:.1f} kg, platen {ms[5]:.1f} kg, slide {ms[10]:.1f} kg")
     print(f"  load pin {cost['pin_kg']:.1f} kg")
     print("11 Tipping")
     print(f"  press CG y {t['cg_y']:.0f} mm, z {t['cg_z']:.0f} mm; carriage out: CG y {t['cg_y_out']:.0f} mm vs front foot edge {-P['FOOT_L']/2:.0f} mm")
     print(f"  restoring moment {t['restoring_Nm']:.0f} N m; horizontal push at 1 m height to tip forward {t['push_N_at_1m']:.0f} N")
+    print(f"  hinged rail extension, carriage fully out: {t['moving']:.1f} kg at {P['CARRIAGE_OUT'] - P['RAIL_HINGE']:.0f} mm past the hinge, {t['hinge_Nm']:.0f} N m; {t['hinge_lug_N']:.0f} N on each of two stop lugs")
     print("12 Envelope")
-    print(f"  frame {P['BEAM_L']:.0f} x {P['FOOT_L']:.0f} mm; with the carriage rails {P['BEAM_L']:.0f} x {P['RAIL_BACK'] + P['CARRIAGE_OUT'] + P['FOOT_L'] / 2:.0f} mm; height {L['overall']:.0f} mm")
+    print(f"  frame {P['BEAM_L']:.0f} x {P['FOOT_L']:.0f} mm; rail extension folded {P['BEAM_L']:.0f} x {P['RAIL_HINGE'] + P['RAIL_H'] + P['FOOT_L'] / 2:.0f} mm; deployed for demolding {P['BEAM_L']:.0f} x {P['RAIL_BACK'] + P['CARRIAGE_OUT'] + P['FOOT_L'] / 2:.0f} mm; height {L['overall']:.0f} mm")
     qw = 2 * P["QC_PITCH"]
     print(f"  QC rack {qw:.0f} x {qw:.0f} x {P['QC_SHELF_Z']:.0f} mm; minimum for 4 rims in one row {4*(P['RIM_OD']+20):.0f} mm")
     print("13 Cost (USD)")

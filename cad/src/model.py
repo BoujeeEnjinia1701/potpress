@@ -52,6 +52,9 @@ PARAMS = {
     "UPRIGHT_SEC": "UPN100",  # each upright is two channels back to back (100 x 100)
     "FOOT_SEC": "UPN100",   # feet, lying web down
     "FOOT_L": 640.0,
+    "JOINT_BOLT_D": 20.0,   # M20 8.8 bolts, 4 per upright-to-beam joint (bolted frame, PPR-DDR-001 item 12)
+    "JOINT_BOLT_DX": 25.0,  # bolt offset either side of the upright centerline (X)
+    "JOINT_BOLT_DZ": 30.0,  # bolt offset above and below the beam mid-height (Z)
     "DOUBLER_T": 12.0,      # web doubler plates at the load pin
     "DOUBLER_L": 200.0,
     "BEARING_T": 20.0,      # jack bearing plate on the base beam
@@ -73,6 +76,8 @@ PARAMS = {
     "RAIL_H": 15.0,
     "RAIL_BACK": 220.0,     # rail end stop, +Y
     "CARRIAGE_OUT": 430.0,  # slide-out travel toward -Y
+    "RAIL_HINGE": 320.0,    # hinge line of the folding rail extension, in front of the axis (front foot edge)
+    "EXT_FOLDED": True,     # show the rail extension folded down (pressing); False = deployed for demolding
     # Male mold slide
     "STEM": 90.0,           # SHS 90 x 90 x 8
     "STEM_T": 8.0,
@@ -234,7 +239,18 @@ def build_parts(P=PARAMS):
         pair = channel_upright(sx * xs, -1, L["base0"], L["top1"], P["UPRIGHT_SEC"]) + \
             channel_upright(sx * xs, +1, L["base0"], L["top1"], P["UPRIGHT_SEC"])
         upr = pair if upr is None else upr + pair
-    parts.append(("Uprights", upr, "#6B7280", 2, (0, 0, 0)))
+    # Bolted joints: 4 x M20 through both beam webs and the upright flanges at each of the four joints
+    rbolt = P["JOINT_BOLT_D"] / 2
+    yb = g2 + b["tw"]
+    for sx in (-1, 1):
+        for zc in ((L["base0"] + L["base1"]) / 2, (L["top0"] + L["top1"]) / 2):
+            for dx in (-P["JOINT_BOLT_DX"], P["JOINT_BOLT_DX"]):
+                for dz in (-P["JOINT_BOLT_DZ"], P["JOINT_BOLT_DZ"]):
+                    x_, z_ = sx * xs + dx, zc + dz
+                    upr += cyl_y(rbolt, -yb - 13, yb + 25, x_, z_)             # shank, nut end at +Y
+                    upr += cyl_y(rbolt * 1.5, -yb - 13, -yb, x_, z_)           # head
+                    upr += cyl_y(rbolt * 1.5, yb, yb + 16, x_, z_)             # nut
+    parts.append(("Uprights with bolted joints", upr, "#6B7280", 2, (0, 0, 0)))
 
     # 3 Top crossbeam: two channels, web doublers at the pin, stem guide liners
     top = channel_x(-bl, bl, g2, +1, L["top0"], P["BEAM_SEC"]) + channel_x(-bl, bl, -g2, -1, L["top0"], P["BEAM_SEC"])
@@ -278,10 +294,19 @@ def build_parts(P=PARAMS):
     rails = None
     rw = P["RAIL_W"] / 2
     y_front = -P["RAIL_BACK"] - P["CARRIAGE_OUT"]
+    y_h = -P["RAIL_HINGE"]
+    ext_len = y_h - y_front
     for xr in P["RAIL_X"]:
         for sx in (-1, 1):
-            r = box(sx * xr - rw, sx * xr + rw, y_front, P["RAIL_BACK"], L["deck1"], L["rail1"])
+            r = box(sx * xr - rw, sx * xr + rw, y_h, P["RAIL_BACK"], L["deck1"], L["rail1"])       # fixed rail
+            if P["EXT_FOLDED"]:     # extension hangs down from the hinge, outside the front foot line
+                r += box(sx * xr - rw, sx * xr + rw, y_h - P["RAIL_H"], y_h, L["rail1"] - ext_len, L["rail1"])
+            else:
+                r += box(sx * xr - rw, sx * xr + rw, y_front, y_h, L["deck1"], L["rail1"])
             rails = r if rails is None else rails + r
+    for sx in (-1, 1):              # hinge cross bar with stop lugs under each rail pair
+        xa, xb = sorted((sx * (P["RAIL_X"][0] - rw), sx * (P["RAIL_X"][1] + rw)))
+        rails += box(xa, xb, y_h - 4, y_h + 12, L["deck1"] - 12, L["deck1"])
     rails += box(-200, 200, P["RAIL_BACK"], P["RAIL_BACK"] + 15, L["rail1"], L["rail1"] + 40)    # end stop
     fr = P["FM_BASE_D"] / 2 + 5
     car = box(-fr - 25, fr + 25, -fr - 25, fr + 25, L["rail1"], L["rail1"] + 12) - \
@@ -290,7 +315,7 @@ def build_parts(P=PARAMS):
         box(-70, 70, -fr - 60, -fr - 45, L["rail1"] + 12, L["rail1"] + 110)
     for sx in (-1, 1):   # tilt pivot bosses
         car += cyl_y(14, -20, 20, sx * (fr + 40), L["rail1"] + 25)
-    parts.append(("Rails and mold carriage", rails + car, "#374151", 7, (0, -520, 40)))
+    parts.append(("Rails, hinged extension and carriage", rails + car, "#374151", 7, (0, -520, 40)))
 
     # 8 Female mold: base disc, conical shell, top flange; cavity, rim counterbore, flash groove
     rb, rt, h = pot_outer(P)
@@ -410,6 +435,6 @@ if __name__ == "__main__":
     export_stl(press_only(parts), str(root / "stl" / "potpress-press.stl"))
     L = levels()
     bb = press_only(parts).bounding_box()
-    print(f"press envelope {bb.size.X:.0f} x {bb.size.Y:.0f} x {bb.size.Z:.0f} mm (carriage rails extended to the front)")
+    print(f"press envelope {bb.size.X:.0f} x {bb.size.Y:.0f} x {bb.size.Z:.0f} mm (rail extension folded; crank knob included)")
     print(f"overall height {L['overall']:.0f} mm; male tip above female rim when open {L['open_gap']:.0f} mm")
     print("wrote cad/step/*.step and cad/stl/*.stl")

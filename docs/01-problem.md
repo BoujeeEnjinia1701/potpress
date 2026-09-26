@@ -3,7 +3,7 @@ doc_id: PPR-PRB-001
 title: PotPress problem statement
 project: PotPress
 doc_type: Problem statement
-version: "0.3"
+version: "0.4"
 status: Draft
 date: '2026-09-25'
 author: Amish Chadha
@@ -21,6 +21,10 @@ revisions:
   date: '2026-09-25'
   author: Amish Chadha
   change: Budget constraint $720 as decided by Amish (PPR-DDR-001); Penn State press paper checked; partner question left open
+- version: "0.4"
+  date: '2026-09-25'
+  author: Amish Chadha
+  change: Recommendations accepted by Amish (DDR-002); budget constraint $930; lead-free scrap in the constraints
 ---
 
 # PotPress problem statement
@@ -59,11 +63,11 @@ The technology is proven, but making it well is hard for a small workshop:
 
 ## Constraints
 
-- Garage-buildable prototype, $720 USD in parts (raised from $600 by Amish on 2026-09-25, PPR-DDR-001).
+- Garage-buildable prototype, $930 USD in parts (raised from $600 to $720 and then to $930 by Amish on 2026-09-25, PPR-DDR-001 and PPR-DDR-002).
 - Frame buildable with a stick welder, grinder and drill press; no machining that needs a large lathe or mill.
 - No mains power needed to press or to run the flow test; hand-pumped hydraulics only.
 - Mold geometry defined parametrically so that a factory can change size or wall thickness and generate new patterns and gauges from the same source.
-- Everything that touches the clay or the test water must not contaminate a drinking-water product.
+- Everything that touches the clay or the test water must not contaminate a drinking-water product; molds are cast from lead-free scrap (decided by Amish, 2026-09-25).
 
 ## Out of scope
 

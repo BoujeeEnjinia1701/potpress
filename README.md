@@ -2,7 +2,7 @@
 
 ![TRL 3](https://img.shields.io/badge/TRL-3%20of%209-0F766E) ![Hardware: CERN-OHL-S-2.0](https://img.shields.io/badge/hardware-CERN--OHL--S--2.0-111827) ![Software: MIT](https://img.shields.io/badge/software-MIT-111827)
 
-**Area:** Water Security · **TRL:** 3 of 9 (proof of concept on paper) · **Prototype budget:** $720 USD · **Difficulty:** 3 of 5
+**Area:** Water Security · **TRL:** 3 of 9 (proof of concept on paper) · **Prototype budget:** $930 USD · **Difficulty:** 3 of 5
 
 Hydraulic press with printable mold geometry for silver-treated ceramic pot filters, plus a QC flow-rate test jig.
 
@@ -10,29 +10,68 @@ Hydraulic press with printable mold geometry for silver-treated ceramic pot filt
 
 [Interactive 3D model](media/viewer.html) · [Concept blueprint (PDF)](media/concept-blueprint.pdf) · [General arrangement PPR-DWG-001 (PDF)](cad/drawings/PPR-DWG-001.pdf) · [Sizing note PPR-CAL-001](docs/04-calcs/01-sizing.md) · [Review note](docs/REVIEW.md)
 
+## Concept rationale
+
+The ceramic pot filter already works; what holds small factories back is the press that forms it. A hydraulic press built from standard steel channel, a car-shop bottle jack and molds cast by any aluminum foundry from 3D-printed patterns can be made and repaired in the regions where the filters are needed, instead of imported at several thousand dollars. Every dimension of the pot, the molds, the patterns and the flow gauge comes from one parametric file, so a factory that changes its filter size regenerates all of them together rather than redrawing by hand.
+
+Keeping the design open matters because filter quality depends on details (an even wall, a consistent flow test) that each workshop now solves alone. An open, garage-buildable press lets factories, NGOs and university labs share improvements, compare results on the same geometry and build a second press when the first wears out.
+
+## Burning platform
+
+About 2.1 billion people still lacked safely managed drinking water in 2024, and 106 million drank untreated surface water ([WHO and UNICEF JMP, 2025](https://www.who.int/news/item/26-08-2025-1-in-4-people-globally-still-lack-access-to-safe-drinking-water---who--unicef)). WHO estimates that microbiologically contaminated drinking water causes about 505,000 diarrheal deaths each year, and that at least 1.7 billion people used a drinking water source contaminated with feces in 2022 ([WHO fact sheet, Drinking-water](https://www.who.int/news-room/fact-sheets/detail/drinking-water)).
+
+Locally made ceramic pot filters are one of the few household options with trial evidence behind them: in Cambodia, households using them had about half as much diarrheal disease as controls ([Brown, Sobsey and Loomis, 2008](https://researchonline.lshtm.ac.uk/id/eprint/1699/)). Yet an imported press costs about $3,000 to $3,500 before shipping and duties, and a locally built Nigerian press still cost about $1,000 ([IntechOpen](https://www.intechopen.com/chapters/71402)). The press is the gate on how many factories can start.
+
+## Where it could be used
+
+### By industry
+
+| Industry | Use |
+| --- | --- |
+| Household water treatment enterprises | Form filters with an even wall at a small factory and check every one on the QC rack |
+| Pottery and ceramics cooperatives | Add filter production to an existing kiln and clay supply with a press they can build and repair |
+| Humanitarian and disaster response | Set up filter production near displaced or flood-hit communities without importing a press |
+| Public health programs | Supply consistent filters to household water programs and record QC results the same way at every site |
+| University and research labs | Study mix, pressing and firing variables on a repeatable press and shared geometry |
+| Local fabrication shops and foundries | Build frames and cast molds from open drawings as a local service |
+
+### By country or region
+
+| Country or region | Why it matters there |
+| --- | --- |
+| Nicaragua | Potters for Peace became much more involved in filter development here after Hurricane Mitch in 1998, and Nicaraguan factories use a 1.0 to 2.5 L/h first-hour acceptance band ([Pitt history](https://www.engineering.pitt.edu/subsites/projects/ceramic-filter/history/); [Rayner, 2009](https://bdd.pseau.org/outils/ouvrages/wedc_current_practices_in_manufacturing_locally_made_ceramic_pot_filters_2009.pdf)) |
+| Guatemala | The filter was designed here in 1981 by Dr. Fernando Mazariegos at ICAITI ([Potters for Peace](https://www.pottersforpeace.org/ceramic-water-filter-project)) |
+| Cambodia | Locally made filters roughly halved diarrheal disease in a randomized trial ([Brown, Sobsey and Loomis, 2008](https://researchonline.lshtm.ac.uk/id/eprint/1699/)) |
+| Nigeria | A locally built press cost about $1,000 against $3,000 to $3,500 imported, and the team struggled to find a lathe large enough to finish the molds ([IntechOpen](https://www.intechopen.com/chapters/71402)) |
+| United States | University teams have designed low-cost presses for partner factories, for example Penn State's press targeting under $200 ([Henry, Maley and Mehta, 2013](https://ojs.library.queensu.ca/index.php/ijsle/article/view/4532)); an open design gives such labs a common reference |
+
+## What sparked the idea
+
+The starting point was Ron Rivera's work with Potters for Peace in Nicaragua. Rivera designed a mold for the filter and a clay press operated with a tire jack, and from 1998, the year Hurricane Mitch struck Central America, he traveled to set up 30 filter microenterprises across Latin America, Africa and Asia ([Ron Rivera, Wikipedia](https://en.wikipedia.org/wiki/Ron_Rivera_(public_health)); [University of Pittsburgh](https://www.engineering.pitt.edu/subsites/projects/ceramic-filter/history/)). That jack-and-mold press became the pattern most filter factories follow. PotPress takes the same principle and asks what it would look like as an openly maintained, parametric design, so that the next workshop can build its press and molds from shared files rather than from a one-off drawing.
+
 ## Problem
 
 Ceramic pot filters work well, but local producers have no low-cost way to form them consistently. Imported presses cost about $3,000 to $3,500, locally built ones are one-off designs, and filter quality depends on an even wall and a consistent flow-rate check. Design with, not for: requirements must come from co-design sessions and trials with a working filter factory through a local partner.
 
 ## Concept
 
-A 20 t bottle jack on the base lifts a guided platen carrying a cast aluminum female mold against a fixed male mold, forming one filter (280 mm inner rim, 9.9 L working volume) per stroke. The male mold is held by one 60 mm load pin in the top crossbeam for pressing and raised by a hand crank for loading, and the female mold slides out on a carriage for demolding. One parametric filter geometry drives the molds, their 3D-printed casting patterns and a printed T-gauge for the four-station, one-hour flow-rate test rack. TRL 3 calculations: a cycle of about 5.2 min and about 69 pots per 6 h, a frame that stays below yield at 1.5 times the jack rating, and $926 in parts, over the $720 budget. Deflection at 1.5 times the rating and the QC rack footprint also miss their targets (see the [review note](docs/REVIEW.md)).
+A 20 t bottle jack on the base lifts a guided platen carrying a cast aluminum female mold against a fixed male mold, forming one filter (280 mm inner rim, 9.9 L working volume) per stroke. The male mold is held by one 60 mm load pin in the top crossbeam for pressing and raised by a hand crank for loading, and the female mold slides out on a carriage for demolding. One parametric filter geometry drives the molds, their 3D-printed casting patterns and a printed T-gauge for the four-station, one-hour flow-rate test rack. TRL 3 calculations: a cycle of about 5.2 min and about 69 pots per 6 h, a frame that stays below yield at 1.5 times the jack rating, 0.61 mm of deflection between the molds at the 10 t working force, every part under 40 kg with the upright joints bolted, and $984 in parts, $54 over the $930 budget (see the [review note](docs/REVIEW.md)).
 
 Full design precis: [docs/02-concept.md](docs/02-concept.md)
 
 ## Key components
 
-- Welded steel channel frame: two UPN 160 beams, back-to-back UPN 100 uprights
+- Steel channel frame in welded subassemblies: two UPN 160 beams and back-to-back UPN 100 uprights, bolted at the upright joints with 4 x M20 8.8 each
 - 20 t bottle jack, guided moving platen and return springs
 - Cast aluminum shell molds (about 24 and 18 kg), cast from 3D-printed patterns
-- Mold carriage with slide rails, and male mold slide with hand crank and one load pin
+- Mold carriage on slide rails with a hinged front extension that folds down, and male mold slide with hand crank, one load pin and a pin-presence interlock
 - Four-station (2 x 2) QC flow-test rack with printed T-gauges and collection buckets
 
 The working bill of materials is in [bom/bom.csv](bom/bom.csv).
 
 ## Safety
 
-> **Safety:** Hydraulic presses store significant energy. Guard pinch points, press only with the gate closed and the load pin fully home, and never exceed the jack rating. Molds are heavy; clay dust contains silica; silver compounds are corrosive. Passing the flow test does not prove a filter removes pathogens. See the safety section of the [design precis](docs/02-concept.md).
+> **Safety:** Hydraulic presses store significant energy. Guard pinch points, press only with the gate closed and the load pin fully home (the interlock enforces this), and never exceed the jack rating. Molds are heavy; clay dust contains silica; silver compounds are corrosive. Passing the flow test does not prove a filter removes pathogens. See the safety section of the [design precis](docs/02-concept.md).
 
 ## Repository layout
 
@@ -57,4 +96,4 @@ Controlled documents follow the portfolio [documentation standard](.kit/STANDARD
 - **Hardware** (CAD, drawings, BOM, electronics): [CERN-OHL-S v2](LICENSE)
 - **Software** (firmware, scripts, notebooks): [MIT](LICENSE-SOFTWARE)
 
-Part of the open hardware portfolio at [amishchadha.com](https://amishchadha.com).
+A project of the [Design Molecule](https://designmolecule.com) lab.

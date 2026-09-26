@@ -1,5 +1,56 @@
 # Review note: PotPress
 
+## Session 2026-09-25: recommendations accepted
+
+Authority: Amish wrote on 2026-09-25, "i accept all your recommendations, go with them across all repos." Every item with a recommendation is now **Decided by Amish, 2026-09-25: go with recommendation** (recorded in `docs/decisions/0002-recommendations-accepted.md`, PPR-DDR-002 v0.1, and in PPR-DDR-001 v0.2). `project.yaml` keeps `trl: 3` and `trl_target: 3`.
+
+### Decisions applied and what changed
+
+| # | Decision | Before | After |
+| --- | --- | --- | --- |
+| 10 | R3 judged at the 10 t working force, molds closing on a metal stop | Under 1 mm at 294 kN: 1.84 mm, not met | Under 1 mm at 10 t: 0.61 mm, met on paper (stop face already modeled) |
+| 11 | R11 rack 0.8 x 0.8 m, hinged front rail extension | Rack limit 0.8 x 0.5 m, not met; press 970 mm deep | Rack 780 x 780 mm fits; rails fixed to 320 mm with a 330 mm folding extension, press 840 x 655 mm; met on paper |
+| 12 | Upright joints bolted, 4 x M20 8.8 each | Welded frame 147 kg in one piece; R8 at risk | 16 bolts modeled; 75 MPa shear, 123 MPa bearing at 294 kN; largest frame part 37.4 kg; R8 met on paper |
+| 13 | One 60 mm pin with a pin-presence interlock | Interlock "switch or blocking plate" | Mechanical pin-presence interlock on the jack release (BOM item 16, R9 text) |
+| 14 | Raise the budget | `budget_usd` $720 | `budget_usd` $930 |
+| 15 | Lead-free scrap for the molds | Proposed | In R12 and the PPR-PRB-001 constraints |
+
+Files changed: `project.yaml` (budget, evidence list); `README.md` (numbers, components, four new write-up sections); `docs/01-problem.md` v0.4; `docs/02-concept.md` v0.4; `docs/03-requirements.md` v0.4; `docs/04-calcs/01-sizing.md` v0.2 and `sizing.py` (bolt bearing, hinge moment, folded envelope, bolt and hinge costs); `docs/decisions/0001-trl2-review-decisions.md` v0.2; new `docs/decisions/0002-recommendations-accepted.md`; `cad/src/model.py` (joint bolts, hinged rail extension) with STEP and STL re-exported; `cad/src/sheets.py` and PPR-DWG-001 at Rev P2; `cad/src/concept_media.py` and all `media/` regenerated; `bom/bom.csv` (items 2, 7, 8, 9, 16) and `bom/bom-notes.md`; all PDFs in `docs/pdf/` re-rendered.
+
+Cost: items 2 ($77 to $124, joint bolts) and 7 ($34 to $45, hinges and lugs) take the BOM from $926 to **$984**, $54 (6 %) over the new $930 budget.
+
+### Requirements now (not met first)
+
+| ID | Status |
+| --- | --- |
+| R10 | **Not met**: $984 against $930 |
+| R2, R7, R9 | At risk (wall evenness depends on hand finishing; cavity finishing without a lathe unproven; guards and interlocks not modeled) |
+| R1, R3, R4, R5, R6, R8, R11, R12 | Met on paper |
+
+Summary: 1 not met, 3 at risk, 8 met on paper (was 3, 4 and 5).
+
+### Still awaiting Amish
+
+1. First co-design partner (item 9): no recommendation; stays "Proposed, awaiting Amish".
+2. Remaining cost gap (new item 16): $984 against $930. Options: (a) raise `budget_usd` to about $990 (recommended, since the added cost is the joints and hinges just decided); (b) cost the QC rack ($81) outside the press budget; (c) keep $930 and record R10 as not met.
+
+### Cross-repo actions
+
+None. No decision here needs a change in another repo.
+
+### TRL 4
+
+**TRL 4 remains on hold by Amish's instruction.** No build, proof load test, bolt torque check, measurement, trial or purchasing was started.
+
+### Write-up and media
+
+- README now has "Concept rationale", "Burning platform" (WHO and UNICEF JMP 2025, WHO drinking-water fact sheet, Brown et al. 2008, IntechOpen press costs), "Where it could be used" and "What sparked the idea" (Ron Rivera's tire-jack clay press and filter mold for Potters for Peace, Nicaragua).
+- All generated files (docs PDFs, PPR-DWG-001, `media/`) were regenerated so they carry designmolecule.com.
+
+### Safety concerns
+
+- Unchanged from the TRL 3 session, plus: check the bolted upright joints for tightness before each shift; keep fingers clear of the rail extension hinges and deploy it only onto its stop lugs.
+
 ## Session 2026-09-25: TRL 3
 
 Authority: Amish wrote on 2026-09-25, "proceed with all of your recommendations across all batches. Make sure we don't proceed to TRL 4 on any of them." `project.yaml` now shows `trl: 3` and `trl_target: 3`. **TRL 4 is on hold by Amish's instruction.**
@@ -33,15 +84,15 @@ TRL 2 errors corrected: the single UPN 100 base (about 1,071 MPa), the two 30 mm
 
 Decided by Amish, 2026-09-25: go with recommendation (PPR-DDR-001): jack below; crank lift with a load pin and a standard jack; cast aluminum molds from printed patterns (concrete-backed variant documented only); welded frame; slide-out and tilt demolding; manual QC rack and T-gauge; default band 1.0 to 2.5 L/h corrected to 25 °C; `budget_usd` raised to $720.
 
-### Proposed, awaiting Amish
+### Proposed, awaiting Amish (status updated in the session "recommendations accepted")
 
-1. First co-design partner (item 9): left open under the portfolio rule; no choice made.
-2. R3: judge deflection at the 10 t working force with the molds closing on a metal stop (recommended), rather than at 294 kN.
-3. R11: allow 0.8 x 0.8 m for the 2 x 2 QC rack (recommended); also a hinged front rail extension for the press depth.
-4. Frame joints: bolt the four upright joints (4 x M20 8.8 each) so no part exceeds 40 kg (recommended).
-5. Load pin: one 60 mm 42CrMo4 pin with a pin-presence interlock (recommended, as modeled) or two pins at two stations.
-6. Cost gap of $206: raise `budget_usd` to about $930 (recommended), or cost the QC rack separately and build the concrete-backed molds first.
-7. Scrap aluminum must be lead-free (recommended) or new A356 ingot.
+1. First co-design partner (item 9): left open under the portfolio rule; no choice made. Still proposed, awaiting Amish.
+2. Decided by Amish, 2026-09-25: go with recommendation. R3: judge deflection at the 10 t working force with the molds closing on a metal stop (recommended), rather than at 294 kN.
+3. Decided by Amish, 2026-09-25: go with recommendation. R11: allow 0.8 x 0.8 m for the 2 x 2 QC rack (recommended); also a hinged front rail extension for the press depth.
+4. Decided by Amish, 2026-09-25: go with recommendation. Frame joints: bolt the four upright joints (4 x M20 8.8 each) so no part exceeds 40 kg (recommended).
+5. Decided by Amish, 2026-09-25: go with recommendation. Load pin: one 60 mm 42CrMo4 pin with a pin-presence interlock (recommended, as modeled) or two pins at two stations.
+6. Decided by Amish, 2026-09-25: go with recommendation. Cost gap of $206: raise `budget_usd` to about $930 (recommended), or cost the QC rack separately and build the concrete-backed molds first.
+7. Decided by Amish, 2026-09-25: go with recommendation. Scrap aluminum must be lead-free (recommended) or new A356 ingot.
 
 ### Safety concerns
 
@@ -96,17 +147,17 @@ Amish to decide items 2 to 7 above (and the partner when the area is ready), aft
 
 Requirements not met or at risk: **R10 (cost) is not met.** R2 (even wall) is at risk until the mold alignment is designed; R5 (opening travel) is at risk until the lift and jack are chosen; R7 (molds made locally without a large lathe) is at risk because cavity finishing is unproven.
 
-### Proposed, awaiting Amish
+### Proposed, awaiting Amish (items 1 to 8 since decided; see PPR-DDR-001)
 
-1. **Architecture:** jack below lifting the female mold against a fixed male mold (recommended), versus an inverted-rated jack pushing down, or a screw press.
-2. **Male mold lift:** hand crank with load pins and a standard jack (recommended), versus a 20 t long-stroke cylinder with hand pump (about $150 to $250 more), versus a counterweighted lever.
-3. **Mold material:** cast aluminum from printed patterns (recommended), with printed shells backed by fiber-reinforced concrete built as a low-cost variant (about $115 cheaper, durability unknown).
-4. **Frame:** welded (recommended), with a bolted variant documented later.
-5. **Demolding:** slide-out carriage that tilts to turn the pot onto a board (recommended), versus air-assisted release or leaving the pot on the male mold.
-6. **QC:** manual rack and printed T-gauge (recommended); load-cell logger per station as a later option.
-7. **Default acceptance band:** 1.0 to 2.5 L/h in the first hour, corrected to 25 °C, adjustable per factory.
-8. **Budget:** (a) raise `budget_usd` from $600 to about $720; (b) keep $600 and adopt the concrete-backed molds for the first prototype (about $600); (c) keep $600 for the press only and cost the QC rack separately (the press alone is about $645, still over). Recommendation: (a), because the aluminum molds are the part of the design most likely to work first time. `project.yaml` is unchanged at $600.
-9. **First partner:** an existing filter factory in the Potters for Peace network, an NGO planning a new factory, or a university ceramics lab. Recommendation: an existing factory, since it can tell us the pressing force and acceptance band.
+1. Decided by Amish, 2026-09-25: go with recommendation. **Architecture:** jack below lifting the female mold against a fixed male mold (recommended), versus an inverted-rated jack pushing down, or a screw press.
+2. Decided by Amish, 2026-09-25: go with recommendation. **Male mold lift:** hand crank with load pins and a standard jack (recommended), versus a 20 t long-stroke cylinder with hand pump (about $150 to $250 more), versus a counterweighted lever.
+3. Decided by Amish, 2026-09-25: go with recommendation. **Mold material:** cast aluminum from printed patterns (recommended), with printed shells backed by fiber-reinforced concrete built as a low-cost variant (about $115 cheaper, durability unknown).
+4. Decided by Amish, 2026-09-25: go with recommendation. **Frame:** welded (recommended), with a bolted variant documented later.
+5. Decided by Amish, 2026-09-25: go with recommendation. **Demolding:** slide-out carriage that tilts to turn the pot onto a board (recommended), versus air-assisted release or leaving the pot on the male mold.
+6. Decided by Amish, 2026-09-25: go with recommendation. **QC:** manual rack and printed T-gauge (recommended); load-cell logger per station as a later option.
+7. Decided by Amish, 2026-09-25: go with recommendation. **Default acceptance band:** 1.0 to 2.5 L/h in the first hour, corrected to 25 °C, adjustable per factory.
+8. Decided by Amish, 2026-09-25: go with recommendation. **Budget:** (a) raise `budget_usd` from $600 to about $720; (b) keep $600 and adopt the concrete-backed molds for the first prototype (about $600); (c) keep $600 for the press only and cost the QC rack separately (the press alone is about $645, still over). Recommendation: (a), because the aluminum molds are the part of the design most likely to work first time. `project.yaml` is unchanged at $600.
+9. Still proposed, awaiting Amish (no recommendation adopted under the portfolio rule). **First partner:** an existing filter factory in the Potters for Peace network, an NGO planning a new factory, or a university ceramics lab. Recommendation: an existing factory, since it can tell us the pressing force and acceptance band.
 
 ### Safety concerns
 
