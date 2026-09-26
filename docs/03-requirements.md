@@ -3,9 +3,9 @@ doc_id: PPR-REQ-001
 title: PotPress requirements
 project: PotPress
 doc_type: Requirements
-version: "0.4"
+version: "0.5"
 status: Draft
-date: '2026-09-25'
+date: '2026-09-26'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -25,11 +25,15 @@ revisions:
   date: '2026-09-25'
   author: Amish Chadha
   change: Recommendations accepted by Amish (DDR-002); R3 at 10 t with a metal stop, R9 pin interlock, R10 $930, R11 rack 0.8 x 0.8 m and folded rails, R12 lead-free scrap; status from PPR-CAL-001 v0.2
+- version: "0.5"
+  date: '2026-09-26'
+  author: Amish Chadha
+  change: Budget top-up approved by Amish; R10 target $990, status met on paper
 ---
 
 # PotPress requirements
 
-These requirements were checked by calculation at TRL 3 (PPR-CAL-001 v0.2). They are not yet validated with a filter factory and will be revised after co-design sessions (see PPR-PRB-001). One is **not met** on paper (R10 cost), three are at risk (R2, R7 and R9) and eight are met on paper; see Table 2. Amish's decisions of 2026-09-25 are recorded in PPR-DDR-001 and PPR-DDR-002: the R6 default band, R3 judged at the 10 t working force, the R10 target of $930, the R11 rack area of 0.8 x 0.8 m, the pin-presence interlock in R9 and lead-free scrap in R12.
+These requirements were checked by calculation at TRL 3 (PPR-CAL-001 v0.3). They are not yet validated with a filter factory and will be revised after co-design sessions (see PPR-PRB-001). None is not met on paper; three are at risk (R2, R7 and R9) and nine are met on paper; see Table 2. Amish's decisions of 2026-09-25 are recorded in PPR-DDR-001 and PPR-DDR-002: the R6 default band, R3 judged at the 10 t working force, the R10 target of $930 (topped up to $990 by Amish on 2026-09-26), the R11 rack area of 0.8 x 0.8 m, the pin-presence interlock in R9 and lead-free scrap in R12.
 
 The **reference filter** used throughout is the common flowerpot form: inner rim diameter 280 mm, inner depth 240 mm, wall 15 mm, flat rim about 345 mm across, about 12 L to the brim and about 10 L working volume (dimensions are estimates based on the 280 by 250 mm form reported by [Potters for Peace](https://www.pottersforpeace.org/ceramic-water-filter-project)).
 
@@ -46,15 +50,14 @@ The **reference filter** used throughout is the common flowerpot form: inner rim
 | R7 | Molds made locally | Molds cast from 3D-printed patterns printed on a 250 x 250 mm class printer; finishing with hand tools and a drill press; no lathe over 300 mm swing | Pattern split and finishing review with a foundry |
 | R8 | Frame built locally | Standard steel channel and plate; stick welding, drilling and bolting only; heaviest single part 40 kg or less for two-person handling | Part list and mass estimate |
 | R9 | Safe operation | Fixed guards on the sides and back, interlocked front gate; jack pump and release outside the guard; a pin-presence interlock prevents pressing unless the load pin is fully home (decided by Amish, 2026-09-25) | Hazard review; later guard check |
-| R10 | Affordable | Press plus QC rack $930 or less in parts (raised from $600 to $720 and then to $930 by Amish, 2026-09-25) | Priced BOM (`bom/bom.csv`) |
+| R10 | Affordable | Press plus QC rack $990 or less in parts (raised from $600 to $720 and then to $930 by Amish, 2026-09-25; topped up to $990 by Amish, 2026-09-26) | Priced BOM (`bom/bom.csv`) |
 | R11 | Footprint | Press within 1.0 x 0.7 m floor area and 2.0 m height, with the rail extension folded; QC rack within 0.8 x 0.8 m (relaxed from 0.8 x 0.5 m by Amish, 2026-09-25) | Model check |
 | R12 | Product-safe materials | Faces that touch clay or test water are aluminum, food-grade polyethylene or stainless steel; no lead-based paint or oiled release agents on mold faces; molds cast from lead-free scrap (no free-machining alloys; decided by Amish, 2026-09-25) | Material list review |
 
-*Table 2. Status against each requirement at TRL 3 (from PPR-CAL-001 v0.2, not met first).*
+*Table 2. Status against each requirement at TRL 3 (from PPR-CAL-001 v0.3, least certain first).*
 
 | ID | TRL 3 value | Status |
 | --- | --- | --- |
-| R10 | Priced BOM $984 (press $903, QC rack $81) | **Not met**, $54 (6 %) over |
 | R2 | Wall ±1.40 mm as cast; ±0.43 mm with molds hand-finished to templates; coaxial ±0.43 mm via the locating lip | **At risk** |
 | R7 | 16 pattern segments for a 250 mm printer; cavity finishing without a lathe unproven | **At risk** |
 | R9 | Guards, gate, jack-release interlock and pin-presence interlock in the BOM, not modeled | **At risk** |
@@ -66,13 +69,18 @@ The **reference filter** used throughout is the common flowerpot form: inner rim
 | R8 | Heaviest part 38.9 kg (platen); upright joints bolted, largest frame part 37.4 kg | Met on paper |
 | R11 | Press 840 x 655 mm with the rail extension folded (970 mm deployed), 1,806 mm tall; QC rack 780 x 780 mm | Met on paper |
 | R12 | Aluminum faces, polyethylene liners, HDPE buckets; lead-free scrap alloy | Met on paper |
+| R10 | Priced BOM $984 (press $903, QC rack $81) against $990 | Met on paper, $6 (0.6 %) margin |
 
 ### Requirement changes decided by Amish, 2026-09-25 (PPR-DDR-002)
 
 - **R3:** deflection judged at the 10 t maximum working force, with the molds closing on a metal stop (was 294 kN; status not met to met on paper).
-- **R10:** target raised from $720 to $930. The decided bolted joints and hinged rail extension bring the BOM to $984, so R10 is still not met; the options for the remaining $54 are proposed, awaiting Amish (PPR-DDR-002).
+- **R10:** target raised from $720 to $930. The decided bolted joints and hinged rail extension bring the BOM to $984, so R10 was still not met; Amish topped up the budget to $990 on 2026-09-26 (see below).
 - **R11:** QC rack area relaxed from 0.8 x 0.5 m to 0.8 x 0.8 m; the press footprint is judged with the hinged rail extension folded (status not met to met on paper).
 - **R9 and R12:** the pin-presence interlock and lead-free scrap are now part of the requirement text.
+
+### Requirement change decided by Amish, 2026-09-26
+
+- **R10:** budget topped up from $930 to $990 ("I am ok with the budget top ups"; PPR-DDR-002 v0.2, item 16). The priced BOM of $984 now meets R10 on paper with a $6 (0.6 %) margin, which is thin; any price rise moves R10 back to at risk.
 
 ## Assumptions
 

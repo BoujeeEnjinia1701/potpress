@@ -3,9 +3,9 @@ doc_id: PPR-PRC-001
 title: PotPress design precis
 project: PotPress
 doc_type: Design precis
-version: "0.4"
+version: "0.5"
 status: Draft
-date: '2026-09-25'
+date: '2026-09-26'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -25,11 +25,15 @@ revisions:
   date: '2026-09-25'
   author: Amish Chadha
   change: Recommendations accepted by Amish (DDR-002); bolted upright joints, hinged rail extension, pin-presence interlock, lead-free scrap, budget $930; numbers from PPR-CAL-001 v0.2
+- version: "0.5"
+  date: '2026-09-26'
+  author: Amish Chadha
+  change: Budget top-up approved by Amish; budget $990, R10 met on paper
 ---
 
 # PotPress design precis
 
-PotPress is a hand-pumped hydraulic press that forms one ceramic pot filter per stroke between a cast aluminum female mold and male mold, plus a four-station rack for the standard one-hour flow-rate test. A 20 t bottle jack on the base lifts a guided platen carrying the female mold against a fixed male mold, whose stem is held by one load pin in the top crossbeam for pressing and raised by a hand crank for loading. One parametric filter geometry drives the molds, the 3D-printed casting patterns and the printed flow gauge. The TRL 3 calculations (PPR-CAL-001) give a cycle of about 5.2 min and about 69 pots per 6 h, a strong frame at 1.5 times the jack rating, every part under 40 kg with the frame bolted at the upright joints, and a parts cost of $984, which is $54 over the $930 budget. The design choices below were decided by Amish on 2026-09-25 (PPR-DDR-001 and PPR-DDR-002).
+PotPress is a hand-pumped hydraulic press that forms one ceramic pot filter per stroke between a cast aluminum female mold and male mold, plus a four-station rack for the standard one-hour flow-rate test. A 20 t bottle jack on the base lifts a guided platen carrying the female mold against a fixed male mold, whose stem is held by one load pin in the top crossbeam for pressing and raised by a hand crank for loading. One parametric filter geometry drives the molds, the 3D-printed casting patterns and the printed flow gauge. The TRL 3 calculations (PPR-CAL-001) give a cycle of about 5.2 min and about 69 pots per 6 h, a strong frame at 1.5 times the jack rating, every part under 40 kg with the frame bolted at the upright joints, and a parts cost of $984 against the $990 budget (topped up by Amish on 2026-09-26), a $6 margin. The design choices below were decided by Amish on 2026-09-25 (PPR-DDR-001 and PPR-DDR-002).
 
 ![Hero render](../media/hero.png)
 
@@ -99,7 +103,7 @@ All values are estimates from PPR-CAL-001, which lists its assumptions and the r
 | Wall evenness | ±1.40 mm as cast; ±0.43 mm finished to templates | R2 at risk |
 | Flow gauge | 0.1 L is 1.69 mm; 2.3 % per °C near 25 °C | R6 met |
 | Size and mass | Press 840 x 655 x 1,806 mm with the rail extension folded, 298 kg plus 7 kg of joint bolts; heaviest part 38.9 kg; rack 780 x 780 mm | R8 and R11 met on paper |
-| Cost | Press $903, QC rack $81, total $984 | R10 ($930) not met, 6 % over |
+| Cost | Press $903, QC rack $81, total $984 | R10 ($990) met on paper, 0.6 % margin |
 
 The working force is still an assumption. Henry, Maley and Mehta (2013) formed round-bottom filters with a 2 t car jack ([IJSLE 8 (1)](https://ojs.library.queensu.ca/index.php/ijsle/article/view/4532)), which suggests the real force may be well below 5 to 10 t; the frame is sized for the full 20 t jack either way.
 
@@ -115,7 +119,7 @@ All of these were decided by Amish on 2026-09-25: go with recommendation (PPR-DD
 - **Demold by sliding out and tilting the carriage,** on a rail extension that folds down between loads.
 - **Manual QC rack with printed T-gauge.** The rack is 2 x 2 stations in 0.8 x 0.8 m; a load-cell logger stays a later option.
 - **Default acceptance band 1.0 to 2.5 L/h in the first hour, corrected to 25 °C.** Each factory may set its own band.
-- **Budget $930.** The priced BOM is $984 after the bolted joints and rail hinges; the options for the remaining $54 are proposed, awaiting Amish (PPR-DDR-002).
+- **Budget $990.** The priced BOM is $984 after the bolted joints and rail hinges; Amish topped up the budget from $930 to $990 on 2026-09-26 (PPR-DDR-002 item 16).
 
 ## Safety
 
@@ -134,7 +138,6 @@ All of these were decided by Amish on 2026-09-25: go with recommendation (PPR-DD
 
 - What pressing force gives a well-consolidated wall with a typical mix? Ask a partner factory; the 2 t figure above suggests it may be low.
 - Can hand finishing to printed templates reach ±0.3 mm on a 400 mm casting (R2, R7)?
-- Remaining cost gap of $54 against the $930 budget: options in PPR-DDR-002, awaiting Amish.
 - Handwheel height of about 1.8 m: a side crank through a bevel gear would be easier to reach.
 - Confirm the demolding method with potters; check whether a liner leaves marks that affect flow.
 - Choose the first partner factory or organization (left open under the portfolio rule).

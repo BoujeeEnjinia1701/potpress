@@ -453,7 +453,8 @@ def main():
     print("13 Cost (USD)")
     print("  " + ", ".join(f"{i}: {v:.0f}" for i, v in cost.items() if isinstance(i, int)))
     print(f"  estimate: press {cost['press']:.0f}, QC {cost['qc']:.0f}, total {cost['total']:.0f}")
-    print(f"  bom.csv: {nrows} lines, total {bt:.2f}, press {bp:.2f}, QC {bt-bp:.2f}; budget_usd {bud:.0f}; over by {bt-bud:.0f} ({(bt/bud-1)*100:.0f} %)")
+    gap = "over by" if bt > bud else "margin"
+    print(f"  bom.csv: {nrows} lines, total {bt:.2f}, press {bp:.2f}, QC {bt-bp:.2f}; budget_usd {bud:.0f}; {gap} {abs(bt-bud):.0f} ({abs(bt/bud-1)*100:.1f} %)")
 
 
 if __name__ == "__main__":

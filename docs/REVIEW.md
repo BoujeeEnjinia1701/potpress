@@ -32,7 +32,7 @@ Summary: 1 not met, 3 at risk, 8 met on paper (was 3, 4 and 5).
 ### Still awaiting Amish
 
 1. First co-design partner (item 9): no recommendation; stays "Proposed, awaiting Amish".
-2. Remaining cost gap (new item 16): $984 against $930. Options: (a) raise `budget_usd` to about $990 (recommended, since the added cost is the joints and hinges just decided); (b) cost the QC rack ($81) outside the press budget; (c) keep $930 and record R10 as not met.
+2. Decided by Amish, 2026-09-26: budget top-up to $990 (option a). Remaining cost gap (new item 16): $984 against $930. Options: (a) raise `budget_usd` to about $990 (recommended, since the added cost is the joints and hinges just decided); (b) cost the QC rack ($81) outside the press budget; (c) keep $930 and record R10 as not met.
 
 ### Cross-repo actions
 
@@ -179,3 +179,23 @@ Requirements not met or at risk: **R10 (cost) is not met.** R2 (even wall) is at
 ### Recommended next step
 
 Review this note and the media. If approved, run `/advance-trl3` to size the frame, pins and guides by calculation, settle the lift and jack choice, split and check the casting patterns, and produce the parametric model and drawing sheet.
+
+## Session 2026-09-26: sources strengthened
+
+### Sources replaced
+
+| Where | Old source | New source |
+| --- | --- | --- |
+| README, What sparked the idea | Wikipedia (Ron Rivera) with University of Pittsburgh history page; claims that Rivera designed the tire-jack press and mold and set up 30 microenterprises | Potters for Peace, Ceramic Water Filter Project page (first workshop after Hurricane Mitch in October 1998, over 5,000 filters in six months, hand-operated hydraulic truck jack and two-piece aluminum mold, over 50 factories in over 30 countries) with the University of Pittsburgh history page (Rivera coordinated PFP's Nicaragua work from 1989; PFP's filter involvement from 1998). The unverifiable Rivera-specific claims were removed. |
+| README, Burning platform | Brown, Sobsey and Loomis (2008), LSHTM repository | Potters for Peace (over 50 factories in over 30 countries); the trial could not be re-fetched this session (repository blocked), so it was dropped from the README |
+| README, Nicaragua row | Pitt history page and Rayner (2009), WEDC | Potters for Peace and Pitt history page; the flow band claim (Rayner) could not be re-fetched and was dropped from the row |
+| README, Cambodia row | Brown, Sobsey and Loomis (2008) | Potters for Peace (training in Cambodia) |
+| README, United States row | Henry, Maley and Mehta (2013), IJSLE | University of Pittsburgh ceramic filter project, Research and Activities page |
+| README, Nigeria row and Burning platform | IntechOpen, unnamed | Same chapter, now credited as Erhuanga et al. (2020); cost figures re-checked and "before shipping and duties" removed as unsupported |
+
+- `INSPIRATIONS.md`: potpress line updated to the Potters for Peace post-Mitch workshop and its truck-jack press and aluminum mold.
+- `docs/01-problem.md` does not cite Wikipedia, so its sources were not changed. It still cites Brown (2008), Rayner (2009) and Henry et al. (2013), which could not be re-fetched this session because of network restrictions; they were not re-verified.
+
+### Budget top-up
+
+Budget top-up to $990: decided by Amish, 2026-09-26. `budget_usd` $930 to $990; R10 moves from not met to met on paper, $984 against $990 (a thin $6, 0.6 %, margin). Updated: `project.yaml`, PPR-REQ-001 v0.5, PPR-CAL-001 v0.3 and `sizing.py` (re-run; now prints the margin), PPR-DDR-002 v0.2 (item 16 decided), PPR-PRC-001 v0.5, PPR-PRB-001 v0.5, `README.md` (budget badge line and concept numbers). Requirement status: 0 not met, 3 at risk (R2, R7, R9), 9 met on paper.

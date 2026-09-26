@@ -3,9 +3,9 @@ doc_id: PPR-DDR-002
 title: PotPress recommendations accepted
 project: PotPress
 doc_type: Design decision record
-version: "0.1"
+version: "0.2"
 status: Draft
-date: '2026-09-25'
+date: '2026-09-26'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -13,12 +13,16 @@ revisions:
   date: '2026-09-25'
   author: Amish Chadha
   change: Recommendations accepted by Amish (DDR-002); record the newly decided items, what changed in the repo and the items still open
+- version: "0.2"
+  date: '2026-09-26'
+  author: Amish Chadha
+  change: Budget top-up approved by Amish (item 16, $990)
 ---
 
 # 0002: Recommendations accepted
 
 - **Date:** 2026-09-25
-- **Status:** accepted (items 10 to 15 of PPR-DDR-001); item 9 and new item 16 remain proposed, awaiting Amish
+- **Status:** accepted (items 10 to 15 of PPR-DDR-001); item 16 decided by Amish on 2026-09-26; item 9 remains proposed, awaiting Amish
 
 ## Context
 
@@ -48,12 +52,19 @@ The decided bolted joints and rail hinges add $58, so the priced BOM rises from 
 | # | Item | Options | Recommendation |
 | --- | --- | --- | --- |
 | 9 | First co-design partner | Existing Potters for Peace network factory; NGO planning a new factory; university ceramics lab | None; left open under the portfolio rule that partners are picked per area later |
-| 16 | Remaining cost gap ($984 against $930) | (a) raise `budget_usd` to about $990; (b) cost the QC rack ($81) outside the press budget, leaving the press at $903 within $930; (c) keep $930 and record R10 as not met | (a), because the added cost is the bolted joints and hinges that Amish has just decided on for handling and footprint |
+
+## Decision of 2026-09-26
+
+*Table 3. Item decided by Amish, 2026-09-26.*
+
+| # | Item | Decision | Effect |
+| --- | --- | --- | --- |
+| 16 | Remaining cost gap ($984 against $930) | Budget top-up to $990: decided by Amish, 2026-09-26 ("I am ok with the budget top ups") | `budget_usd` $930 to $990 in `project.yaml`; R10 target $990 (PPR-REQ-001 v0.5); R10 met on paper with a $6 (0.6 %) margin (PPR-CAL-001 v0.3) |
 
 ## Consequences
 
 - PPR-PRB-001 v0.4, PPR-PRC-001 v0.4, PPR-REQ-001 v0.4, PPR-CAL-001 v0.2 and PPR-DDR-001 v0.2 carry these decisions.
 - `cad/src/model.py` adds the joint bolts and the hinged rail extension; STEP and STL files are re-exported; the general arrangement PPR-DWG-001 moves from Rev P1 to Rev P2.
-- Requirement status at TRL 3: 1 not met (R10), 3 at risk (R2, R7, R9), 8 met on paper (R1, R3, R4, R5, R6, R8, R11, R12).
+- Requirement status at TRL 3 after the 2026-09-26 top-up: 0 not met, 3 at risk (R2, R7, R9), 9 met on paper (R1, R3, R4, R5, R6, R8, R10, R11, R12).
 - No cross-repo actions arise from these decisions.
 - Nothing here starts TRL 4 work. The proof load test, measured deflection, bolt torque checks and any purchasing stay on hold by Amish's instruction.
