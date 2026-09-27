@@ -199,3 +199,35 @@ Review this note and the media. If approved, run `/advance-trl3` to size the fra
 ### Budget top-up
 
 Budget top-up to $990: decided by Amish, 2026-09-26. `budget_usd` $930 to $990; R10 moves from not met to met on paper, $984 against $990 (a thin $6, 0.6 %, margin). Updated: `project.yaml`, PPR-REQ-001 v0.5, PPR-CAL-001 v0.3 and `sizing.py` (re-run; now prints the margin), PPR-DDR-002 v0.2 (item 16 decided), PPR-PRC-001 v0.5, PPR-PRB-001 v0.5, `README.md` (budget badge line and concept numbers). Requirement status: 0 not met, 3 at risk (R2, R7, R9), 9 met on paper.
+
+## Session 2026-09-26: product appearance model and photoreal renders
+
+Amish chose this repo for the first batch of product renders on 2026-09-26. This session adds an appearance model for photoreal product renders; it changes no dimension, interface, requirement or cost.
+
+### What was done
+
+- New `cad/src/product_model.py`: `product_parts()` (52 parts: 40 shell, 1 internal, 9 accessory, 2 context), `TITLE` and `RENDER_VIEWS` (hero, exploded, lineup). All levels, sections and interfaces come from `PARAMS`, `SECTIONS`, `levels()` and the helpers in `cad/src/model.py`, which is unchanged.
+- `README.md`: hero image now points to `media/render-hero.png`, with an exploded render link at the start of the links line. The render files are produced later by the orchestrator.
+
+### What the appearance model adds
+
+- Frame: painted channels; the 16 upright joints drawn as separate hex-head M20 bolts, washers and nuts; end-capped feet with floor anchor nuts; UHMW-PE stem guide liners in white; a teal nameplate and a yellow 20 t load rating label on the top crossbeam.
+- Bottle jack: red body with filleted base and cap ring, pump boss, black pump socket and plunger, polished ram, serrated saddle, release valve knob and rating label, all inside the model.py jack envelope.
+- Return springs drawn as close-wound coils with end hooks; grease nipples on the platen sleeves; barrel hinges on the folding rail extension; a rubber grip on the carriage pull handle.
+- Molds: cast aluminum finish with filleted flange and base edges, an ID plate with rivets on the female flange, and a radiused male mold tip.
+- Male mold slide: teal SHS stem with true rounded corners, adapter plate screws, a bright load pin with a knurled head and retaining ring, a bronze lead screw nut, lightening windows in the crank bracket side plates, and a round-rim handwheel with a hub and black grip knob.
+- The pressed pot between the molds is shown in green (unfired) clay; the QC rack test pots in fired terracotta.
+- QC rack (accessory): angle-section legs, edge frames, plywood shelves, HDPE buckets with rolled rims and hoops, a teal T-gauge with scale marks, and water in one pot.
+- Context: a compact concrete floor patch under the press and an anti-fatigue mat at the operator side.
+
+### Where the appearance model differs from model.py
+
+1. **Guards and front gate (BOM 16) are not shown**, as in model.py, so the jack, molds and platen stay visible. The hero note says so. Proposed, awaiting Amish: (a) keep them out of the product renders with the note (recommended for now, because the guards are not yet designed); (b) add a guarded variant view once the guard geometry exists at a later step. Recommendation: (a) now, (b) before the renders are used anywhere public-facing, so the images do not suggest the press runs unguarded.
+2. **QC rack detail.** model.py draws solid 40 mm legs and 20 mm solid shelves; the appearance model draws 40 x 40 x 4 angle legs, a 4 mm edge frame and 18 mm plywood shelves, matching the BOM item 12 text. Footprint and shelf heights are unchanged. Proposed, awaiting Amish: accept as a display detail (recommended), or carry the same detail into model.py at the next CAD session.
+3. **Handwheel rim** is a round-section ring (260 mm outer diameter kept) instead of model.py's flat ring, with four round spokes. **Buckets** taper slightly (300 mm top diameter kept). Proposed, awaiting Amish: accept as display detail (recommended).
+4. **Labels, nameplate and ID plate** are new visual parts with no BOM line; they are drawn under the BOM line of the part they sit on. Proposed, awaiting Amish: leave them out of the BOM at TRL 3 (recommended); add a labels line at a later costing pass if wanted.
+5. **Floor patch and mat** are context only, not in the BOM.
+
+### Status
+
+This is an appearance model only: no tolerances, no fabrication detail, CONCEPT, NOT FOR FABRICATION. `trl` stays 3 and TRL 4 remains on hold.
