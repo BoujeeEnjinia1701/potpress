@@ -24,13 +24,14 @@ work = ROOT / "cad/drawings/_views"
 views = project_views(press, work)
 
 s = Sheet(project="PotPress", title="General arrangement, press closed, guarded", dwg_no="PPR-DWG-001",
-          rev="P3", author="Amish Chadha", date="2026-09-26", concept=True, scale=None,
+          rev="P4", author="Amish Chadha", date="2026-09-27", concept=True, scale=None,
           material="S275 channel and plate; molds cast Al-Si (lead-free scrap); pin 42CrMo4 QT. See bom/bom.csv",
           revisions=[("P1", "Preliminary GA from the TRL 3 model (PPR-CAL-001)", "2026-09-25", "AC"),
                      ("P2", "Recommendations accepted (DDR-002): bolted joints, hinged rails", "2026-09-25", "AC"),
-                     ("P3", "Guards and interlocked front gate added", "2026-09-26", "AC")])
+                     ("P3", "Guards and interlocked front gate added", "2026-09-26", "AC"),
+                     ("P4", "Budget raised to $1,060 (DDR-003); R10 met; note only", "2026-09-27", "AC")])
 s.add_ortho(views, ["front", "top", "right"])
-s.add_svg(views["iso"], 276, 30, 140, 84, label="Isometric view", sublabel="Not to scale; mesh drawn at every 8th wire")
+s.add_svg(views["iso"], 276, 39, 140, 77, label="Isometric view", sublabel="Not to scale; mesh drawn at every 8th wire")
 s.add_notes("Key dimensions (mm) and data", [
     f"Frame {P['BEAM_L']:.0f} x {P['FOOT_L']:.0f} on feet; guarded {bb.size.X:.0f} x {bb.size.Y:.0f} overall",
     f"Rail hinge {P['RAIL_HINGE']:.0f} in front of axis; deployed to {P['RAIL_BACK'] + P['CARRIAGE_OUT']:.0f}",
@@ -45,7 +46,7 @@ s.add_notes("Key dimensions (mm) and data", [
     "Press about 298 kg plus bolts and about 45 kg of guards; heaviest part 39 kg",
     f"Guards: welded mesh {P['MESH_PITCH']:.1f} x {P['MESH_PITCH']:.1f} x {P['MESH_WIRE']:.1f}, planes {2 * P['GUARD_X']:.0f} x {P['GUARD_Y_BACK'] - P['GUARD_Y_FRONT']:.0f}",
     f"Gate {2 * P['GATE_HALF']:.0f} wide, hinged left; gate and pin interlocks lock jack release",
-    "Not met at TRL 3: R10 cost ($1,051 vs $990)",
+    "Cost $1,051 vs $1,060 budget: R10 met on paper",
     "PRELIMINARY, NOT FOR FABRICATION",
 ], x=276, y=130, width=140)
 s.save(ROOT / "cad/drawings/PPR-DWG-001")

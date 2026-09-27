@@ -24,7 +24,7 @@ pitch: >-
   Hydraulic press with printable mold geometry for silver-treated ceramic pot filters, plus a QC flow-rate test jig.
 problem: >-
   Ceramic pot filters work well, but local producers have no low-cost way to form them consistently.
-budget_usd: 990  # raised from 600 to 720, then to 930 by Amish, 2026-09-25 (PPR-DDR-001, PPR-DDR-002); topped up to 990 by Amish, 2026-09-26
+budget_usd: 1060  # raised from 600 to 720, then to 930 by Amish, 2026-09-25 (PPR-DDR-001, PPR-DDR-002); topped up to 990 by Amish, 2026-09-26; raised to 1,060 by Amish, 2026-09-27 (PPR-DDR-003)
 difficulty: 3  # 1 easiest, 5 hardest
 hero_image: media/hero.png
 licenses:

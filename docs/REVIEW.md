@@ -1,5 +1,44 @@
 # Review note: PotPress
 
+## Session 2026-09-27: owner decision applied
+
+Authority: Amish wrote on 2026-09-27, "i agree with the budget for potpress." This applies recommendation (a) of item 1 in the 2026-09-26 session below: raise the budget to about $1,060 for the guarded version. Decided by Amish on 2026-09-27. Only this item is decided. `trl` and `trl_target` stay at 3.
+
+### What changed
+
+- `project.yaml`: `budget_usd` from 990 to 1060, with the history comment extended ("raised to 1,060 by Amish, 2026-09-27 (PPR-DDR-003)").
+- `docs/decisions/0003-guarded-version.md` PPR-DDR-003 v0.2: the cost overrun is recorded as decided by Amish on 2026-09-27 (option (a)); status line updated; the ISO 13857 guard opening check is marked proposed, awaiting Amish.
+- `docs/04-calcs/01-sizing.md` PPR-CAL-001 v0.5: summary, decisions table, cost section, Table 10 (R10 now met on paper) and a v0.5 change note. `sizing.py` needed no change; it reads the budget from `project.yaml` and now prints a $9 (0.8 %) margin.
+- `docs/03-requirements.md` PPR-REQ-001 v0.7: R10 target $1,060, Table 2 status, new "Requirement change decided by Amish, 2026-09-27" subsection.
+- `docs/02-concept.md` PPR-PRC-001 v0.7: summary, numbers table and "Budget $1,060" design choice.
+- `docs/01-problem.md` PPR-PRB-001 v0.6: budget constraint $1,060.
+- `bom/bom-notes.md` and `README.md`: budget and R10 lines. `bom/bom.csv` is unchanged.
+- `cad/src/sheets.py`: PPR-DWG-001 Rev P4 ("Budget raised to $1,060 (DDR-003); R10 met; note only"); the cost note now reads "Cost $1,051 vs $1,060 budget: R10 met on paper"; the isometric view moved down 9 mm and shrank slightly so it clears the taller revision table. `cad/drawings/PPR-DWG-001.svg`, `.pdf`, `.png` regenerated and checked.
+- `docs/pdf/`: rebuilt with `python .kit/render.py` (PRB v0.6, PRC v0.7, REQ v0.7, CAL v0.5, DDR-003 v0.2).
+- No change to `cad/src/model.py` or `cad/src/product_model.py`: the decision is a budget figure only, so no geometry, dimension or interface changed. STEP, STL and concept media were not regenerated because nothing they show changed.
+
+### Result
+
+| Quantity | Value |
+| --- | --- |
+| Cost | $1,051 (press $970, QC rack $81) against $1,060 |
+| R10 | Met on paper, $9 (0.8 %) margin; thin, any price rise moves it back to at risk |
+| Requirements | 0 not met, 2 at risk (R2, R7), 10 met on paper |
+
+### Photoreal renders
+
+The decision does not require regenerating the renders: no part in any RENDER_VIEWS view changed shape, size or position. Separately, item 2 of the 2026-09-26 session still stands: `media/render-*.png` show the unguarded press and need re-rendering from the guarded RENDER_VIEWS before any public use.
+
+### Still proposed, awaiting Amish
+
+1. **ISO 13857 guard distances.** The adequacy of the 11 mm mesh at about 105 to 110 mm, the 25 mm pump slot and reach over the roof remains a stated assumption, not checked (PPR-DDR-003).
+2. **Photoreal renders** re-rendered for the guarded press (2026-09-26 item 2).
+3. **First co-design partner** (item 9): still open.
+
+### TRL
+
+`trl` stays 3. **TRL 4 remains on hold by Amish's instruction.** No build, measurement or purchasing was started.
+
 ## Session 2026-09-26: guarded version
 
 Authority: Amish wrote on 2026-09-26, "for pot press build a guarded version and make sure the render follows." Recorded as decided in `docs/decisions/0003-guarded-version.md` (PPR-DDR-003 v0.1). No existing part or main dimension changed. `trl` and `trl_target` stay at 3.

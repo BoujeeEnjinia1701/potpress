@@ -3,9 +3,9 @@ doc_id: PPR-PRB-001
 title: PotPress problem statement
 project: PotPress
 doc_type: Problem statement
-version: "0.5"
+version: "0.6"
 status: Draft
-date: '2026-09-26'
+date: '2026-09-27'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -29,6 +29,10 @@ revisions:
   date: '2026-09-26'
   author: Amish Chadha
   change: Budget top-up approved by Amish; budget constraint $990
+- version: "0.6"
+  date: '2026-09-27'
+  author: Amish Chadha
+  change: Budget raised by Amish on 2026-09-27; budget constraint $1,060
 ---
 
 # PotPress problem statement
@@ -67,7 +71,7 @@ The technology is proven, but making it well is hard for a small workshop:
 
 ## Constraints
 
-- Garage-buildable prototype, $990 USD in parts (raised from $600 to $720 and then to $930 by Amish on 2026-09-25, PPR-DDR-001 and PPR-DDR-002; topped up to $990 by Amish on 2026-09-26).
+- Garage-buildable prototype, $1,060 USD in parts (raised from $600 to $720 and then to $930 by Amish on 2026-09-25, PPR-DDR-001 and PPR-DDR-002; topped up to $990 by Amish on 2026-09-26; raised to $1,060 by Amish on 2026-09-27 for the guarded version, PPR-DDR-003).
 - Frame buildable with a stick welder, grinder and drill press; no machining that needs a large lathe or mill.
 - No mains power needed to press or to run the flow test; hand-pumped hydraulics only.
 - Mold geometry defined parametrically so that a factory can change size or wall thickness and generate new patterns and gauges from the same source.

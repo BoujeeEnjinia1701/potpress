@@ -2,7 +2,7 @@
 
 ![TRL 3](https://img.shields.io/badge/TRL-3%20of%209-0F766E) ![Hardware: CERN-OHL-S-2.0](https://img.shields.io/badge/hardware-CERN--OHL--S--2.0-111827) ![Software: MIT](https://img.shields.io/badge/software-MIT-111827)
 
-**Area:** Water Security · **TRL:** 3 of 9 (proof of concept on paper) · **Prototype budget:** $990 USD · **Difficulty:** 3 of 5
+**Area:** Water Security · **TRL:** 3 of 9 (proof of concept on paper) · **Prototype budget:** $1,060 USD · **Difficulty:** 3 of 5
 
 Hydraulic press with printable mold geometry for silver-treated ceramic pot filters, plus a QC flow-rate test jig.
 
@@ -55,7 +55,7 @@ Ceramic pot filters work well, but local producers have no low-cost way to form 
 
 ## Concept
 
-A 20 t bottle jack on the base lifts a guided platen carrying a cast aluminum female mold against a fixed male mold, forming one filter (280 mm inner rim, 9.9 L working volume) per stroke. The male mold is held by one 60 mm load pin in the top crossbeam for pressing and raised by a hand crank for loading, and the female mold slides out on a carriage for demolding. One parametric filter geometry drives the molds, their 3D-printed casting patterns and a printed T-gauge for the four-station, one-hour flow-rate test rack. TRL 3 calculations: a cycle of about 5.2 min and about 69 pots per 6 h, a frame that stays below yield at 1.5 times the jack rating, 0.61 mm of deflection between the molds at the 10 t working force, every part under 40 kg with the upright joints bolted, and, with the fixed mesh guards and interlocked front gate decided by Amish on 2026-09-26, $1,051 in parts, which is $61 over the $990 budget; how to close that gap is awaiting his decision (see the [review note](docs/REVIEW.md)).
+A 20 t bottle jack on the base lifts a guided platen carrying a cast aluminum female mold against a fixed male mold, forming one filter (280 mm inner rim, 9.9 L working volume) per stroke. The male mold is held by one 60 mm load pin in the top crossbeam for pressing and raised by a hand crank for loading, and the female mold slides out on a carriage for demolding. One parametric filter geometry drives the molds, their 3D-printed casting patterns and a printed T-gauge for the four-station, one-hour flow-rate test rack. TRL 3 calculations: a cycle of about 5.2 min and about 69 pots per 6 h, a frame that stays below yield at 1.5 times the jack rating, 0.61 mm of deflection between the molds at the 10 t working force, every part under 40 kg with the upright joints bolted, and, with the fixed mesh guards and interlocked front gate decided by Amish on 2026-09-26, $1,051 in parts against the $1,060 budget, which Amish raised from $990 on 2026-09-27 to cover the guards (see the [review note](docs/REVIEW.md)).
 
 Full design precis: [docs/02-concept.md](docs/02-concept.md)
 
