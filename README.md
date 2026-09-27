@@ -8,7 +8,7 @@ Hydraulic press with printable mold geometry for silver-treated ceramic pot filt
 
 ![PotPress: hand-pumped hydraulic press for ceramic pot water filters, product render](media/render-hero.png)
 
-[Exploded render](media/render-exploded.png) · [Lineup render](media/render-lineup.png) · [Interactive 3D model](media/viewer.html) · [Concept blueprint (PDF)](media/concept-blueprint.pdf) · [General arrangement PPR-DWG-001 (PDF)](cad/drawings/PPR-DWG-001.pdf) · [Sizing note PPR-CAL-001](docs/04-calcs/01-sizing.md) · [Review note](docs/REVIEW.md)
+[Exploded render](media/render-exploded.png) · [Gate open render](media/render-gate-open.png) · [Lineup render](media/render-lineup.png) · [Interactive 3D model](media/viewer.html) · [Concept blueprint (PDF)](media/concept-blueprint.pdf) · [General arrangement PPR-DWG-001 (PDF)](cad/drawings/PPR-DWG-001.pdf) · [Sizing note PPR-CAL-001](docs/04-calcs/01-sizing.md) · [Review note](docs/REVIEW.md)
 
 ## Concept rationale
 
