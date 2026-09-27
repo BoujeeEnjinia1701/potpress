@@ -1,5 +1,62 @@
 # Review note: PotPress
 
+## Session 2026-09-26: guarded version
+
+Authority: Amish wrote on 2026-09-26, "for pot press build a guarded version and make sure the render follows." Recorded as decided in `docs/decisions/0003-guarded-version.md` (PPR-DDR-003 v0.1). No existing part or main dimension changed. `trl` and `trl_target` stay at 3.
+
+### What changed
+
+- `cad/src/model.py`: new guard parameters and helpers (`mesh_panel`, `angle_frame`, `guard_layout`, `gate_geometry`, `interlock_geometry`) and three new parts: fixed mesh guards (BOM 16), front gate (20), gate interlock and release valve extension (21). `press_only()` now includes them, so `cad/step/potpress-press.step`, `potpress-assembly.step` and the STLs are the guarded press. Mesh is drawn at every eighth wire (101.6 mm) so views stay readable.
+- Guarding chosen: fixed welded-mesh guards (sides, back, roof, front strips, lower front panel) and a hinged front gate with a mechanical guard-locking interlock on the jack release. A hand pump has no power to switch, so the interlock holds the release valve open (pumping then builds no pressure) unless the gate is shut, and holds the gate shut while the valve is closed. The decided pin-presence plunger acts on the same lock bar. Two-hand control (does not suit a one-lever pump) and hold-to-run alone (leaves a hand free) were rejected; see PPR-DDR-003.
+- `bom/bom.csv`: item 16 is now the fixed guards ($67, was a $55 allowance for all guarding); new item 20, front gate with hinges ($21); new item 21, gate interlock and release extension with the pin-presence plunger ($34). `bom/bom-notes.md` updated.
+- `docs/04-calcs/sizing.py`: items 20 and 21 counted as press cost; guard solids left out of the mass table (their mesh is symbolic). The masses and tipping result are unchanged. PPR-CAL-001 moved to v0.4 with the guarded costs.
+- `docs/02-concept.md` PPR-PRC-001 v0.6 and `docs/03-requirements.md` PPR-REQ-001 v0.6: guarding, safety, R9 text and status tables.
+- `cad/src/sheets.py`: PPR-DWG-001 Rev P3, "Guards and interlocked front gate added"; notes condensed so they fit.
+- `cad/src/concept_media.py` re-run: `media/hero.png`, `cutaway.png`, `exploded.png`, `flow.png`, `concept-blueprint.*`, `model.glb` now show the guarded press.
+- `cad/src/product_model.py`: guard frames in safety-yellow powder coat, mesh wire by wire at 12.7 mm pitch, pump slot with brush strip, standoffs, hazard label, red guard-locking interlock with link rod, lock block, release extension and T-handle; gate in group `gate_closed` and, swung open 105 degrees, in `gate_open`. RENDER_VIEWS: hero and lineup now include the guards with the gate closed (hero note replaced); exploded keeps its parts and now says guards are not shown; new view `gate-open` (el 18, az -68). Triangles: hero and gate-open 683k, lineup 725k, exploded 612k. All 88 parts valid.
+- `project.yaml`: PPR-DDR-003 added to the TRL evidence. Budget unchanged.
+
+### Numbers
+
+| Quantity | Value |
+| --- | --- |
+| Mesh | 12.7 x 12.7 x 1.6 mm welded (about 11 mm clear); 4.3 m² fixed plus 0.57 m² gate |
+| Nearest moving part behind the mesh | Back 105 mm (platen deck), sides 109 mm (platen sleeves), front 110 mm (carriage handle) |
+| Guarded press | 940 x 700 x 1,806 mm with the rail extension folded (840 x 655 mm unguarded) |
+| Guard mass | About 45 kg (estimate) |
+| Cost | $1,051 (press $970, QC rack $81) against $990: $61 (6.2 %) over |
+
+### Requirements now
+
+| ID | Status |
+| --- | --- |
+| R10 | **Not met**: $1,051 against $990 |
+| R2, R7 | At risk (unchanged) |
+| R9 | Met on paper; guard openings and distances assumed against ISO 13857, tables not checked |
+| R11 | Met on paper at the 0.7 m depth limit, no margin |
+| R1, R3 to R6, R8, R12 | Met on paper (unchanged) |
+
+### Proposed, awaiting Amish
+
+1. **Cost overrun ($61).** Options: (a) raise `budget_usd` to about $1,060, since guarding is a safety requirement (recommended); (b) cost the QC rack ($81) outside the press budget; (c) keep $990 and record R10 as not met. `budget_usd` was not changed.
+2. **Photoreal renders.** `media/render-hero.png`, `render-exploded.png` and `render-lineup.png` still show the unguarded press; they need re-rendering from the updated RENDER_VIEWS (including the new `gate-open` view) before any public use.
+3. Done later in this session: `README.md` and PPR-CAL-001 (now v0.4, "Guarded version costs (PPR-DDR-003)") were updated to the $1,051 guarded BOM.
+4. First co-design partner (item 9): still open.
+
+### Safety concerns
+
+- The ISO 13857 adequacy of the 11 mm mesh at about 105 mm, the 25 mm pump slot and reach over the roof is an assumption; a competent person must check it before any use.
+- The gate-open render draws the press in its pressing position for comparison; in use the gate opens only after the release is open and the platen is down.
+- Guards and interlocks must be inspected each shift and never defeated. All other concerns from earlier sessions stand.
+
+### TRL 4
+
+**TRL 4 remains on hold by Amish's instruction.** No build, guard check, measurement or purchasing was started.
+
+### Recommended next step
+
+Amish to decide the cost overrun (item 1). Then re-render the product views.
+
 ## Session 2026-09-25: recommendations accepted
 
 Authority: Amish wrote on 2026-09-25, "i accept all your recommendations, go with them across all repos." Every item with a recommendation is now **Decided by Amish, 2026-09-25: go with recommendation** (recorded in `docs/decisions/0002-recommendations-accepted.md`, PPR-DDR-002 v0.1, and in PPR-DDR-001 v0.2). `project.yaml` keeps `trl: 3` and `trl_target: 3`.

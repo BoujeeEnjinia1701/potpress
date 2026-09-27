@@ -6,7 +6,9 @@ Exports the assembly and the main parts to cad/step/*.step and cad/stl/*.stl.
 Axes: X across the press between the uprights, Y front (-Y, operator side; the mold
 carriage slides out this way) to back (+Y), Z up from the floor. Units mm. The press
 is shown closed at the end of a pressing stroke, male mold pinned, with a formed pot
-between the molds. The QC flow-test rack (2 x 2 stations) stands to the right (+X).
+between the molds, guarded: fixed welded-mesh guards and the hinged front gate closed
+(PPR-DDR-003). The QC flow-test rack (2 x 2 stations) stands to the right (+X).
+Guard mesh is drawn at every 8th wire (101.6 mm); the specified mesh is 12.7 mm.
 
 Correct interfaces and main dimensions only; not fabrication detail. Sizing is in
 PPR-CAL-001 (docs/04-calcs/sizing.py), which reads PARAMS and levels() from here.
@@ -100,6 +102,24 @@ PARAMS = {
     "BUCKET_D": 300.0,      # 20 L food-grade bucket
     "BUCKET_H": 325.0,
     "GAUGE_SCALE": 100.0,   # T-gauge stem length below the rim
+    # Guarding (guarded version, decided by Amish 2026-09-26, PPR-DDR-003). Fixed welded-mesh guards on
+    # the sides, back and roof, fixed front strips and a lower front panel, and a hinged front gate with
+    # a mechanical guard-locking interlock on the jack release. Mesh planes are outer faces.
+    "MESH_PITCH": 12.7,     # welded mesh, 12.7 mm (1/2 in) square wire centers, about 11 mm clear opening
+    "MESH_WIRE": 1.6,       # wire diameter (drawn square)
+    "MESH_SHOW_EVERY": 8,   # model.py draws every 8th wire (101.6 mm) so views stay readable
+    "GUARD_X": 470.0,       # side guard mesh plane, both sides of the axis
+    "GUARD_Y_FRONT": -350.0,  # front mesh plane (gate and fixed front strips), just ahead of the folded rail extension
+    "GUARD_Y_BACK": 325.0,  # rear guard mesh plane
+    "GUARD_Z0": 60.0,       # bottom edge of the guards, above the feet
+    "GUARD_ANGLE": 25.0,    # 25 x 25 x 3 angle frames on the fixed panels
+    "GUARD_ANGLE_T": 3.0,
+    "GATE_HALF": 270.0,     # gate opening from -270 to +270 in X (carriage, molds and rail extension pass)
+    "GATE_Z0": 380.0,       # gate bottom; the lower front panel is fixed below it
+    "GATE_TUBE": 20.0,      # 20 x 20 x 2 square tube gate frame
+    "GATE_OPEN_DEG": 0.0,   # 0 = closed (pressing); about 105 = swung open to the left
+    "PUMP_SLOT": (25.0, 200.0, 420.0),  # jack pump handle slot in the right side guard: width, z from, z to
+    "RELEASE_Y": -366.0,    # release valve extension T-handle axis, just outside the lower front panel
 }
 
 # UPN channel properties (EN 10279 / DIN 1026 tables): h, b, tw, tf mm; A mm2; Ix mm4; Wx mm3; kg/m
@@ -199,6 +219,142 @@ def channel_upright(x_back, side, z0, z1, sec):
     x_c, x_d = sorted((x_back, x_back + side * s["b"]))
     fl = box(x_c, x_d, -h / 2, -h / 2 + s["tf"], z0, z1) + box(x_c, x_d, h / 2 - s["tf"], h / 2, z0, z1)
     return web + fl
+
+
+def _minus(lo, hi, cuts):
+    """Interval [lo, hi] minus a list of (a, b) intervals."""
+    out = [(lo, hi)]
+    for a, b in sorted(cuts):
+        nxt = []
+        for s, e in out:
+            if b <= s or a >= e:
+                nxt.append((s, e))
+                continue
+            if a > s:
+                nxt.append((s, a))
+            if b < e:
+                nxt.append((b, e))
+        out = nxt
+    return [(s, e) for s, e in out if e - s > 1.0]
+
+
+def mesh_panel(plane, a0, a1, b0, b1, c_out, inward, pitch, wire, holes=()):
+    """Welded wire mesh as square wires, returned as a list of solids (not fused, so it stays light).
+
+    plane 'xz' (normal Y: a = x, b = z, c = y), 'yz' (normal X: a = y, b = z, c = x) or 'xy' (normal Z).
+    c_out is the outer face; inward (+1 or -1) points into the guarded space. The outer layer runs along a,
+    the inner layer along b, welded where they cross. holes: (a0, a1, b0, b1) rectangles with no wire."""
+    def place(a_lo, a_hi, b_lo, b_hi, c_lo, c_hi):
+        c_lo, c_hi = sorted((c_lo, c_hi))
+        if plane == "xz":
+            return box(a_lo, a_hi, c_lo, c_hi, b_lo, b_hi)
+        if plane == "yz":
+            return box(c_lo, c_hi, a_lo, a_hi, b_lo, b_hi)
+        return box(a_lo, a_hi, b_lo, b_hi, c_lo, c_hi)
+
+    def positions(lo, hi):
+        n = int((hi - lo) // pitch)
+        start = lo + (hi - lo - n * pitch) / 2
+        return [start + k * pitch for k in range(n + 1) if lo + wire / 2 <= start + k * pitch <= hi - wire / 2]
+
+    w = wire / 2
+    out = []
+    c1, c2, c3 = c_out, c_out + inward * wire, c_out + 2 * inward * wire
+    for bb in positions(b0, b1):             # outer layer, wires along a
+        cuts = [(h[0], h[1]) for h in holes if h[2] - w < bb < h[3] + w]
+        for s, e in _minus(a0, a1, cuts):
+            out.append(place(s, e, bb - w, bb + w, c1, c2))
+    for aa in positions(a0, a1):             # inner layer, wires along b
+        cuts = [(h[2], h[3]) for h in holes if h[0] - w < aa < h[1] + w]
+        for s, e in _minus(b0, b1, cuts):
+            out.append(place(aa - w, aa + w, s, e, c2, c3))
+    return out
+
+
+def angle_frame(plane, a0, a1, b0, b1, c_out, inward, leg, t):
+    """Rectangular frame of equal angle behind a mesh panel: one leg flat behind the mesh, one pointing inward."""
+    c_back = c_out + inward * 3.2                       # behind the two wire layers
+    flat_lo, flat_hi = sorted((c_back, c_back + inward * t))
+    out_lo, out_hi = sorted((c_back, c_back + inward * leg))
+    if plane == "xz":
+        ring = box(a0, a1, flat_lo, flat_hi, b0, b1) - box(a0 + leg, a1 - leg, flat_lo - 1, flat_hi + 1, b0 + leg, b1 - leg)
+        ring += box(a0, a1, out_lo, out_hi, b0, b1) - box(a0 + t, a1 - t, out_lo - 1, out_hi + 1, b0 + t, b1 - t)
+    elif plane == "yz":
+        ring = box(flat_lo, flat_hi, a0, a1, b0, b1) - box(flat_lo - 1, flat_hi + 1, a0 + leg, a1 - leg, b0 + leg, b1 - leg)
+        ring += box(out_lo, out_hi, a0, a1, b0, b1) - box(out_lo - 1, out_hi + 1, a0 + t, a1 - t, b0 + t, b1 - t)
+    else:
+        ring = box(a0, a1, b0, b1, flat_lo, flat_hi) - box(a0 + leg, a1 - leg, b0 + leg, b1 - leg, flat_lo - 1, flat_hi + 1)
+        ring += box(a0, a1, b0, b1, out_lo, out_hi) - box(a0 + t, a1 - t, b0 + t, b1 - t, out_lo - 1, out_hi + 1)
+    return ring
+
+
+def guard_layout(P=PARAMS):
+    """Fixed guard panels as dicts: name, plane, a0, a1, b0, b1, c_out, inward, holes. Pure arithmetic."""
+    L = levels(P)
+    gx, yf, yb, z0, z1 = P["GUARD_X"], P["GUARD_Y_FRONT"], P["GUARD_Y_BACK"], P["GUARD_Z0"], L["top1"]
+    gh = P["GATE_HALF"]
+    b = SECTIONS[P["BEAM_SEC"]]
+    y_beam = P["BEAM_GAP"] / 2 + b["b"]                  # beam flange tips, front and back
+    sw, sz0, sz1 = P["PUMP_SLOT"]
+    zr = L["jack0"] + 12                                  # release valve axis
+    return [
+        dict(name="Right side guard", plane="yz", a0=yf, a1=yb, b0=z0, b1=z1, c_out=gx, inward=-1,
+             holes=[(-sw / 2, sw / 2, sz0, sz1)]),
+        dict(name="Left side guard", plane="yz", a0=yf, a1=yb, b0=z0, b1=z1, c_out=-gx, inward=+1, holes=[]),
+        dict(name="Rear guard", plane="xz", a0=-gx, a1=gx, b0=z0, b1=z1, c_out=yb, inward=-1, holes=[]),
+        dict(name="Front left strip", plane="xz", a0=-gx, a1=-gh, b0=z0, b1=z1, c_out=yf, inward=+1, holes=[]),
+        dict(name="Front right strip", plane="xz", a0=gh, a1=gx, b0=z0, b1=z1, c_out=yf, inward=+1, holes=[]),
+        dict(name="Lower front panel", plane="xz", a0=-gh, a1=gh, b0=z0, b1=P["GATE_Z0"], c_out=yf, inward=+1,
+             holes=[(30 - 20, 30 + 20, zr - 20, zr + 20)]),
+        dict(name="Roof guard", plane="xy", a0=-gx, a1=gx, b0=yf, b1=yb, c_out=z1 + 3.2 + P["GUARD_ANGLE"], inward=-1,
+             holes=[(-P["BEAM_L"] / 2 - 5, P["BEAM_L"] / 2 + 5, -y_beam - 5, y_beam + 5)]),
+    ]
+
+
+def gate_geometry(P=PARAMS, pitch=None, open_deg=None):
+    """Hinged front gate (closed or swung open) as a list of solids: tube frame, mesh, hinges, handle, striker."""
+    bd = _b()
+    L = levels(P)
+    pitch = pitch or P["MESH_PITCH"] * P["MESH_SHOW_EVERY"]
+    open_deg = P["GATE_OPEN_DEG"] if open_deg is None else open_deg
+    gh, yf, tb = P["GATE_HALF"], P["GUARD_Y_FRONT"], P["GATE_TUBE"]
+    x0, x1 = -gh + 4, gh - 4
+    z0, z1 = P["GATE_Z0"] + 4, L["top1"] - 4
+    yin = yf + 3.2                                          # frame sits behind the mesh
+    fr = box(x0, x1, yin, yin + tb, z0, z1) - box(x0 + tb, x1 - tb, yin - 1, yin + tb + 1, z0 + tb, z1 - tb)
+    zm = (z0 + z1) / 2
+    fr += box(x0 + tb, x1 - tb, yin, yin + tb, zm - tb / 2, zm + tb / 2)            # mid rail
+    solids = [fr] + mesh_panel("xz", x0, x1, z0, z1, yf, +1, pitch, P["MESH_WIRE"])
+    hx, hy = -gh, yf - 12                                   # hinge axis, just ahead of the mesh
+    for zh in (z0 + 120, z1 - 120):
+        solids.append(cyl(8, zh - 40, zh + 40, x=hx, y=hy))                          # hinge knuckle
+        solids.append(box(hx, x0 + tb, hy - 3, yf, zh - 25, zh + 25))                # hinge leaf on the gate
+    zl = 900.0                                              # latch height
+    solids.append(box(x1 - 60, x1 - 45, yf - 25, yf - 13, zl - 70, zl + 70))        # pull handle, grip
+    solids.append(box(x1 - 60, x1 - 45, yf - 13, yf, zl - 70, zl - 58) + box(x1 - 60, x1 - 45, yf - 13, yf, zl + 58, zl + 70))
+    solids.append(box(x1 - 5, gh + 30, yf - 16, yf - 10, zl - 15, zl + 15))           # striker tongue into the interlock
+    if open_deg:
+        rot = bd.Pos(hx, hy, 0) * bd.Rot(0, 0, -open_deg) * bd.Pos(-hx, -hy, 0)
+        solids = [rot * s for s in solids]
+    return solids
+
+
+def interlock_geometry(P=PARAMS):
+    """Gate interlock unit on the right front strip, link rod and lock bar, and the jack release extension."""
+    L = levels(P)
+    gh, yf = P["GATE_HALF"], P["GUARD_Y_FRONT"]
+    zl = 900.0
+    jb = P["JACK_BASE"] / 2
+    zr = L["jack0"] + 12
+    yr = P["RELEASE_Y"]
+    s = [box(gh + 5, gh + 65, yf - 25, yf, zl - 55, zl + 55)]                        # guard-locking interlock unit
+    s.append(cyl(5, zr + 22, zl - 55, x=gh + 35, y=yf - 12))                          # link rod down the strip
+    s.append(box(10, gh + 40, yf - 18, yf - 6, zr + 16, zr + 28))                     # lock bar along the lower panel
+    s.append(box(0, 60, yr - 6, yf - 6, zr + 10, zr + 30))                            # lock block over the T-handle
+    s.append(cyl_y(6, yr, -jb - 26, 30, zr))                                          # release valve extension rod
+    bd = _b()
+    s.append(bd.Pos(30, yr, zr) * bd.Rot(0, 90, 0) * bd.Cylinder(7, 110))           # T-handle
+    return s
 
 
 def pot(z_floor, x=0.0, y=0.0, P=PARAMS):
@@ -405,7 +561,38 @@ def build_parts(P=PARAMS):
     rw1 = P["R_IN_BOT"] + (P["R_IN_RIM"] - P["R_IN_BOT"]) * (wz1 - wz0) / P["D_IN"]
     water = cone(P["R_IN_BOT"] - 0.5, rw1 - 0.5, wz0, wz1, gx, gy)
     parts.append(("Water in test pot", water, "#7DD3FC", None, (0, 0, 300)))
+
+    # 16 Fixed guards: welded mesh on 25 x 25 x 3 angle frames, sides, back, front strips, lower front, roof.
+    # Mesh drawn at every MESH_SHOW_EVERY-th wire; standoff brackets tie the panels to the beams.
+    pitch = P["MESH_PITCH"] * P["MESH_SHOW_EVERY"]
+    g = []
+    for pnl in guard_layout(P):
+        g.append(angle_frame(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
+                             P["GUARD_ANGLE"], P["GUARD_ANGLE_T"]))
+        g += mesh_panel(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
+                        pitch, P["MESH_WIRE"], pnl["holes"])
+    sw, sz0, sz1 = P["PUMP_SLOT"]
+    gx = P["GUARD_X"]
+    g.append(box(gx - 6.2, gx - 3.2, -sw / 2 - 12, sw / 2 + 12, sz0 - 12, sz1 + 12) -
+             box(gx - 7, gx - 2, -sw / 2, sw / 2, sz0, sz1))                                  # pump slot frame
+    for sx in (-1, 1):                                                                         # side standoffs
+        for zc in ((L["base0"] + L["base1"]) / 2, (L["top0"] + L["top1"]) / 2):
+            for sy in (-1, 1):
+                g.append(box(*sorted((sx * bl, sx * (gx - 3.2 - P["GUARD_ANGLE"]))), sy * 80 - 20, sy * 80 + 20, zc - 3, zc + 3))
+    parts.append(("Fixed mesh guards (sides, back, front strips, roof)", bd_comp(g), "#CA8A04", 16, (0, 900, 250)))
+
+    # 20 Hinged front gate (closed), 21 gate interlock and jack release extension
+    parts.append(("Front gate, mesh in a tube frame, with hinges", bd_comp(gate_geometry(P)), "#EAB308", 20, (0, -650, 250)))
+    parts.append(("Gate interlock and release valve extension", bd_comp(interlock_geometry(P)), "#1D4ED8", 21, (0, -450, 0)))
     return parts
+
+
+def bd_comp(shapes):
+    bd = _b()
+    return bd.Compound(children=list(shapes))
+
+
+GUARD_BOM = (16, 20, 21)
 
 
 def assembly(parts=None):
@@ -417,7 +604,7 @@ def assembly(parts=None):
 def press_only(parts=None):
     bd = _b()
     parts = parts or build_parts()
-    return bd.Compound(children=[p[1] for p in parts if p[3] is not None and p[3] <= 11])
+    return bd.Compound(children=[p[1] for p in parts if p[3] is not None and (p[3] <= 11 or p[3] in GUARD_BOM)])
 
 
 if __name__ == "__main__":
@@ -434,7 +621,11 @@ if __name__ == "__main__":
         export_stl(by[key], str(root / "stl" / f"{stem}.stl"))
     export_stl(press_only(parts), str(root / "stl" / "potpress-press.stl"))
     L = levels()
+    P_ = PARAMS
     bb = press_only(parts).bounding_box()
-    print(f"press envelope {bb.size.X:.0f} x {bb.size.Y:.0f} x {bb.size.Z:.0f} mm (rail extension folded; crank knob included)")
+    print(f"press envelope {bb.size.X:.0f} x {bb.size.Y:.0f} x {bb.size.Z:.0f} mm, guarded (rail extension folded; crank knob included)")
+    unguarded = Compound(children=[p[1] for p in parts if p[3] is not None and p[3] <= 11]).bounding_box()
+    print(f"unguarded press {unguarded.size.X:.0f} x {unguarded.size.Y:.0f} mm; guard mesh planes "
+          f"{2 * P_['GUARD_X']:.0f} x {P_['GUARD_Y_BACK'] - P_['GUARD_Y_FRONT']:.0f} mm; y from {bb.min.Y:.0f} to {bb.max.Y:.0f}")
     print(f"overall height {L['overall']:.0f} mm; male tip above female rim when open {L['open_gap']:.0f} mm")
     print("wrote cad/step/*.step and cad/stl/*.stl")

@@ -15,8 +15,11 @@ APPEARANCE MODEL ONLY: no tolerances, no fabrication detail. CONCEPT, NOT FOR FA
 Every main dimension, level and interface comes from PARAMS, SECTIONS, levels() and the helpers
 in model.py. Axes as model.py: X across the press, Y front (-Y, operator side) to back, Z up
 from the floor. The press is closed at the end of a pressing stroke with the rail extension
-folded. The mesh guards and front gate (BOM 16) are not shown, as in model.py; see
-docs/REVIEW.md, session 2026-09-26.
+folded. Guarded version (decided by Amish 2026-09-26, PPR-DDR-003): fixed welded-mesh guards on
+yellow powder-coated angle frames (group "guard"), the hinged front gate closed (group
+"gate_closed") or swung open (group "gate_open"), a red guard-locking interlock on the right front
+post with its link to the jack release T-handle, and a hazard label. The mesh is drawn wire by wire
+at the specified 12.7 mm pitch as square wires, so it stays light to tessellate.
 
     from product_model import product_parts
     for p in product_parts(): print(p["name"], p["group"], p["material"])
@@ -28,24 +31,30 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from build123d import (Axis, Compound, Cylinder, Pos, RectangleRounded, RegularPolygon, Rot,
                        Torus, extrude, fillet)
-from model import (PARAMS, SECTIONS, box, channel_upright, channel_x, cone, cyl, cyl_y, levels, pot,
-                   pot_outer)
+from model import (PARAMS, SECTIONS, angle_frame, box, channel_upright, channel_x, cone, cyl, cyl_y,
+                   guard_layout, levels, mesh_panel, pot, pot_outer)
 
 TITLE = "PotPress: hand-pumped hydraulic press for ceramic pot water filters"
 
 RENDER_VIEWS = [
-    {"name": "hero", "groups": ["shell", "internal", "context"], "explode": False, "el": 30, "az": -40,
+    {"name": "hero", "groups": ["shell", "guard", "gate_closed", "internal", "context"], "explode": False,
+     "el": 30, "az": -40,
      "note": "Product render from the front right and above (about 30 deg elevation); press closed at the end "
-             "of a stroke, bottle jack under the platen, molds on the slide-out carriage, handwheel on top. "
-             "Mesh guards and front gate not shown"},
+             "of a stroke behind welded-mesh guards with the interlocked front gate closed; bottle jack under "
+             "the platen, molds on the slide-out carriage, handwheel on top"},
     {"name": "exploded", "groups": ["shell", "internal"], "explode": True, "el": 28, "az": -55,
      "note": "Exploded view from the front right and above (about 28 deg elevation): base beam and feet, "
              "uprights and joint bolts, bottle jack, springs, platen, rails and carriage, female mold, "
-             "pressed pot, male mold, top crossbeam, male mold slide and handwheel"},
-    {"name": "lineup", "groups": ["shell", "internal", "accessory", "context"], "explode": False, "el": 24,
-     "az": -58,
+             "pressed pot, male mold, top crossbeam, male mold slide and handwheel; guards and gate not shown"},
+    {"name": "lineup", "groups": ["shell", "guard", "gate_closed", "internal", "accessory", "context"],
+     "explode": False, "el": 24, "az": -58,
      "note": "Lineup from the front right and above (about 24 deg elevation): the press at left and the "
              "2 x 2 QC flow-test rack at right with fired test pots, T-gauge and collection buckets"},
+    {"name": "gate-open", "groups": ["shell", "guard", "gate_open", "internal", "context"], "explode": False,
+     "el": 18, "az": -68,
+     "note": "Front gate swung open (about 105 deg) on its left hinges, showing the molds and carriage; "
+             "press parts drawn in the pressing position for comparison with the hero. In use the gate "
+             "opens only after the jack release is open and the platen is down"},
 ]
 
 # Colours (restrained product palette; kit accent)
@@ -72,6 +81,9 @@ C_PLY = "#CFAE84"
 C_BUCKET = "#E9EDF0"
 C_WATER = "#BFE3F2"
 C_FLOOR = "#D8D5CF"
+C_GUARD = "#E2A90F"       # safety-yellow powder-coated guard frames
+C_MESH = "#6F767F"        # galvanized welded mesh (shaded darker so the press reads through it)
+C_INTERLOCK = "#C62828"   # guard-locking interlock housing
 
 
 def _fillet_try(shape, edges, radii):
@@ -488,6 +500,101 @@ def product_parts(P=PARAMS):
     rw1 = P["R_IN_BOT"] + (P["R_IN_RIM"] - P["R_IN_BOT"]) * (wz1 - wz0) / P["D_IN"]
     water = cone(P["R_IN_BOT"] - 0.5, rw1 - 0.5, wz0, wz1, gx, gy)
     add("Water in test pot", water, C_WATER, "clear", None, "accessory", (0, 0, 300))
+
+    # ------------------------------------------------------------ 16, 20, 21 guarded version (PPR-DDR-003)
+    pitch, wire = P["MESH_PITCH"], P["MESH_WIRE"]
+    out_dir = {"Right side guard": (500, 0, 0), "Left side guard": (-500, 0, 0), "Rear guard": (0, 500, 0),
+               "Front left strip": (0, -500, 0), "Front right strip": (0, -500, 0), "Lower front panel": (0, -500, 0),
+               "Roof guard": (0, 0, 400)}
+    for pnl in guard_layout(P):
+        ex = out_dir[pnl["name"]]
+        fr_ = angle_frame(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
+                          P["GUARD_ANGLE"], P["GUARD_ANGLE_T"])
+        add(f"{pnl['name']} frame (powder-coated angle)", fr_, C_GUARD, "painted", 16, "guard", ex)
+        wires = mesh_panel(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
+                           pitch, wire, pnl["holes"])
+        add(f"{pnl['name']} mesh (12.7 mm welded)", _comp(wires), C_MESH, "metal", 16, "guard", ex)
+    gx = P["GUARD_X"]
+    sw, sz0, sz1 = P["PUMP_SLOT"]
+    slot = box(gx - 6.2, gx - 3.2, -sw / 2 - 12, sw / 2 + 12, sz0 - 12, sz1 + 12) - box(gx - 7, gx - 2, -sw / 2, sw / 2, sz0, sz1)
+    add("Pump handle slot frame", slot, C_GUARD, "painted", 16, "guard", (500, 0, 0))
+    brush = box(gx - 5.5, gx - 3.5, -sw / 2, -1, sz0, sz1) + box(gx - 5.5, gx - 3.5, 1, sw / 2, sz0, sz1)
+    add("Pump slot brush strip", brush, C_RUBBER, "rubber", 16, "guard", (500, 0, 0))
+    stand = []
+    for sx in (-1, 1):
+        for zc in ((L["base0"] + L["base1"]) / 2, (L["top0"] + L["top1"]) / 2):
+            for sy in (-1, 1):
+                stand.append(box(*sorted((sx * bl, sx * (gx - 3.2 - P["GUARD_ANGLE"]))), sy * 80 - 20, sy * 80 + 20, zc - 3, zc + 3))
+    add("Guard standoff brackets", _comp(stand), C_GUARD, "painted", 16, "guard", (0, 0, 0))
+
+    # hazard label on the front right strip: yellow plate, black triangle and text lines
+    gh, yf = P["GATE_HALF"], P["GUARD_Y_FRONT"]
+    xl0, xl1, zl0, zl1 = gh + 38, gx - 22, 1150.0, 1250.0
+    lab = box(xl0, xl1, yf - 1.2, yf, zl0, zl1)
+    lab = _fillet_try(lab, lab.edges().filter_by(Axis.Y), [4.0, 2.0])
+    add("Hazard label (crush, keep gate closed)", lab, C_YELLOW, "paper", 16, "guard", (0, -500, 0))
+    xc_ = xl0 + 32; zc_ = (zl0 + zl1) / 2
+    tri = Pos(xc_, yf - 1.35, zc_ - 4) * Rot(90, 0, 0) * extrude(RegularPolygon(26, 3, rotation=90), amount=0.3, both=True)
+    tri -= Pos(xc_, yf - 1.35, zc_ - 4) * Rot(90, 0, 0) * extrude(RegularPolygon(17, 3, rotation=90), amount=1, both=True)
+    tri += box(xc_ - 2.5, xc_ + 2.5, yf - 1.5, yf - 1.2, zc_ - 8, zc_ + 8)
+    txt = box(xl0 + 68, xl1 - 8, yf - 1.5, yf - 1.2, zc_ + 14, zc_ + 24) + box(xl0 + 68, xl1 - 30, yf - 1.5, yf - 1.2, zc_ - 2, zc_ + 6) \
+        + box(xl0 + 68, xl1 - 18, yf - 1.5, yf - 1.2, zc_ - 18, zc_ - 10) + box(xl0 + 8, xl1 - 8, yf - 1.5, yf - 1.2, zl0 + 6, zl0 + 12)
+    add("Hazard label print", tri + txt, C_INK, "paper", 16, "guard", (0, -500, 0))
+
+    # front gate, closed and open: 20 x 20 tube frame, mesh, lift-off hinges, pull handle, striker tongue
+    tb = P["GATE_TUBE"]
+    x0g, x1g = -gh + 4, gh - 4
+    z0g, z1g = P["GATE_Z0"] + 4, L["top1"] - 4
+    yin = yf + 3.2
+    gfr = box(x0g, x1g, yin, yin + tb, z0g, z1g) - box(x0g + tb, x1g - tb, yin - 1, yin + tb + 1, z0g + tb, z1g - tb)
+    gfr = _fillet_try(gfr, gfr.edges().filter_by(Axis.Y), [2.0, 1.0])
+    zm = (z0g + z1g) / 2
+    gfr += box(x0g + tb, x1g - tb, yin, yin + tb, zm - tb / 2, zm + tb / 2)
+    gmesh = _comp(mesh_panel("xz", x0g, x1g, z0g, z1g, yf, +1, pitch, wire))
+    hx, hy = -gh, yf - 12
+    knuck, leaves = [], []
+    for zh in (z0g + 120, z1g - 120):
+        k_ = cyl(8, zh - 40, zh + 40, x=hx, y=hy)
+        k_ = _fillet_try(k_, k_.edges(), [1.5, 0.8])
+        knuck.append(k_)
+        knuck.append(cyl(3, zh + 40, zh + 46, x=hx, y=hy))
+        leaves.append(box(hx + 6, x0g + tb, hy - 3, yf, zh - 25, zh + 25))
+    post_leaf = [box(-gh - 60, hx - 6, hy - 3, yf, zh - 25, zh + 25) for zh in (z0g + 120, z1g - 120)]
+    zl = 900.0
+    grip = box(x1g - 60, x1g - 45, yf - 25, yf - 13, zl - 70, zl + 70)
+    grip = _fillet_try(grip, grip.edges().filter_by(Axis.Z), [4.0, 2.0])
+    posts = box(x1g - 60, x1g - 45, yf - 13, yf, zl - 70, zl - 58) + box(x1g - 60, x1g - 45, yf - 13, yf, zl + 58, zl + 70)
+    striker = box(x1g - 5, gh + 30, yf - 16, yf - 10, zl - 15, zl + 15)
+    gate = [("Front gate frame (powder-coated tube)", gfr + _comp(leaves), C_GUARD, "painted"),
+            ("Front gate mesh (12.7 mm welded)", gmesh, C_MESH, "metal"),
+            ("Front gate hinge knuckles", _comp(knuck), C_ZINC, "metal"),
+            ("Front gate pull handle", grip + posts, C_BLACK, "plastic"),
+            ("Front gate striker tongue", striker, C_ZINC, "metal")]
+    rot = Pos(hx, hy, 0) * Rot(0, 0, -105) * Pos(-hx, -hy, 0)
+    for nm, sh_, col, mat_ in gate:
+        add(nm, sh_, col, mat_, 20, "gate_closed", (0, -600, 0))
+        add(nm + ", open", rot * sh_, col, mat_, 20, "gate_open", (0, -600, 0))
+    add("Gate hinge leaves on the post", _comp(post_leaf), C_GUARD, "painted", 20, "guard", (0, -500, 0))
+
+    # 21 guard-locking interlock on the right front post, link rod, lock bar, jack release extension
+    jb_ = P["JACK_BASE"] / 2
+    zr = L["jack0"] + 12
+    yr = P["RELEASE_Y"]
+    unit = box(gh + 5, gh + 65, yf - 25, yf, zl - 55, zl + 55)
+    unit = _fillet_try(unit, unit.edges().filter_by(Axis.Y), [4.0, 2.0])
+    add("Gate interlock housing (guard locking)", unit, C_INTERLOCK, "painted", 21, "guard", (0, -500, 0))
+    cap = box(gh + 12, gh + 58, yf - 26.5, yf - 25, zl + 12, zl + 45) + cyl_y(6, yf - 30, yf - 25, gh + 35, zl - 30)
+    add("Interlock cover plate and bolt cap", cap, C_BLACK, "plastic", 21, "guard", (0, -500, 0))
+    rod = cyl(5, zr + 22, zl - 55, x=gh + 35, y=yf - 12) + box(10, gh + 40, yf - 18, yf - 6, zr + 16, zr + 28)
+    add("Interlock link rod and lock bar", rod, C_ZINC, "metal", 21, "guard", (0, -500, 0))
+    lblk = box(0, 60, yr - 6, yf - 6, zr + 10, zr + 30)
+    lblk = _fillet_try(lblk, lblk.edges().filter_by(Axis.Y), [3.0, 1.5])
+    add("Release valve lock block", lblk, C_INTERLOCK, "painted", 21, "guard", (0, -500, 0))
+    ext = cyl_y(6, yr, -jb_ - 26, 30, zr)
+    add("Jack release extension rod", ext, C_ZINC, "metal", 21, "guard", (0, -500, 0))
+    th = Pos(30, yr, zr) * Rot(0, 90, 0) * Cylinder(7, 110)
+    th = _fillet_try(th, th.edges(), [3.0, 1.5])
+    add("Release valve T-handle", th, C_BLACK, "rubber", 21, "guard", (0, -500, 0))
 
     # ------------------------------------------------------------ context: workshop floor and mat
     slab = box(-560, 560, -560, 440, -20, 0)

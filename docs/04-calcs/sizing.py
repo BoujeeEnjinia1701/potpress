@@ -278,10 +278,10 @@ def masses():
     """Per-item masses from the model solids."""
     from model import build_parts
     parts = build_parts()
-    vol = {p[3]: 0.0 for p in parts if p[3] is not None}
+    vol = {p[3]: 0.0 for p in parts if p[3] is not None and p[3] not in (16, 20, 21)}
     ctr = {}
     for name, shape, col, bom, exp in parts:
-        if bom is None:
+        if bom is None or bom in (16, 20, 21):      # guards: mesh is drawn symbolically; priced from the BOM
             continue
         vol[bom] += shape.volume / 1e9                          # m3
         ctr[bom] = shape.center()
@@ -344,9 +344,10 @@ def costs(ms, pat):
     pla = (ms[8] + ms[9]) / RHO_AL * (1 + AL_SHRINK) ** 3 * PATTERN_FILL * PLA_RHO
     c["pla_kg"] = pla
     c[15] = pla * PLA_USD_KG + 10.0
-    c[16] = 55.0; c[17] = 10.0; c[18] = 45.0; c[19] = 12.0
+    c[16] = 67.0; c[17] = 10.0; c[18] = 45.0; c[19] = 12.0
+    c[20] = 21.0; c[21] = 34.0                                  # guarded version (PPR-DDR-003): gate; interlock
     c["total"] = sum(v for k, v in c.items() if isinstance(k, int))
-    c["press"] = sum(c[i] for i in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 17, 18))
+    c["press"] = sum(c[i] for i in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 17, 18, 20, 21))
     c["qc"] = sum(c[i] for i in (12, 13, 14, 19))
     c["pin_kg"] = pin_kg
     return c
@@ -356,7 +357,7 @@ def bom_total():
     rows = list(csv.DictReader((ROOT / "bom/bom.csv").open()))
     tot = sum(float(r["qty"]) * float(r["unit_cost_usd"]) for r in rows)
     press = sum(float(r["qty"]) * float(r["unit_cost_usd"]) for r in rows
-                if int(r["item"].split()[0]) in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 17, 18))
+                if int(r["item"].split()[0]) in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 17, 18, 20, 21))
     return tot, press, len(rows)
 
 

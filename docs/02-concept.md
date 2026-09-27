@@ -3,7 +3,7 @@ doc_id: PPR-PRC-001
 title: PotPress design precis
 project: PotPress
 doc_type: Design precis
-version: "0.5"
+version: "0.6"
 status: Draft
 date: '2026-09-26'
 author: Amish Chadha
@@ -29,22 +29,26 @@ revisions:
   date: '2026-09-26'
   author: Amish Chadha
   change: Budget top-up approved by Amish; budget $990, R10 met on paper
+- version: "0.6"
+  date: '2026-09-26'
+  author: Amish Chadha
+  change: Guarded version (decided by Amish 2026-09-26)
 ---
 
 # PotPress design precis
 
-PotPress is a hand-pumped hydraulic press that forms one ceramic pot filter per stroke between a cast aluminum female mold and male mold, plus a four-station rack for the standard one-hour flow-rate test. A 20 t bottle jack on the base lifts a guided platen carrying the female mold against a fixed male mold, whose stem is held by one load pin in the top crossbeam for pressing and raised by a hand crank for loading. One parametric filter geometry drives the molds, the 3D-printed casting patterns and the printed flow gauge. The TRL 3 calculations (PPR-CAL-001) give a cycle of about 5.2 min and about 69 pots per 6 h, a strong frame at 1.5 times the jack rating, every part under 40 kg with the frame bolted at the upright joints, and a parts cost of $984 against the $990 budget (topped up by Amish on 2026-09-26), a $6 margin. The design choices below were decided by Amish on 2026-09-25 (PPR-DDR-001 and PPR-DDR-002).
+PotPress is a hand-pumped hydraulic press that forms one ceramic pot filter per stroke between a cast aluminum female mold and male mold, plus a four-station rack for the standard one-hour flow-rate test. A 20 t bottle jack on the base lifts a guided platen carrying the female mold against a fixed male mold, whose stem is held by one load pin in the top crossbeam for pressing and raised by a hand crank for loading. One parametric filter geometry drives the molds, the 3D-printed casting patterns and the printed flow gauge. The TRL 3 calculations (PPR-CAL-001) give a cycle of about 5.2 min and about 69 pots per 6 h, a strong frame at 1.5 times the jack rating, every part under 40 kg with the frame bolted at the upright joints, and, in the guarded version, a parts cost of $1,051 against the $990 budget, $61 (6.2 %) over. The overrun is proposed, awaiting Amish (PPR-DDR-003). The press works inside fixed welded-mesh guards with a hinged front gate that is interlocked with the jack release, as decided by Amish on 2026-09-26 (PPR-DDR-003). The other design choices below were decided by Amish on 2026-09-25 (PPR-DDR-001 and PPR-DDR-002).
 
 ![Hero render](../media/hero.png)
 
-*Figure 1. PotPress with the 2 x 2 QC flow-test rack and a 1.75 m person for scale. The press is shown closed at the end of a pressing stroke.*
+*Figure 1. PotPress with the 2 x 2 QC flow-test rack and a 1.75 m person for scale. The press is shown closed at the end of a pressing stroke, inside its mesh guards with the front gate closed; the mesh is drawn at every eighth wire.*
 
 ## How it works
 
-1. **Load.** With the platen down, the female mold rim is at about 921 mm. The operator swings the hinged rail extension up onto its stop lugs, slides the carriage out 430 mm on the rails, lays a polyethylene release liner in the female mold, places a weighed charge of about 7.5 kg of clay, burnout and water mix, and slides the carriage back to its end stop.
+1. **Load.** With the platen down and the jack release open, the female mold rim is at about 921 mm. The operator opens the front gate, swings the hinged rail extension up onto its stop lugs, slides the carriage out 430 mm on the rails, lays a polyethylene release liner in the female mold, places a weighed charge of about 7.5 kg of clay, burnout and water mix, and slides the carriage back to its end stop.
 2. **Lower the male mold.** A handwheel on top of the frame turns a self-locking Tr24 x 5 lead screw that runs the male mold stem down 200 mm (40 turns) through the top crossbeam until the pin bores line up. The operator inserts the 60 mm load pin through the beam and stem. From then on the pin, not the screw, carries the press force.
-3. **Press.** The operator closes the front gate and pumps the jack, about 70 strokes. The platen, guided by sleeves on both uprights, lifts the female mold about 110 mm and squeezes the charge into the gap between the molds. The male flange centers in a tapered lip on the female mold and lands on a stop face, so the 15 mm wall and rim are set by the molds, not by how hard the operator pumps. Excess mix squeezes into a flash groove at the rim for trimming.
-4. **Open and demold.** The operator opens the jack release; the platen's weight and two springs return it. The operator pulls the pin and cranks the male mold up, leaving its tip 70 mm above the female rim. The carriage slides out toward the operator and tilts on its pivots so the pot, still in its liner, turns out onto a drying board. Between loads the rail extension folds down, so the press stands 840 x 655 mm.
+3. **Press.** The operator closes the front gate, which lets the guard-locking interlock free the jack release T-handle; closing the release locks the gate shut. The operator then pumps the jack through the slot in the right side guard, about 70 strokes. The platen, guided by sleeves on both uprights, lifts the female mold about 110 mm and squeezes the charge into the gap between the molds. The male flange centers in a tapered lip on the female mold and lands on a stop face, so the 15 mm wall and rim are set by the molds, not by how hard the operator pumps. Excess mix squeezes into a flash groove at the rim for trimming.
+4. **Open and demold.** The operator opens the jack release with the T-handle outside the guard; the platen's weight and two springs return it, and only then does the interlock let the gate open. The operator pulls the pin and cranks the male mold up, leaving its tip 70 mm above the female rim. The carriage slides out toward the operator and tilts on its pivots so the pot, still in its liner, turns out onto a drying board. Between loads the rail extension folds down, so the press stands 840 x 655 mm.
 5. **Dry, fire, treat.** Drying, firing and silver treatment follow the factory's existing practice and are outside PotPress.
 6. **Test.** Fired pots are soaked, hung by their rims in the QC rack over collection buckets, filled to 10 mm below the rim and read after one hour with the printed T-gauge. The reading is corrected to 25 °C with the water temperature.
 
@@ -78,8 +82,11 @@ Numbers match the exploded view (Figure 4), `bom/bom.csv` and the general arrang
 | 12 | QC flow-test rack | 2 x 2 stations, 780 x 780 x 550 mm, steel angle and plywood | Within R11's 0.8 x 0.8 m |
 | 13 | Printed T-gauge | PETG dipstick; 1.0 L is 16.7 mm on the scale | Scale generated from the geometry |
 | 14 | Collection buckets | 20 L food-grade HDPE | |
+| 16 | Fixed mesh guards | Welded mesh 12.7 x 12.7 x 1.6 mm (about 11 mm clear) on 25 x 25 x 3 angle frames: both sides, back, two front strips, a lower front panel and a roof around the top beam; standoffs to the beams; a framed pump handle slot with a brush strip in the right side | Mesh planes 940 x 675 mm; about 4.3 m² of mesh |
+| 20 | Front gate | 532 x 1,063 mm, 20 x 20 x 2 tube frame with the same mesh, two lift-off hinges on the left front post, pull handle and striker tongue; opens outward to the left | Clears the carriage, molds and rail extension (540 mm opening) |
+| 21 | Gate interlock and release extension | Mechanical guard-locking bolt on the right front post, link rod and lock bar to a blocking cam on the jack release extension; T-handle outside the lower front panel; the pin-presence plunger acts on the same lock bar | No electrics |
 
-Casting patterns, guards and front gate with interlocks, release liners, fasteners and consumables, and the QC timer and thermometer are BOM items 15 to 19 and are not modeled.
+Casting patterns, release liners, fasteners and consumables, and the QC timer and thermometer are BOM items 15 and 17 to 19 and are not modeled. The guards are modeled with their mesh drawn at every eighth wire (101.6 mm) so the views stay readable; the appearance model draws every wire.
 
 ![Exploded view](../media/exploded.png)
 
@@ -102,14 +109,15 @@ All values are estimates from PPR-CAL-001, which lists its assumptions and the r
 | Cycle | 5.2 min; 69 pots per 6 h | R4 met |
 | Wall evenness | ±1.40 mm as cast; ±0.43 mm finished to templates | R2 at risk |
 | Flow gauge | 0.1 L is 1.69 mm; 2.3 % per °C near 25 °C | R6 met |
-| Size and mass | Press 840 x 655 x 1,806 mm with the rail extension folded, 298 kg plus 7 kg of joint bolts; heaviest part 38.9 kg; rack 780 x 780 mm | R8 and R11 met on paper |
-| Cost | Press $903, QC rack $81, total $984 | R10 ($990) met on paper, 0.6 % margin |
+| Size and mass | Press 840 x 655 x 1,806 mm unguarded; 940 x 700 mm guarded, with the rail extension folded; 298 kg plus 7 kg of joint bolts and about 45 kg of guards (estimate); heaviest part 38.9 kg; rack 780 x 780 mm | R8 met on paper; R11 met on paper at the 0.7 m limit |
+| Guarding | Mesh 12.7 mm pitch; nearest moving parts behind the mesh: about 105 mm at the back (platen deck), 109 mm at the sides (platen sleeves), 110 mm at the front (carriage handle) | Distances assumed adequate; to be checked against ISO 13857 |
+| Cost | Press $970, QC rack $81, total $1,051 | R10 ($990) not met, $61 (6.2 %) over; proposed, awaiting Amish |
 
 The working force is still an assumption. Henry, Maley and Mehta (2013) formed round-bottom filters with a 2 t car jack ([IJSLE 8 (1)](https://ojs.library.queensu.ca/index.php/ijsle/article/view/4532)), which suggests the real force may be well below 5 to 10 t; the frame is sized for the full 20 t jack either way.
 
 ## Key design choices
 
-All of these were decided by Amish on 2026-09-25: go with recommendation (PPR-DDR-001 items 1 to 8 and 10 to 15; PPR-DDR-002).
+These were decided by Amish on 2026-09-25: go with recommendation (PPR-DDR-001 items 1 to 8 and 10 to 15; PPR-DDR-002), except the guarded version, decided by Amish on 2026-09-26 (PPR-DDR-003).
 
 - **Jack below, pushing the female mold up.** A bottle jack must stand upright, so it sits on the base and lifts the platen, and the male mold hangs from the top beam.
 - **Male mold lift by hand crank with one load pin and an interlock.** A standard jack gives only 150 mm of stroke, so the crank provides the other 200 mm of opening. The TRL 2 pair of 30 mm pins fails in bending by calculation; one 60 mm alloy-steel pin carries the force, and a mechanical pin-presence interlock stops the jack release valve closing unless the pin is fully home.
@@ -119,13 +127,15 @@ All of these were decided by Amish on 2026-09-25: go with recommendation (PPR-DD
 - **Demold by sliding out and tilting the carriage,** on a rail extension that folds down between loads.
 - **Manual QC rack with printed T-gauge.** The rack is 2 x 2 stations in 0.8 x 0.8 m; a load-cell logger stays a later option.
 - **Default acceptance band 1.0 to 2.5 L/h in the first hour, corrected to 25 °C.** Each factory may set its own band.
-- **Budget $990.** The priced BOM is $984 after the bolted joints and rail hinges; Amish topped up the budget from $930 to $990 on 2026-09-26 (PPR-DDR-002 item 16).
+- **Budget $990.** The priced BOM was $984 after the bolted joints and rail hinges; Amish topped up the budget from $930 to $990 on 2026-09-26 (PPR-DDR-002 item 16). The guarded version adds $67 and brings the BOM to $1,051; how to close the $61 gap is proposed, awaiting Amish (PPR-DDR-003).
+- **Guarded version (decided by Amish, 2026-09-26; PPR-DDR-003).** Fixed welded-mesh guards on the sides, back and roof, and a hinged front gate with a mechanical guard-locking interlock on the jack release. A hand pump has no power to switch off, so the interlock acts on the one thing that lets the jack build pressure: the release valve. With the gate open the release cannot be closed, so pumping moves nothing; with the release closed the gate cannot be opened. This was chosen over two-hand control, which does not suit a one-handed pump lever, and over hold-to-run alone, which a hand pump already is but which leaves the other hand free to reach the molds.
 
 ## Safety
 
 > **Safety:** PotPress is a 20 t hydraulic press with heavy moving parts, and the workshop around it handles silica-bearing clay dust and silver compounds. Treat each of these as a hazard at every stage.
 
-- **Crushing and pinch points.** The gap between the molds, the platen and the uprights, and the carriage rails can crush fingers and hands. Press only with the side guards on and the front gate closed; the jack pump and release valve sit outside the guard; the carriage has an end stop so it cannot be pushed past the male mold. Keep fingers clear of the rail extension hinges when folding it, and deploy it only onto its stop lugs.
+- **Crushing and pinch points.** The gap between the molds, the platen and the uprights, and the carriage rails can crush fingers and hands. The guarded version (PPR-DDR-003) encloses them: fixed welded-mesh guards on the sides, back and roof, fixed front strips and a lower front panel, and a hinged front gate. The gate's guard-locking interlock holds the jack release open unless the gate is shut, and holds the gate shut while the release is closed. The pump handle works through a framed slot in the right side guard, well below the platen, and the release T-handle sits outside the lower front panel. The carriage has an end stop so it cannot be pushed past the male mold. Keep fingers clear of the rail extension hinges when folding it, and deploy it only onto its stop lugs; the extension cannot be deployed with the gate shut.
+- **Guard openings (stated assumption).** The mesh is 12.7 mm (1/2 in) square welded mesh with 1.6 mm wire, about 11 mm clear, and the nearest moving parts are about 105 to 110 mm behind the mesh. ISO 13857 (safety distances to prevent hazard zones being reached by upper and lower limbs) is the reference; this precis assumes, without having checked its tables, that these openings and distances keep fingers out of the pinch zone. The pump handle slot (25 mm wide with a brush strip) and the reach over the roof are also unchecked. If the standard asks for more, use a finer mesh or move the panels out. Never remove a guard or defeat the interlock, and inspect both before each shift.
 - **Load pin and stored energy.** One 60 mm pin carries the whole press force. Never press unless the pin is fully home through both beam webs and the stem; the guard includes a pin-presence interlock that stops the jack release closing until the pin is home. Check the bolted upright joints for tightness before each shift. Never exceed the jack rating, never add a cheater bar to the pump handle, and never adjust the jack's relief valve. Release pressure fully before opening the gate or pulling the pin.
 - **Falling and tipping.** The molds weigh about 24 and 18 kg and the press about 305 kg with its bolts, with its center of mass about 0.8 m up. A push of about 750 N at 1 m tips it forward, so anchor the base to the floor, lift molds with two people and wear safety boots. The lead screw is self-locking, so the male mold holds its height if the handwheel is released; still keep hands out from under it.
 - **Silica dust.** Dry clay and rice husk ash contain crystalline silica, which causes silicosis. Keep mixing and trimming wet, sweep damp, and wear a fitted P2 or N95 respirator for dry work.
