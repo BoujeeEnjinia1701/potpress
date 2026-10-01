@@ -3,9 +3,9 @@ doc_id: PPR-BLD-001
 title: PotPress prototype build plan
 project: PotPress
 doc_type: Build plan
-version: "0.3"
+version: "0.4"
 status: Draft
-date: '2026-09-30'
+date: '2026-10-01'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -21,6 +21,10 @@ revisions:
   date: '2026-09-30'
   author: Amish Chadha
   change: Open decisions moved to the design decisions register
+- version: "0.4"
+  date: '2026-10-01'
+  author: Amish Chadha
+  change: Budget treated as a value-engineering target
 ---
 
 # PotPress prototype build plan
@@ -33,13 +37,13 @@ revisions:
 
 *Figure 1. Every component pulled apart and numbered in build order.*
 
-The prototype is a 20 t bottle-jack press that squeezes a clay charge between two cast aluminium molds to form a ceramic water filter pot, inside welded mesh guards with an interlocked front gate, plus a separate four-station rack for flow-testing finished pots. Figure 1 shows the 19 groups of parts in the order you make or fit them. The steel frame is a base beam and a top crossbeam, each two channels side by side, joined by two upright pairs with bolts; the jack pushes a moving platen up the uprights, and the platen carries rails on which a carriage slides the lower (female) mold in and out. The upper (male) mold hangs from a square stem that is pinned to the top crossbeam for pressing and wound up and down by a hand crank. The work is sawing, drilling and stick welding steel channel, plate and bar; 3D printing two casting patterns; having a local foundry sand-cast the two molds; hand finishing and lapping the molds; printing a gauge; and fitting bought parts (jack, springs, bolts, lead screw, mesh, buckets). The parts cost about $1,143 from the bill of materials, which is over the current budget (section 8).
+The prototype is a 20 t bottle-jack press that squeezes a clay charge between two cast aluminium molds to form a ceramic water filter pot, inside welded mesh guards with an interlocked front gate, plus a separate four-station rack for flow-testing finished pots. Figure 1 shows the 19 groups of parts in the order you make or fit them. The steel frame is a base beam and a top crossbeam, each two channels side by side, joined by two upright pairs with bolts; the jack pushes a moving platen up the uprights, and the platen carries rails on which a carriage slides the lower (female) mold in and out. The upper (male) mold hangs from a square stem that is pinned to the top crossbeam for pressing and wound up and down by a hand crank. The work is sawing, drilling and stick welding steel channel, plate and bar; 3D printing two casting patterns; having a local foundry sand-cast the two molds; hand finishing and lapping the molds; printing a gauge; and fitting bought parts (jack, springs, bolts, lead screw, mesh, buckets). The parts cost about $1,143 from the bill of materials, which is $83 over the $1,060 value-engineering target.
 
 > **Safety:** PotPress is a 20 t hydraulic press. A crushing hazard exists wherever the platen, molds or stem move. Its build involves stick welding, grinding galvanised mesh (zinc fume), lifts of up to 40 kg to 1.5 m, and a foundry pour done by others. Never pump the jack with anyone's hands inside the guard, never pump with the load pin out or half in, and do not go past hand pressure before the safety stops in section 6 allow it. Nothing in this plan authorises a pressing test; that is TRL 4 work and on hold.
 
 ## 2. What changed to make it buildable
 
-The concept showed what the press does; some of its parts could not be made or fitted as drawn. Each change keeps what the press does and is recorded in decision record PPR-DDR-004, accepted by Amish on 2026-09-30. The budget and four smaller questions stay open (section 8).
+The concept showed what the press does; some of its parts could not be made or fitted as drawn. Each change keeps what the press does and is recorded in decision record PPR-DDR-004, accepted by Amish on 2026-09-30. Five smaller questions stay open; see the design decisions register.
 
 *Table 1. Changes from the concept.*
 
@@ -562,7 +566,7 @@ These are the checks a TRL 4 test report would record; this plan only lists them
 | Footprint | R11 | Measure the guarded press, extension folded, and the rack | Within 1.0 x 0.7 x 2.0 m and 0.8 x 0.8 m |
 | Gauge scale | R6 | Draw off 1.0 L and 2.5 L measured volumes | 16.7 mm and 42.6 mm within 1 mm |
 | Mold materials | R12 | Foundry scrap note; look at the mold faces | Lead-free; no paint or oil on the faces |
-| Parts cost | R10 | Sum the receipts | Recorded against the budget |
+| Parts cost | R10 | Sum the receipts | Recorded against the value-engineering target |
 
 ## 6. Safety stops
 

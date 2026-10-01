@@ -3,9 +3,9 @@ doc_id: PPR-REQ-001
 title: PotPress requirements
 project: PotPress
 doc_type: Requirements
-version: "0.8"
+version: "0.9"
 status: Draft
-date: '2026-09-30'
+date: '2026-10-01'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -41,11 +41,15 @@ revisions:
   date: '2026-09-30'
   author: Amish Chadha
   change: Status from PPR-CAL-001 v0.6 after the design for construction (PPR-DDR-004); R10 not met on paper; no requirement text changed
+- version: "0.9"
+  date: '2026-10-01'
+  author: Amish Chadha
+  change: Budget treated as a value-engineering target; R10 reported against the target
 ---
 
 # PotPress requirements
 
-These requirements were checked by calculation at TRL 3 (PPR-CAL-001 v0.6). They are not yet validated with a filter factory and will be revised after co-design sessions (see PPR-PRB-001). With the design made constructable (PPR-DDR-004, 2026-09-30), one is not met on paper (R10, the parts cost of $1,143 against $1,060; the budget is proposed, awaiting Amish), two are at risk (R2 and R7) and nine are met on paper; see Table 2. Amish's decisions of 2026-09-25 are recorded in PPR-DDR-001 and PPR-DDR-002: the R6 default band, R3 judged at the 10 t working force, the R10 target of $930 (topped up to $990 by Amish on 2026-09-26 and raised to $1,060 by Amish on 2026-09-27, PPR-DDR-003), the R11 rack area of 0.8 x 0.8 m, the pin-presence interlock in R9 and lead-free scrap in R12. The guarded version and the guarding detail in R9 were decided by Amish on 2026-09-26 (PPR-DDR-003).
+These requirements were checked by calculation at TRL 3 (PPR-CAL-001 v0.6). They are not yet validated with a filter factory and will be revised after co-design sessions (see PPR-PRB-001). With the design made constructable (PPR-DDR-004, 2026-09-30), one is over the value-engineering target (R10, the parts cost of $1,143 against the $1,060 target, $83 over), two are at risk (R2 and R7) and nine are met on paper; see Table 2. Amish's decisions of 2026-09-25 are recorded in PPR-DDR-001 and PPR-DDR-002: the R6 default band, R3 judged at the 10 t working force, the R10 target of $930 (topped up to $990 by Amish on 2026-09-26 and raised to $1,060 by Amish on 2026-09-27, PPR-DDR-003), the R11 rack area of 0.8 x 0.8 m, the pin-presence interlock in R9 and lead-free scrap in R12. The guarded version and the guarding detail in R9 were decided by Amish on 2026-09-26 (PPR-DDR-003).
 
 The **reference filter** used throughout is the common flowerpot form: inner rim diameter 280 mm, inner depth 240 mm, wall 15 mm, flat rim about 345 mm across, about 12 L to the brim and about 10 L working volume (dimensions are estimates based on the 280 by 250 mm form reported by [Potters for Peace](https://www.pottersforpeace.org/ceramic-water-filter-project)).
 
@@ -62,7 +66,7 @@ The **reference filter** used throughout is the common flowerpot form: inner rim
 | R7 | Molds made locally | Molds cast from 3D-printed patterns printed on a 250 x 250 mm class printer; finishing with hand tools and a drill press; no lathe over 300 mm swing | Pattern split and finishing review with a foundry |
 | R8 | Frame built locally | Standard steel channel and plate; stick welding, drilling and bolting only; heaviest single part 40 kg or less for two-person handling | Part list and mass estimate |
 | R9 | Safe operation | Fixed welded-mesh guards on the sides, back and roof and a hinged front gate enclose every pinch point of the molds, platen, jack and carriage; guard openings and their distance from moving parts prevent finger reach into the pinch zone, judged against ISO 13857; a guard-locking gate interlock stops the jack release closing (so the jack cannot be pumped to build pressure) unless the gate is shut, and keeps the gate shut while the release is closed; jack pump and release worked from outside the guard; a pin-presence interlock prevents pressing unless the load pin is fully home (pin interlock decided by Amish, 2026-09-25; guarding decided by Amish, 2026-09-26) | Hazard review and guard layout in the model; later guard check against ISO 13857 |
-| R10 | Affordable | Press plus QC rack $1,060 or less in parts (raised from $600 to $720 and then to $930 by Amish, 2026-09-25; topped up to $990 by Amish, 2026-09-26; raised to $1,060 by Amish, 2026-09-27) | Priced BOM (`bom/bom.csv`) |
+| R10 | Affordable | Press plus QC rack at or under the $1,060 value-engineering target in parts (a hypothetical control target; raised from $600 to $720 and then to $930 by Amish, 2026-09-25; topped up to $990 by Amish, 2026-09-26; raised to $1,060 by Amish, 2026-09-27) | Priced BOM (`bom/bom.csv`) |
 | R11 | Footprint | Press within 1.0 x 0.7 m floor area and 2.0 m height, with the rail extension folded; QC rack within 0.8 x 0.8 m (relaxed from 0.8 x 0.5 m by Amish, 2026-09-25) | Model check |
 | R12 | Product-safe materials | Faces that touch clay or test water are aluminum, food-grade polyethylene or stainless steel; no lead-based paint or oiled release agents on mold faces; molds cast from lead-free scrap (no free-machining alloys; decided by Amish, 2026-09-25) | Material list review |
 
@@ -70,7 +74,7 @@ The **reference filter** used throughout is the common flowerpot form: inner rim
 
 | ID | TRL 3 value | Status |
 | --- | --- | --- |
-| R10 | Priced BOM $1,143 (press $1,060, QC rack $83) with the constructable design (PPR-DDR-004) against $1,060 | **Not met on paper**, $83 (7.8 %) over; budget proposed, awaiting Amish |
+| R10 | Priced BOM $1,143 (press $1,060, QC rack $83) with the constructable design (PPR-DDR-004) against $1,060 | **Over the value-engineering target by $83** (7.8 %) |
 | R2 | Wall ±1.40 mm as cast; ±0.44 mm with molds hand-finished to templates; coaxial ±0.44 mm via match-drilled dowels | **At risk** |
 | R7 | 16 flat-back pattern segments for a 250 mm printer, no core boxes; no lathe needed; cavity hand finishing unproven | **At risk** |
 | R9 | Guards, gate and interlocks modeled (PPR-DDR-003): 12.7 mm welded mesh with nearest moving parts about 105 to 110 mm behind it; guard-locking gate interlock and pin-presence plunger on the jack release lock bar; pump handle through a 30 mm slot, release knob outside | Met on paper; openings and distances assumed against ISO 13857, not checked (proposed, awaiting Amish) |
@@ -106,7 +110,7 @@ The **reference filter** used throughout is the common flowerpot form: inner rim
 
 ### Status after the design for construction, 2026-09-30 (PPR-DDR-004)
 
-- **R10:** the parts a build needs (steel base plate under the female mold, thicker mold flanges, dowels and bushes, floor anchors, bolted jack plate, adapter disc, interlock details) bring the BOM to $1,143 against $1,060 (status met on paper to not met on paper). The budget is not changed; it is proposed, awaiting Amish.
+- **R10:** the parts a build needs (steel base plate under the female mold, thicker mold flanges, dowels and bushes, floor anchors, bolted jack plate, adapter disc, interlock details) bring the BOM to $1,143 against $1,060 (status within the value-engineering target to over it by $83). The target is unchanged; the design decisions register lists the cost drivers and savings worth trying.
 - No requirement text changed. R3, R8 and R11 figures are updated from PPR-CAL-001 v0.6; their status is unchanged.
 
 ## Assumptions

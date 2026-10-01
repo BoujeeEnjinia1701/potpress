@@ -45,12 +45,12 @@ Authority: the `/build-plan` command and Amish's instructions of 2026-09-30 ("De
 | Frame at 294 kN | Beams 190 MPa, pin 272 MPa (yield 650), M16 joints 117 MPa, male flange 62 MPa (cast yield about 90) |
 | Deflection at 10 t | 0.66 mm (R3 met on paper) |
 | Masses | Press 344 kg plus about 45 kg of guards; heaviest part the platen at 39.6 kg (R8, 40 kg) |
-| Parts cost | $1,143 against $1,060: **R10 not met on paper** ($83, 7.8 % over) |
-| Requirements | 1 not met on paper (R10), 2 at risk (R2, R7), 9 met on paper |
+| Parts cost | Estimated $1,143 against the $1,060 value-engineering target: **over the target by $83** (7.8 %) |
+| Requirements | 1 over the value-engineering target (R10), 2 at risk (R2, R7), 9 met on paper |
 
 ### Proposed, awaiting Amish (PPR-DDR-004, Table 3)
 
-1. **Q1 budget:** raise to about $1,150, look for savings, or judge R10 on the press alone. Recommendation: raise it. `budget_usd` is unchanged.
+1. **Value engineering:** the estimate is $83 over the $1,060 target; the savings worth trying are in the design decisions register. `budget_usd` is unchanged.
 2. **Q2 pump slot 30 mm:** same ISO 13857 band as 25 mm; the ISO 13857 check itself is still open (PPR-DDR-003).
 3. **Q3 pump handle:** stands 158 mm outside the right guard while in use (beyond R11's 1.0 m width). Recommendation: treat it as operating space.
 4. **Q4 interlock notch angle:** set to the jack bought, at TRL 4.

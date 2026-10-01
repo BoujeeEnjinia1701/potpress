@@ -3,9 +3,9 @@ doc_id: PPR-PRC-001
 title: PotPress design precis
 project: PotPress
 doc_type: Design precis
-version: "0.7"
+version: "0.8"
 status: Draft
-date: '2026-09-27'
+date: '2026-10-01'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -37,11 +37,15 @@ revisions:
   date: '2026-09-27'
   author: Amish Chadha
   change: Cost overrun decided by Amish on 2026-09-27; budget $1,060, R10 met on paper
+- version: "0.8"
+  date: '2026-10-01'
+  author: Amish Chadha
+  change: Budget treated as a value-engineering target
 ---
 
 # PotPress design precis
 
-PotPress is a hand-pumped hydraulic press that forms one ceramic pot filter per stroke between a cast aluminum female mold and male mold, plus a four-station rack for the standard one-hour flow-rate test. A 20 t bottle jack on the base lifts a guided platen carrying the female mold against a fixed male mold, whose stem is held by one load pin in the top crossbeam for pressing and raised by a hand crank for loading. One parametric filter geometry drives the molds, the 3D-printed casting patterns and the printed flow gauge. The TRL 3 calculations (PPR-CAL-001) give a cycle of about 5.2 min and about 69 pots per 6 h, a strong frame at 1.5 times the jack rating, every part under 40 kg with the frame bolted at the upright joints, and, in the guarded version, a parts cost of $1,051 against the $1,060 budget, which Amish raised from $990 on 2026-09-27 to cover the guards (PPR-DDR-003). The press works inside fixed welded-mesh guards with a hinged front gate that is interlocked with the jack release, as decided by Amish on 2026-09-26 (PPR-DDR-003). The other design choices below were decided by Amish on 2026-09-25 (PPR-DDR-001 and PPR-DDR-002).
+PotPress is a hand-pumped hydraulic press that forms one ceramic pot filter per stroke between a cast aluminum female mold and male mold, plus a four-station rack for the standard one-hour flow-rate test. A 20 t bottle jack on the base lifts a guided platen carrying the female mold against a fixed male mold, whose stem is held by one load pin in the top crossbeam for pressing and raised by a hand crank for loading. One parametric filter geometry drives the molds, the 3D-printed casting patterns and the printed flow gauge. The TRL 3 calculations (PPR-CAL-001) give a cycle of about 5.2 min and about 69 pots per 6 h, a strong frame at 1.5 times the jack rating, every part under 40 kg with the frame bolted at the upright joints, and, in the guarded version, a parts cost of $1,051 against the $1,060 value-engineering target (the target stood at $990 before the guards were added, PPR-DDR-003). The press works inside fixed welded-mesh guards with a hinged front gate that is interlocked with the jack release, as decided by Amish on 2026-09-26 (PPR-DDR-003). The other design choices below were decided by Amish on 2026-09-25 (PPR-DDR-001 and PPR-DDR-002).
 
 ![Hero render](../media/hero.png)
 
@@ -115,7 +119,7 @@ All values are estimates from PPR-CAL-001, which lists its assumptions and the r
 | Flow gauge | 0.1 L is 1.69 mm; 2.3 % per °C near 25 °C | R6 met |
 | Size and mass | Press 840 x 655 x 1,806 mm unguarded; 940 x 700 mm guarded, with the rail extension folded; 298 kg plus 7 kg of joint bolts and about 45 kg of guards (estimate); heaviest part 38.9 kg; rack 780 x 780 mm | R8 met on paper; R11 met on paper at the 0.7 m limit |
 | Guarding | Mesh 12.7 mm pitch; nearest moving parts behind the mesh: about 105 mm at the back (platen deck), 109 mm at the sides (platen sleeves), 110 mm at the front (carriage handle) | Distances assumed adequate; to be checked against ISO 13857 (proposed, awaiting Amish) |
-| Cost | Press $970, QC rack $81, total $1,051 | R10 ($1,060) met on paper, $9 (0.8 %) margin |
+| Cost | Press $970, QC rack $81, total $1,051 | within the $1,060 value-engineering target, $9 (0.8 %) under |
 
 The working force is still an assumption. Henry, Maley and Mehta (2013) formed round-bottom filters with a 2 t car jack ([IJSLE 8 (1)](https://ojs.library.queensu.ca/index.php/ijsle/article/view/4532)), which suggests the real force may be well below 5 to 10 t; the frame is sized for the full 20 t jack either way.
 
@@ -131,7 +135,7 @@ These were decided by Amish on 2026-09-25: go with recommendation (PPR-DDR-001 i
 - **Demold by sliding out and tilting the carriage,** on a rail extension that folds down between loads.
 - **Manual QC rack with printed T-gauge.** The rack is 2 x 2 stations in 0.8 x 0.8 m; a load-cell logger stays a later option.
 - **Default acceptance band 1.0 to 2.5 L/h in the first hour, corrected to 25 °C.** Each factory may set its own band.
-- **Budget $1,060.** The priced BOM was $984 after the bolted joints and rail hinges; Amish topped up the budget from $930 to $990 on 2026-09-26 (PPR-DDR-002 item 16). The guarded version adds $67 and brings the BOM to $1,051, $61 over $990; Amish raised the budget to $1,060 on 2026-09-27, since guarding is a safety requirement (PPR-DDR-003). R10 is met on paper with a $9 (0.8 %) margin.
+- **Value-engineering target $1,060.** This is a hypothetical control target, not a limit. The priced BOM was $984 after the bolted joints and rail hinges, against a $990 target. The guarded version adds $67 and brings the BOM to $1,051, $61 over that earlier target; the target was set at $1,060 on 2026-09-27, since guarding is a safety requirement (PPR-DDR-003). The estimate is within the target, $9 (0.8 %) under.
 - **Guarded version (decided by Amish, 2026-09-26; PPR-DDR-003).** Fixed welded-mesh guards on the sides, back and roof, and a hinged front gate with a mechanical guard-locking interlock on the jack release. A hand pump has no power to switch off, so the interlock acts on the one thing that lets the jack build pressure: the release valve. With the gate open the release cannot be closed, so pumping moves nothing; with the release closed the gate cannot be opened. This was chosen over two-hand control, which does not suit a one-handed pump lever, and over hold-to-run alone, which a hand pump already is but which leaves the other hand free to reach the molds.
 
 ## Safety

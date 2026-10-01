@@ -3,9 +3,9 @@ doc_id: PPR-DDR-004
 title: PotPress design for construction
 project: PotPress
 doc_type: Design decision record
-version: "0.2"
+version: "0.3"
 status: Draft
-date: '2026-09-30'
+date: '2026-10-01'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -17,12 +17,16 @@ revisions:
   date: '2026-09-30'
   author: Amish Chadha
   change: Accepted by Amish; items that would change what the press does, its pitch, its safety case or its budget stay proposed (Table 3)
+- version: "0.3"
+  date: '2026-10-01'
+  author: Amish Chadha
+  change: Budget treated as a value-engineering target
 ---
 
 # 0004: Design for construction
 
 - **Date:** 2026-09-30
-- **Status:** accepted. Amish, 2026-09-30: "i accept your recommended changes on design that are currently being sent across for my approval". This covers every change in Tables 1 and 2. The questions in Table 3 would change the budget, the pitch or the safety case, so they stay **proposed, awaiting Amish**.
+- **Status:** accepted. Amish, 2026-09-30: "i accept your recommended changes on design that are currently being sent across for my approval". This covers every change in Tables 1 and 2. The questions in Table 3 would change the pitch or the safety case, or note value engineering, so they stay **proposed, awaiting Amish**.
 
 ## Context
 
@@ -60,7 +64,7 @@ The changes keep what the press does: the same filter shape, 20 t jack, 600 mm f
 | --- | --- | --- |
 | Masses | Press 298 to 344 kg; heaviest part the platen at 39.6 kg (R8, 40 kg); female mold with its base plate 36.5 kg; male mold 23.0 kg. | Added parts, thicker flanges, steel base plate. |
 | Calculations | PPR-CAL-001 v0.6: new checks for the male flange, the M16 joints, the lead screw float, the rails, the tipped mold, the stop lugs and the tipping pins; deflection 0.66 mm at 10 t. R3 stays met on paper. | Follows the model. |
-| Requirements | PPR-REQ-001 v0.8: R10 now not met on paper; figures for R2, R3, R7, R8, R9 and R11 updated. No requirement text changed. | Follows the calculations. |
+| Requirements | PPR-REQ-001 v0.8: R10 now over the value-engineering target by $83; figures for R2, R3, R7, R8, R9 and R11 updated. No requirement text changed. | Follows the calculations. |
 | BOM | Lines 1, 2, 3, 4, 7, 8, 9, 10, 12, 15, 16, 18, 20 and 21 rewritten to the buildable parts; total $1,051 to $1,143. | Parts added for construction. |
 | Drawing | PPR-DWG-001 Rev P5; making sketches PPR-DWG-101 to 114 added. | Follows the model. |
 | Media | Concept images, blueprint and 3D viewer regenerated. The photoreal renders (`media/render-*.png`) and `cad/src/product_model.py` still show the concept and need updating in Blender on Amish's Mac. | |
@@ -69,7 +73,7 @@ The changes keep what the press does: the same filter shape, 20 t jack, 600 mm f
 
 | # | Question | Options | Recommendation |
 | --- | --- | --- | --- |
-| Q1 | Budget. The constructable BOM is $1,143, $83 (7.8 %) over the $1,060 `budget_usd`, so R10 is not met on paper. | (a) raise the budget to about $1,150; (b) keep $1,060 and look for savings (for example cheaper dowels and bushes, plywood QC shelves from offcuts); (c) judge R10 on the press alone. | (a); the added parts are what a build needs. |
+| Q1 | Value engineering (a note, not a decision). The constructable BOM is $1,143, $83 (7.8 %) over the $1,060 value-engineering target (`budget_usd`, a hypothetical control target). | (a) look for savings (for example cheaper dowels and bushes, plywood QC shelves from offcuts); (b) read the target against the press alone ($1,060). | (a); the added parts are what a build needs, so savings come from how they are bought. |
 | Q2 | The pump slot widens from 25 to 30 mm. Both are in the same ISO 13857 band, but the guard distance check itself is still open (PPR-DDR-003). | (a) accept 30 mm with a brush strip and do the ISO 13857 check at TRL 4; (b) keep 25 mm and fit a thinner (16 mm) handle. | (a). |
 | Q3 | The pump handle stands 158 mm outside the right guard while in use, beyond the 1.0 m width of R11. | (a) treat the handle as operating space, like a door swing, and keep R11 on the guarded box; (b) use a two-piece handle removed between cycles. | (a). |
 | Q4 | The interlock notch is 120° (a third of a turn) round from the rod. Bottle jacks open their release between about a quarter and a half turn. | (a) set the notch to the jack bought, at TRL 4; (b) fix it at 120° and buy a jack to suit. | (a). |
@@ -78,6 +82,6 @@ The changes keep what the press does: the same filter shape, 20 t jack, 600 mm f
 ## Consequences
 
 - `design_state: constructable` in `project.yaml`. The build plan PPR-BLD-001 (`docs/05-build-plan.md`) shows every component and step in pictures drawn from the model by `cad/src/build_plan_media.py`.
-- Requirement status: 1 not met on paper (R10), 2 at risk (R2, R7), 9 met on paper (PPR-CAL-001 v0.6).
+- Requirement status: 1 over the value-engineering target (R10), 2 at risk (R2, R7), 9 met on paper (PPR-CAL-001 v0.6).
 - The photoreal renders and the appearance model are stale until they are rebuilt in Blender.
 - TRL 4 remains on hold by Amish's instruction.

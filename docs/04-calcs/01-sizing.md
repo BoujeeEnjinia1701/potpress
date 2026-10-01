@@ -3,9 +3,9 @@ doc_id: PPR-CAL-001
 title: PotPress sizing and first-principles checks
 project: PotPress
 doc_type: Calculation note
-version: "0.6"
+version: "0.7"
 status: Draft
-date: '2026-09-30'
+date: '2026-10-01'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -33,11 +33,15 @@ revisions:
   date: '2026-09-30'
   author: Amish Chadha
   change: Design for construction (PPR-DDR-004); new checks for the male flange on the stop, M16 joints, rails, lead screw float, demolding tilt; masses and costs from the constructable model; R10 not met on paper
+- version: "0.7"
+  date: '2026-10-01'
+  author: Amish Chadha
+  change: Budget treated as a value-engineering target; R10 reported against the target
 ---
 
 # PotPress sizing and first-principles checks
 
-On paper the press forms the reference filter, opens far enough, keeps up the output and stays strong at 1.5 times the jack rating, but it is heavier and dearer than the TRL 2 estimates said. With the recommendations Amish accepted on 2026-09-25 (PPR-DDR-002) and the guarded version he decided on 2026-09-26 (PPR-DDR-003), ten of the twelve requirements are met on paper and two are at risk. Amish topped up the budget to $990 on 2026-09-26, which covered the $984 BOM; the fixed guards and interlocked front gate then added $67, and Amish raised the budget to $1,060 on 2026-09-27 (PPR-DDR-003), so R10 was met on paper at $1,051 with a $9 (0.8 %) margin. Making the design constructable on 2026-09-30 (PPR-DDR-004) added the parts a build needs and raised the parts cost to $1,143, $83 (7.8 %) over the budget, so R10 is now not met on paper; the budget is proposed, awaiting Amish. R3 is now judged at the 10 t working force with the molds closing on a metal stop (0.61 mm), R11 allows 0.8 x 0.8 m for the QC rack and a hinged rail extension keeps the press 655 mm deep, and bolting the four upright joints keeps every part under 40 kg (R8). The calculations also found three TRL 2 errors that the model now corrects: the base beam (a single UPN 100) would have been stressed to about 1,071 MPa, the two 30 mm load pins would have failed in bending (about 1,030 MPa), and solid aluminum molds would have weighed about 57 and 41 kg, so the molds are now cast shells.
+On paper the press forms the reference filter, opens far enough, keeps up the output and stays strong at 1.5 times the jack rating, but it is heavier and dearer than the TRL 2 estimates said. With the recommendations Amish accepted on 2026-09-25 (PPR-DDR-002) and the guarded version he decided on 2026-09-26 (PPR-DDR-003), ten of the twelve requirements are met on paper and two are at risk. The value-engineering target stood at $990 on 2026-09-26, which the $984 BOM was within; the fixed guards and interlocked front gate then added $67, and the target was set at $1,060 on 2026-09-27 (PPR-DDR-003), so R10 was within the target at $1,051 with a $9 (0.8 %) margin. Making the design constructable on 2026-09-30 (PPR-DDR-004) added the parts a build needs and raised the parts cost to $1,143, $83 (7.8 %) over the $1,060 value-engineering target, so R10 is now over the target by $83; the design decisions register lists the cost drivers and savings worth trying. R3 is now judged at the 10 t working force with the molds closing on a metal stop (0.61 mm), R11 allows 0.8 x 0.8 m for the QC rack and a hinged rail extension keeps the press 655 mm deep, and bolting the four upright joints keeps every part under 40 kg (R8). The calculations also found three TRL 2 errors that the model now corrects: the base beam (a single UPN 100) would have been stressed to about 1,071 MPa, the two 30 mm load pins would have failed in bending (about 1,030 MPa), and solid aluminum molds would have weighed about 57 and 41 kg, so the molds are now cast shells.
 
 Every number in this note is printed by `docs/04-calcs/sizing.py` (run from the repo root: `python docs/04-calcs/sizing.py`). The script reads the geometry from `PARAMS`, `SECTIONS` and `levels()` in `cad/src/model.py`, takes part masses from the model solids, and reads the prices from `bom/bom.csv`, so the model, the drawing PPR-DWG-001, the BOM and this note agree. All values are first-principles estimates; nothing here is measured.
 
@@ -252,7 +256,7 @@ The rails are fixed to 290 mm in front of the axis and a 335 mm extension on two
 | | | 20 Front gate with hinges | 22 |
 | | | 21 Gate interlock and release extension | 41 |
 
-The press costs $1,060 and the QC rack $83, for **$1,143**. Amish raised the budget from $720 to $930 on 2026-09-25 (PPR-DDR-001 item 14), topped it up to $990 on 2026-09-26 (PPR-DDR-002 item 16), and raised it to $1,060 on 2026-09-27 for the guarded version (PPR-DDR-003, option (a)), when R10 was met on paper at $1,051. Making the design constructable (PPR-DDR-004) added $92: the steel base plate under the female mold, the thicker 450 mm mold flanges, dowels and bushes (items 8 and 9, +$44), floor anchors, the bolted jack plate and heavier feet (item 1, +$22), the adapter disc and nut box (item 10, +$9), interlock details (item 21, +$7), and smaller changes elsewhere. The total is **$83 (7.8 %) over the $1,060 budget, so R10 is not met on paper.** The budget is not changed here; it is proposed, awaiting Amish (PPR-DDR-004, Table 3). Guard solids are left out of the mass table in section 10, because the model draws their mesh at every eighth wire; the guards weigh about 45 kg (estimate).
+The press costs $1,060 and the QC rack $83, for **$1,143**. Amish raised the budget from $720 to $930 on 2026-09-25 (PPR-DDR-001 item 14), topped it up to $990 on 2026-09-26 (PPR-DDR-002 item 16), and raised it to $1,060 on 2026-09-27 for the guarded version (PPR-DDR-003, option (a)), when R10 was met on paper at $1,051. Making the design constructable (PPR-DDR-004) added $92: the steel base plate under the female mold, the thicker 450 mm mold flanges, dowels and bushes (items 8 and 9, +$44), floor anchors, the bolted jack plate and heavier feet (item 1, +$22), the adapter disc and nut box (item 10, +$9), interlock details (item 21, +$7), and smaller changes elsewhere. The total is **$83 (7.8 %) over the $1,060 value-engineering target, so R10 is over the target by $83.** The target is a hypothetical control target and is not changed here; the design decisions register lists the cost drivers and savings worth trying (PPR-DDR-004, Q1). Guard solids are left out of the mass table in section 10, because the model draws their mesh at every eighth wire; the guards weigh about 45 kg (estimate).
 
 ## 13. Results against the requirements
 
@@ -263,7 +267,7 @@ The press costs $1,060 and the QC rack $83, for **$1,143**. Amish raised the bud
 | R2 | ±1.40 mm as cast; ±0.44 mm wall and ±0.44 mm coaxial when finished to templates, located by match-drilled dowels | ±1 mm wall; 0.5 mm coaxial | At risk |
 | R7 | 16 flat-back pattern segments for a 250 mm printer, no core boxes; no lathe needed (dowels, lapped stop faces); cavity hand finishing unproven | Printed patterns, hand and drill press finishing, no lathe over 300 mm swing | At risk |
 | R9 | Guards, gate and interlocks modeled (PPR-DDR-003): 12.7 mm welded mesh, nearest moving parts about 105 to 110 mm behind it; guard-locking gate interlock and pin-presence plunger on the jack release | Guards, interlocked gate, controls outside, pin in place and interlocked | Met on paper; ISO 13857 distances assumed, not checked (proposed, awaiting Amish) |
-| R10 | $1,143 (press $1,060, QC rack $83), constructable design (PPR-DDR-004) | $1,060 or less | **Not met on paper**, $83 (7.8 %) over; budget proposed, awaiting Amish |
+| R10 | $1,143 (press $1,060, QC rack $83), constructable design (PPR-DDR-004) | $1,060 value-engineering target | **Over the value-engineering target by $83** (7.8 %) |
 | R1 | 280 mm rim, 240 mm deep, 15 mm wall, 345 mm rim; 12.30 L brim, 9.91 L working; all from `PARAMS` | Reference filter from one source file | Met on paper |
 | R3 | No yield at 294 kN: 190 MPa beams, 272 MPa pin (yield 650), 54 MPa uprights, 117 MPa M16 joint bolts, 62 MPa male flange on the stop. Deflection 0.66 mm at 10 t (1.97 mm at 294 kN); molds close on a metal stop | No yield at 294 kN; under 1 mm deflection at 10 t | Met on paper |
 | R4 | 5.2 min cycle; 69 pots per 6 h | 6 min or less; 50 or more per 6 h | Met on paper |
@@ -273,7 +277,7 @@ The press costs $1,060 and the QC rack $83, for **$1,143**. Amish raised the bud
 | R11 | Press 940 x 700 mm guarded with the rail extension folded (the pump handle stands 158 mm outside the right guard while in use), 1,806 mm tall; QC rack 780 x 780 mm | Press 1.0 x 0.7 m and 2.0 m; rack 0.8 x 0.8 m | Met on paper, at the 0.7 m depth limit |
 | R12 | Aluminum mold faces, polyethylene liners, HDPE buckets, no oils on molds; lead-free scrap alloy (decided) | Product-safe faces | Met on paper |
 
-Summary: 1 not met (R10), 2 at risk (R2, R7), 9 met on paper (R1, R3, R4, R5, R6, R8, R9, R11, R12). In v0.5 the count was 0 not met, 2 at risk and 10 met. In v0.4 the count was 1 not met (R10), 2 at risk and 9 met; in v0.3 the count was 0 not met, 3 at risk and 9 met; in v0.2 the count was 1 not met (R10), 3 at risk and 8 met; in v0.1 the count was 3 not met (R3, R10, R11), 4 at risk and 5 met.
+Summary: 1 over the value-engineering target (R10), 2 at risk (R2, R7), 9 met on paper (R1, R3, R4, R5, R6, R8, R9, R11, R12). In v0.5 the count was 0 not met, 2 at risk and 10 met. In v0.4 the count was 1 not met (R10), 2 at risk and 9 met; in v0.3 the count was 0 not met, 3 at risk and 9 met; in v0.2 the count was 1 not met (R10), 3 at risk and 8 met; in v0.1 the count was 3 not met (R3, R10, R11), 4 at risk and 5 met.
 
 ## 14. Changes to earlier numbers
 
@@ -289,4 +293,6 @@ Changes in v0.5 (cost overrun decided by Amish, 2026-09-27, PPR-DDR-003): budget
 
 > **Safety:** These are paper calculations for a 20 t press. The single load pin is the one part whose failure ejects the male mold; it must be in place, fully home and interlocked before pressing. Nothing here replaces a proof load test by a competent person before use, which is TRL 4 work and on hold.
 
-Changes in v0.6 (design for construction, PPR-DDR-004; Amish, 2026-09-30: "i accept your recommended changes on design that are currently being sent across for my approval"): beam gap 100 to 104 mm with shims; joint bolts M20 8.8 to M16 10.9 with spacer tubes (75 to 117 MPa); male flange 25 to 45 mm on a 450 mm diameter, now checked on the stop (487 to 62 MPa); pin block bearing 54 to 79 MPa (screw hole); stem lengthened to reach the plug floor (total deflection 0.61 to 0.66 mm at 10 t); new checks for the female base plate, the rails over the platen gap, the tipped mold, the stop lugs and the tipping pins; masses 298 to 344 kg for the press, heaviest part 38.9 to 39.6 kg; patterns 16 segments, 5.1 to 5.4 kg; QC rack 550 to 720 mm tall; cost $1,051 to $1,143, R10 met on paper to not met on paper (budget proposed, awaiting Amish).
+Changes in v0.6 (design for construction, PPR-DDR-004; Amish, 2026-09-30: "i accept your recommended changes on design that are currently being sent across for my approval"): beam gap 100 to 104 mm with shims; joint bolts M20 8.8 to M16 10.9 with spacer tubes (75 to 117 MPa); male flange 25 to 45 mm on a 450 mm diameter, now checked on the stop (487 to 62 MPa); pin block bearing 54 to 79 MPa (screw hole); stem lengthened to reach the plug floor (total deflection 0.61 to 0.66 mm at 10 t); new checks for the female base plate, the rails over the platen gap, the tipped mold, the stop lugs and the tipping pins; masses 298 to 344 kg for the press, heaviest part 38.9 to 39.6 kg; patterns 16 segments, 5.1 to 5.4 kg; QC rack 550 to 720 mm tall; cost $1,051 to $1,143, R10 within the value-engineering target to $83 over it.
+
+Changes in v0.7 (budget treated as a value-engineering target, 2026-10-01): R10 is reported against the $1,060 value-engineering target, $83 over, and no longer as a requirement that is not met. No number changed.
