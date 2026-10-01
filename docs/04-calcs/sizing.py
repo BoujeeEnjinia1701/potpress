@@ -51,7 +51,9 @@ PATTERN_FILL = 0.25                     # printed pattern mass fraction of a sol
 PLA_RHO = 1240.0
 AL_SHRINK = 0.013                       # linear pattern shrink allowance
 BED = 250.0                             # printer bed, mm (R7)
-BOLT_USD = 3.00                         # M20 x 150 8.8 bolt, nut and two washers, regional retail
+BOLT_USD = 2.50                         # M16 x 110 10.9 bolt, nut and two hardened washers, regional retail (DDR-004)
+FY_BOLT109, FU_BOLT109 = 900.0, 1000.0   # grade 10.9
+AS_M16 = 157.0                          # tensile stress area, mm2
 HINGE_USD = 10.0                        # two weld-on barrel hinges and stop lugs for the rail extension
 
 
@@ -120,7 +122,7 @@ def frame():
         f[f"pin_tau_{tag}"] = F / (2 * A)
         f[f"pin_brg_web_{tag}"] = (F / 2) / (d * a)
         f[f"pin_brg_web_nodbl_{tag}"] = (F / 2) / (d * b["tw"])
-        f[f"pin_brg_blk_{tag}"] = F / (d * blk)
+        f[f"pin_brg_blk_{tag}"] = F / (d * (blk - P["SCREW_HOLE"]))     # less the lead screw hole down the block (DDR-004)
         lig = (b["h"] / 2 - d / 2 - 1 - b["tf"])
         f["pin_ligament"] = lig
         f[f"pin_tear_{tag}"] = (F / 2) / (2 * lig * a)
@@ -136,11 +138,25 @@ def frame():
     run = b["h"] - 2 * b["tf"]
     f["weld_len"] = 4 * run
     f["weld_tau_design"] = (F_DESIGN / 2) / (f["weld_len"] * 6 * 0.707)
-    # Bolted option: 4 x M20 8.8 in double shear per joint (thread in the shear plane)
-    f["bolt_tau_design"] = (F_DESIGN / 2) / (4 * 2 * 245)
+    # Bolted joints as built (DDR-004): 4 x M16 10.9 in double shear per joint (thread in the shear plane)
+    f["bolt_tau_design"] = (F_DESIGN / 2) / (4 * 2 * AS_M16)
+    f["bolt_shear_allow"] = 0.5 * FU_BOLT109 / 1.25                                        # EN 1993-1-8, 10.9, thread in plane
     f["bolt_brg_web_design"] = (F_DESIGN / 2) / (4 * 2) / (P["JOINT_BOLT_D"] * b["tw"])     # on each beam web
     f["bolt_brg_flg_design"] = (F_DESIGN / 2) / (4 * 2) / (P["JOINT_BOLT_D"] * u["tf"])     # on each upright flange
+    d0 = P["JOINT_BOLT_D"] + 2
+    f["bolt_e2"] = u["b"] - P["JOINT_BOLT_DX"]                                               # hole centre to flange tip
+    f["bolt_e2_min"] = 1.2 * d0
+    f["bolt_root_clear"] = P["JOINT_BOLT_DX"] - P["SPACER_OD"] / 2 - (u["tw"] + 8.5)        # spacer tube to web root radius
     f["n_bolts"] = 4 * 4
+    # Rails over the platen (DDR-004): each rail carries F/4 along the cup footprint; with the 6 mm deck under it,
+    # it spans the gap between the platen channel webs (fixed ends) and overhangs the channel flange tips
+    cup_r = pot_outer(P)[0] + P["FM_SHELL"]
+    span_r = P["BEAM_GAP"]; over = cup_r - (P["BEAM_GAP"] / 2 + pl["b"])
+    Zr = P["RAIL_W"] * (P["RAIL_H"] + P["PLATEN_DECK_T"]) ** 2 / 6
+    for tag, F in (("rated", F_RATED), ("design", F_DESIGN)):
+        w = F / 4 / (2 * cup_r)
+        f[f"rail_sig_{tag}"] = max(w * span_r ** 2 / 12, w * max(over, 0) ** 2 / 2) / Zr
+    f["rail_span"], f["rail_over"] = span_r, over
     # Platen: rails at +-60 and +-170 mm, F/4 each, support at the jack
     xr = P["RAIL_X"]
     Wp = 2 * pl["Wx"]; Ip = 2 * pl["Ix"]
@@ -158,6 +174,22 @@ def frame():
         f[f"mm_tip_sig_{tag}"] = 3 * (3 + 0.33) / 8 * p * (r_tip / P["MM_TIP"]) ** 2
         f[f"fm_hoop_{tag}"] = p * rt / P["FM_SHELL"]
         f[f"mm_hoop_{tag}"] = p * P["R_IN_RIM"] / P["MM_SHELL"]
+    # Male mold flange on the metal stop (DDR-004): all the force through the stop ring (molds closed with no
+    # charge), flange as a ring cantilever from the plug shell; plug shell in compression; female base plate
+    r_stop = (P["FLASH_R"] + P["FM_FLANGE_D"] / 2) / 2
+    r_root = P["R_IN_RIM"]
+    f["stop_r"], f["stop_area"] = r_stop, math.pi * ((P["FM_FLANGE_D"] / 2) ** 2 - P["FLASH_R"] ** 2)
+    for tag, F in (("rated", F_RATED), ("design", F_DESIGN)):
+        m_ = F * (r_stop - r_root) / (2 * math.pi * r_root)
+        f[f"mm_flange_{tag}"] = 6 * m_ / P["MM_FLANGE_T"] ** 2
+        f[f"mm_shell_c_{tag}"] = F / (2 * math.pi * (P["R_IN_RIM"] - P["MM_SHELL"] / 2) * P["MM_SHELL"])
+        f[f"stop_p_{tag}"] = F / f["stop_area"]
+        p = F / (math.pi * (P["RIM_OD"] / 2) ** 2)
+        s_ = max(2 * xr[0], xr[1] - xr[0])
+        f[f"fm_plate_{tag}"] = 6 * (p * s_ ** 2 / 8) / P["FM_PLATE_T"] ** 2
+        f[f"adapter_brg_{tag}"] = F / (math.pi * (P["ADAPTER_D"] / 2) ** 2)
+    flange_old = 25.0; r_old = 0.5 * (P["FLASH_R"] + 195.0)
+    f["mm_flange_old_design"] = 6 * (F_DESIGN * (r_old - 90.0) / (2 * math.pi * 90.0)) / flange_old ** 2
     # Axial deflection chain between the molds
     Lu = L["pin"] - (L["base0"] + L["base1"]) / 2
     Ls = L["pin"] - L["stem0"]
@@ -217,10 +249,11 @@ def cycle(k):
 
 def alignment():
     a = {}
-    fit = P["LOC_CLEAR"] / 2
+    fit = math.hypot(P["LOC_CLEAR"] / 2, 0.1)   # pin play in its bush, plus setting the molds concentric before match drilling
     cast = math.hypot(0.8, 0.3, 0.5)          # CT10 radius share, pattern print error, core shift
     fin = 0.3                                 # hand finished to a printed template
     a["cast_each"] = cast
+    a["fit"] = fit
     a["wall_cast"] = math.sqrt(2 * cast ** 2 + fit ** 2)
     a["wall_fin"] = math.sqrt(2 * fin ** 2 + fit ** 2)
     a["coax_fin"] = math.sqrt(fin ** 2 + fin ** 2 + fit ** 2)
@@ -231,7 +264,7 @@ def patterns():
     out = {}
     for key, d, h in (("female", P["FM_FLANGE_D"], None), ("male", P["MM_FLANGE_D"], P["D_IN"] + P["MM_FLANGE_T"])):
         if h is None:
-            L = levels(); h = L["fm1"] - L["fm0"] + P["LOC_H"]
+            L = levels(); h = L["fm1"] - L["fm0"] - P["FM_PLATE_T"]      # the cup only; the base plate is steel
         dd, hh = d * (1 + AL_SHRINK), h * (1 + AL_SHRINK)
         n_plan = 1 if dd <= BED else (4 if dd / 2 <= BED else 8)   # whole, quadrants or octants
         tiers = math.ceil(hh / BED)
@@ -274,52 +307,64 @@ def qc(g):
     return q
 
 
+DENSITY = {"fm_cup": RHO_AL, "mm": RHO_AL, "liners": RHO_UHMW, "qc_shelves": RHO_PLY, "gauge": 1270.0,
+           "pot": 1640.0, "test_pots": 1640.0, "water": 1000.0}
+
+
 def masses():
-    """Per-item masses from the model solids."""
-    from model import build_parts
-    parts = build_parts()
-    vol = {p[3]: 0.0 for p in parts if p[3] is not None and p[3] not in (16, 20, 21)}
-    ctr = {}
-    for name, shape, col, bom, exp in parts:
-        if bom is None or bom in (16, 20, 21):      # guards: mesh is drawn symbolically; priced from the BOM
+    """Per-item masses from the model components (steel unless listed in DENSITY); guards priced from the BOM."""
+    from model import components
+    comps = components()
+    ms, ctr, per = {}, {}, {}
+    mom = {}
+    for c in comps:
+        if c.bom is None or c.bom in (11, 16, 20):   # product; guard mesh is drawn symbolically
             continue
-        vol[bom] += shape.volume / 1e9                          # m3
-        ctr[bom] = shape.center()
-    b = S[P["BEAM_SEC"]]
-    v_guides = 2 * 29 * P["BEAM_GAP"] * b["h"] / 1e9            # UHMW guide blocks in item 3
-    ms = {}
-    for bom, v in vol.items():
-        rho = {8: RHO_AL, 9: RHO_AL, 11: 1640.0, 12: RHO_PLY, 13: 1270.0, 14: 950.0}.get(bom, RHO_ST)
-        ms[bom] = v * rho
-    ms[3] -= v_guides * (RHO_ST - RHO_UHMW)
-    # Joint bolts are modeled in item 2; report them separately (M20 x 150 8.8 with nut, about 0.45 kg each)
-    ms["bolts"] = 16 * 0.45
-    b_ = S[P["BEAM_SEC"]]; rb_ = P["JOINT_BOLT_D"] / 2; yb = P["BEAM_GAP"] / 2 + b_["tw"]
-    v_bolt = math.pi * rb_ ** 2 * (2 * yb + 38) + 2 * math.pi * (1.5 * rb_) ** 2 * 14.5 - \
-        math.pi * rb_ ** 2 * (2 * b_["tw"] + 2 * S[P["UPRIGHT_SEC"]]["tf"])     # less the holes it fills
-    ms[2] -= 16 * v_bolt / 1e9 * RHO_ST
-    # QC rack: legs are steel angle 40 x 40 x 4 (2.42 kg/m), shelves plywood; recompute legs as angle
-    leg_len = 4 * P["QC_SHELF_Z"] / 1000
-    leg_vol = 4 * P["QC_LEG"] ** 2 * P["QC_SHELF_Z"] / 1e9
-    ms[12] = (vol[12] - leg_vol) * RHO_PLY + leg_len * 2.42 + 4 * 2 * 0.78 * 2.42   # plus shelf edge angles
+        kg = c.shape.volume / 1e9 * DENSITY.get(c.key, RHO_ST)
+        per[c.key] = kg
+        ms[c.bom] = ms.get(c.bom, 0.0) + kg
+        cc = c.shape.center()
+        mom.setdefault(c.bom, [0.0, 0.0, 0.0])
+        mom[c.bom][0] += kg * cc.Y; mom[c.bom][1] += kg * cc.Z; mom[c.bom][2] += kg
+    for bom, (my, mz, m_) in mom.items():
+        ctr[bom] = type("V", (), {"Y": my / m_, "Z": mz / m_})()
     ms[4] = 13.0                                                # typical 20 t bottle jack (massing solid overstates it)
     ms[6] = 2 * 0.3                                             # two tension springs
     ms[14] = 4 * 0.9                                            # 20 L HDPE bucket, about 0.9 kg each
     ms[11] = None
+    ms["per"] = per
+    ms["handled"] = {                                           # parts as two people lift them
+        "base beam": per["base_beam"], "jack plate": per["jack_plate"], "each foot": per["foot_right"],
+        "each upright pair": per["upright_right"], "top crossbeam": per["top_beam"], "platen": per["platen"],
+        "female mold with its base plate": per["fm_cup"] + per["fm_plate"] + per["loc_pins"] + per["fm_screws"],
+        "male mold": per["mm"] + per["bushes"], "stem": per["stem"], "crank bracket": per["bracket"],
+        "rails": per["rails"], "carriage": per["carriage"], "QC rack frame": per["qc_frame"]}
+    ms["bolts"] = per["bolts_left"] + per["bolts_right"]
     return ms, ctr
 
 
 def tipping(ms, ctr):
     t = {}
-    press = [i for i in range(1, 11)]
+    press = [i for i in range(1, 11) if ms.get(i)]
     M = sum(ms[i] for i in press)
     cy = sum(ms[i] * ctr[i].Y for i in press) / M
     cz = sum(ms[i] * ctr[i].Z for i in press) / M
     t["mass"], t["cg_y"], t["cg_z"] = M, cy, cz
-    moving = ms[8] + 7.4 + 8.0                                   # female mold, charge, carriage frame
+    moving = ms[8] + 7.4 + ms["per"]["carriage"]                 # female mold with base plate, charge, carriage
     t["moving"] = moving
     t["hinge_Nm"] = moving * G * (P["CARRIAGE_OUT"] - P["RAIL_HINGE"]) / 1000     # on the hinged extension
     t["hinge_lug_N"] = t["hinge_Nm"] / 0.012 / 2                  # two stop lugs, 12 mm below the hinge line
+    # Tipped for demolding (DDR-004): the mold turned right over, its centre of mass about the tipping pin radius
+    # in front of the pins; the lift handles and the tipping pins
+    arm = P["CARRIAGE_OUT"] + 2 * P["PIVOT_DY"] - P["RAIL_HINGE"]
+    t["tip_arm"] = arm
+    t["tip_hinge_Nm"] = moving * G * arm / 1000
+    t["tip_lug_N"] = t["tip_hinge_Nm"] / 0.012 / 2
+    t["tip_lift_N"] = moving * G * P["PIVOT_DY"] / (P["PIVOT_DY"] + 145.0)       # both handles together, at the start
+    pin_arm = 252.0 - 6.0 - (P["RAIL_X"][1] + P["RAIL_W"] / 2)                     # hook plate centre to the rail face
+    t["tip_pin_MPa"] = 2 * (moving * G / 2) * pin_arm / (math.pi * P["PIVOT_D"] ** 3 / 32)   # x2 for handling shock
+    cy_tip = (M * cy - moving * (arm + P["RAIL_HINGE"])) / M
+    t["tip_restoring_Nm"] = M * G * (cy_tip + P["FOOT_L"] / 2) / 1000
     cy_out = (M * cy - moving * P["CARRIAGE_OUT"]) / M
     edge = -P["FOOT_L"] / 2
     t["cg_y_out"] = cy_out
@@ -330,22 +375,28 @@ def tipping(ms, ctr):
 
 def costs(ms, pat):
     c = {}
+    per = ms["per"]
     steel = lambda i: ms[i] * STEEL_USD_KG
-    c[1] = steel(1); c[2] = steel(2) + 16 * BOLT_USD; c[3] = steel(3) + 8.0   # joint bolts; UHMW guide liners
+    cast = lambda kg: kg * POUR_FACTOR * AL_SCRAP_USD_KG + kg * FOUNDRY_USD_KG
+    c[1] = steel(1) + 4 * 2.0 + 4 * 0.5 + 4 * 0.5          # floor anchors, foot studs, jack plate bolts
+    c[2] = steel(2) + 16 * BOLT_USD                         # tubes and shims are in the steel mass
+    c[3] = (ms[3] - per["liners"]) * STEEL_USD_KG + 8.0     # UHMW-PE guide liners
     c[4] = 60.0
     c[5] = steel(5)
     c[6] = 2 * 5.0
-    c[7] = steel(7) + 8.0 + HINGE_USD                           # UHMW slide strips; extension hinges and lugs
-    for i in (8, 9):
-        c[i] = ms[i] * POUR_FACTOR * AL_SCRAP_USD_KG + ms[i] * FOUNDRY_USD_KG
-    pin_kg = math.pi * (P["PIN_D"] / 2) ** 2 * P["PIN_L"] / 1e9 * RHO_ST
-    c[10] = (ms[10] - pin_kg) * STEEL_USD_KG + 15.0 + 25.0 + 12.0   # pin bar, Tr24 screw and nut, handwheel
-    c[12] = 45.0; c[13] = 4 * 2.0; c[14] = 4 * 4.0
-    pla = (ms[8] + ms[9]) / RHO_AL * (1 + AL_SHRINK) ** 3 * PATTERN_FILL * PLA_RHO
+    c[7] = steel(7) + 2.0 + HINGE_USD                       # grease for the rails; extension hinges and lugs
+    c[8] = cast(per["fm_cup"]) + per["fm_plate"] * STEEL_USD_KG + 2 * 3.0 + 2.0   # two locating pins; four screws
+    c[9] = cast(per["mm"]) + 2 * 3.0                        # two steel bushes
+    pin_kg = per["pin"]
+    c[10] = (ms[10] - pin_kg - per["screw"] - per["nut"]) * STEEL_USD_KG + 15.0 + 25.0 + 12.0 + 4 * 0.6   # pin bar, screw and nut, handwheel, bolts
+    c[12] = 47.0                                            # rack raised 170 mm (DDR-004): about 1.6 kg more angle
+    c[13] = 4 * 2.0; c[14] = 4 * 4.0
+    pla = (per["fm_cup"] + per["mm"]) / RHO_AL * (1 + AL_SHRINK) ** 3 * PATTERN_FILL * PLA_RHO
     c["pla_kg"] = pla
     c[15] = pla * PLA_USD_KG + 10.0
     c[16] = 67.0; c[17] = 10.0; c[18] = 45.0; c[19] = 12.0
-    c[20] = 21.0; c[21] = 34.0                                  # guarded version (PPR-DDR-003): gate; interlock
+    c[20] = 21.0 + 1.0                                      # gate, plus the tongue plate
+    c[21] = (ms[21]) * STEEL_USD_KG + 2 * 8.0 + 10.0 + 3.0 + 4.0 + 3.0   # two universal joints, push-pull cable, springs, plunger, handle
     c["total"] = sum(v for k, v in c.items() if isinstance(k, int))
     c["press"] = sum(c[i] for i in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 17, 18, 20, 21))
     c["qc"] = sum(c[i] for i in (12, 13, 14, 19))
@@ -396,7 +447,12 @@ def main():
     print(f"  pin bearing on web plus doubler {f['pin_brg_web_design']:.0f} MPa (web alone {f['pin_brg_web_nodbl_design']:.0f}); on pin block {f['pin_brg_blk_design']:.0f} MPa; tear-out, ligament {f['pin_ligament']:.1f} mm, {f['pin_tear_design']:.0f} MPa")
     print(f"  TRL 2 pins (2 x 30 mm) at 30 t: shear {f['pin30_tau_design']:.0f} MPa, bending {f['pin30_sig_design']:.0f} MPa")
     print(f"  stem SHS {P['STEM']:.0f} x {P['STEM_T']:.0f}: A {f['stem_A']:.0f} mm2, {f['stem_sig_design']:.0f} MPa at 30 t")
-    print(f"  upright joint welds {f['weld_len']:.0f} mm of 6 mm fillet: {f['weld_tau_design']:.0f} MPa at 30 t (allow {WELD_ALLOW:.0f}); bolted (chosen) 4 x M20 8.8 per joint, double shear {f['bolt_tau_design']:.0f} MPa, bearing on beam web {f['bolt_brg_web_design']:.0f} MPa, on upright flange {f['bolt_brg_flg_design']:.0f} MPa")
+    print(f"  upright joint welds {f['weld_len']:.0f} mm of 6 mm fillet: {f['weld_tau_design']:.0f} MPa at 30 t (allow {WELD_ALLOW:.0f}); bolted (as built) 4 x M16 10.9 per joint, double shear {f['bolt_tau_design']:.0f} MPa (resistance {f['bolt_shear_allow']:.0f}), bearing on beam web {f['bolt_brg_web_design']:.0f} MPa, on upright flange {f['bolt_brg_flg_design']:.0f} MPa")
+    print(f"  bolt hole edge distance to the flange tip {f['bolt_e2']:.0f} mm (EN 1993-1-8 minimum {f['bolt_e2_min']:.1f}); spacer tube clears the web root radius by {f['bolt_root_clear']:.1f} mm")
+    print(f"  male flange {P['MM_FLANGE_T']:.0f} mm on the stop ring (mean radius {f['stop_r']:.1f} mm, from the plug shell at {P['R_IN_RIM']:.0f} mm), all force on the stop: {f['mm_flange_rated']:.0f} MPa at 20 t, {f['mm_flange_design']:.0f} MPa at 30 t (cast Al yield about {FY_AL:.0f}); the TRL 3 25 mm flange on a 180 mm adapter: {f['mm_flange_old_design']:.0f} MPa")
+    print(f"  male plug shell in compression {f['mm_shell_c_design']:.0f} MPa at 30 t; stop ring bearing {f['stop_p_design']:.1f} MPa; adapter disc bearing on the plug tip {f['adapter_brg_design']:.1f} MPa")
+    print(f"  female steel base plate {P['FM_PLATE_T']:.0f} mm across the rails: {f['fm_plate_rated']:.0f} MPa at 20 t, {f['fm_plate_design']:.0f} MPa at 30 t (S275)")
+    print(f"  rails with the deck across the {f['rail_span']:.0f} mm gap between the platen webs (overhang {f['rail_over']:.0f} mm): {f['rail_sig_rated']:.0f} MPa at 20 t, {f['rail_sig_design']:.0f} MPa at 30 t")
     print(f"  platen {P['PLATEN_SEC']} pair: {f['platen_sig_rated']:.0f} MPa at 20 t, {f['platen_sig_design']:.0f} MPa at 30 t")
     for tag, lab in (("work", "10 t"), ("rated", "20 t"), ("design", "30 t")):
         print(f"  {lab}: p {f['p_'+tag]:.2f} MPa; female floor {f['fm_floor_sig_'+tag]:.0f} MPa, male tip {f['mm_tip_sig_'+tag]:.0f} MPa, hoop female {f['fm_hoop_'+tag]:.0f} / male {f['mm_hoop_'+tag]:.0f} MPa (cast Al yield about {FY_AL:.0f})")
@@ -426,7 +482,7 @@ def main():
     print(f"  total {c['total_s']:.0f} s = {c['total_min']:.1f} min; {c['pots_6h']:.0f} pots per 6 h of pressing")
     print("7 Alignment and wall evenness (radial, RSS)")
     print(f"  as-cast error per mold +-{a['cast_each']:.2f} mm; wall variation as cast +-{a['wall_cast']:.2f} mm; finished to templates +-{a['wall_fin']:.2f} mm")
-    print(f"  mold coaxiality with finished locating lip +-{a['coax_fin']:.2f} mm (fit {P['LOC_CLEAR']:.1f} mm diametral)")
+    print(f"  mold coaxiality with match-drilled locating pins +-{a['coax_fin']:.2f} mm (pin in bush {P['LOC_CLEAR']:.2f} mm diametral, setting +-0.1 mm; radial term {a['fit']:.2f} mm)")
     print("8 Casting patterns (bed %.0f mm, shrink %.1f %%)" % (BED, AL_SHRINK * 100))
     for kk, v in pat.items():
         print(f"  {kk}: {v['d']:.0f} dia x {v['h']:.0f} mm; {v['plan']} sectors x {v['tiers']} tiers = {v['n']} segments")
@@ -440,15 +496,17 @@ def main():
     print("10 Masses from the model (kg)")
     print("  " + ", ".join(f"{i}: {v:.1f}" for i, v in sorted((k_, v_) for k_, v_ in ms.items() if isinstance(k_, int)) if v is not None))
     frame_weld = ms[1] + ms[2] + ms[3]
-    print(f"  press items 1 to 10 {t['mass']:.0f} kg (plus joint bolts {ms['bolts']:.1f} kg); frame (1 to 3) {frame_weld:.0f} kg if fully welded; heaviest part as handled, bolted {max(ms[1] - 2 * 0.64 * 10.6, ms[2] / 2, ms[3], ms[5], ms[8], ms[9], ms[10]):.1f} kg")
-    print(f"  parts as handled (feet and upright joints bolted): base beam {ms[1] - 2 * 0.64 * 10.6:.1f} kg, each foot {0.64 * 10.6:.1f} kg, each upright pair {ms[2] / 2:.1f} kg, top beam {ms[3]:.1f} kg, platen {ms[5]:.1f} kg, slide {ms[10]:.1f} kg")
+    hd = ms["handled"]
+    print(f"  press items 1 to 10 {t['mass']:.0f} kg (joint bolts {ms['bolts']:.1f} kg included); frame (1 to 3) {frame_weld:.0f} kg; heaviest part as handled {max(hd.values()):.1f} kg ({max(hd, key=hd.get)})")
+    print("  parts as handled: " + ", ".join(f"{k_} {v_:.1f}" for k_, v_ in hd.items()))
     print(f"  load pin {cost['pin_kg']:.1f} kg")
     print("11 Tipping")
     print(f"  press CG y {t['cg_y']:.0f} mm, z {t['cg_z']:.0f} mm; carriage out: CG y {t['cg_y_out']:.0f} mm vs front foot edge {-P['FOOT_L']/2:.0f} mm")
     print(f"  restoring moment {t['restoring_Nm']:.0f} N m; horizontal push at 1 m height to tip forward {t['push_N_at_1m']:.0f} N")
     print(f"  hinged rail extension, carriage fully out: {t['moving']:.1f} kg at {P['CARRIAGE_OUT'] - P['RAIL_HINGE']:.0f} mm past the hinge, {t['hinge_Nm']:.0f} N m; {t['hinge_lug_N']:.0f} N on each of two stop lugs")
+    print(f"  tipped right over for demolding: {t['tip_arm']:.0f} mm past the hinge, {t['tip_hinge_Nm']:.0f} N m; {t['tip_lug_N']:.0f} N on each stop lug; lift to start the tip {t['tip_lift_N']:.0f} N on the two handles; 12 mm tipping pins {t['tip_pin_MPa']:.0f} MPa with a x2 shock factor; press still stands with {t['tip_restoring_Nm']:.0f} N m to spare before the anchors")
     print("12 Envelope")
-    print(f"  frame {P['BEAM_L']:.0f} x {P['FOOT_L']:.0f} mm; rail extension folded {P['BEAM_L']:.0f} x {P['RAIL_HINGE'] + P['RAIL_H'] + P['FOOT_L'] / 2:.0f} mm; deployed for demolding {P['BEAM_L']:.0f} x {P['RAIL_BACK'] + P['CARRIAGE_OUT'] + P['FOOT_L'] / 2:.0f} mm; height {L['overall']:.0f} mm")
+    print(f"  frame {P['BEAM_L']:.0f} x {P['FOOT_L']:.0f} mm; rail extension folded inside the feet ({P['RAIL_HINGE'] + P['RAIL_H']:.0f} mm in front of the axis); deployed for demolding {P['BEAM_L']:.0f} x {P['RAIL_BACK'] + P['CARRIAGE_OUT'] + P['FOOT_L'] / 2:.0f} mm; height {L['overall']:.0f} mm")
     qw = 2 * P["QC_PITCH"]
     print(f"  QC rack {qw:.0f} x {qw:.0f} x {P['QC_SHELF_Z']:.0f} mm; minimum for 4 rims in one row {4*(P['RIM_OD']+20):.0f} mm")
     print("13 Cost (USD)")

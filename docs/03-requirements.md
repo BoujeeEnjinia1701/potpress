@@ -3,9 +3,9 @@ doc_id: PPR-REQ-001
 title: PotPress requirements
 project: PotPress
 doc_type: Requirements
-version: "0.7"
+version: "0.8"
 status: Draft
-date: '2026-09-27'
+date: '2026-09-30'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -37,11 +37,15 @@ revisions:
   date: '2026-09-27'
   author: Amish Chadha
   change: Cost overrun decided by Amish on 2026-09-27; R10 target $1,060, status met on paper
+- version: "0.8"
+  date: '2026-09-30'
+  author: Amish Chadha
+  change: Status from PPR-CAL-001 v0.6 after the design for construction (PPR-DDR-004); R10 not met on paper; no requirement text changed
 ---
 
 # PotPress requirements
 
-These requirements were checked by calculation at TRL 3 (PPR-CAL-001 v0.5). They are not yet validated with a filter factory and will be revised after co-design sessions (see PPR-PRB-001). With the guarded version and the budget raised to $1,060, none is not met, two are at risk (R2 and R7) and ten are met on paper; see Table 2. Amish's decisions of 2026-09-25 are recorded in PPR-DDR-001 and PPR-DDR-002: the R6 default band, R3 judged at the 10 t working force, the R10 target of $930 (topped up to $990 by Amish on 2026-09-26 and raised to $1,060 by Amish on 2026-09-27, PPR-DDR-003), the R11 rack area of 0.8 x 0.8 m, the pin-presence interlock in R9 and lead-free scrap in R12. The guarded version and the guarding detail in R9 were decided by Amish on 2026-09-26 (PPR-DDR-003).
+These requirements were checked by calculation at TRL 3 (PPR-CAL-001 v0.6). They are not yet validated with a filter factory and will be revised after co-design sessions (see PPR-PRB-001). With the design made constructable (PPR-DDR-004, 2026-09-30), one is not met on paper (R10, the parts cost of $1,143 against $1,060; the budget is proposed, awaiting Amish), two are at risk (R2 and R7) and nine are met on paper; see Table 2. Amish's decisions of 2026-09-25 are recorded in PPR-DDR-001 and PPR-DDR-002: the R6 default band, R3 judged at the 10 t working force, the R10 target of $930 (topped up to $990 by Amish on 2026-09-26 and raised to $1,060 by Amish on 2026-09-27, PPR-DDR-003), the R11 rack area of 0.8 x 0.8 m, the pin-presence interlock in R9 and lead-free scrap in R12. The guarded version and the guarding detail in R9 were decided by Amish on 2026-09-26 (PPR-DDR-003).
 
 The **reference filter** used throughout is the common flowerpot form: inner rim diameter 280 mm, inner depth 240 mm, wall 15 mm, flat rim about 345 mm across, about 12 L to the brim and about 10 L working volume (dimensions are estimates based on the 280 by 250 mm form reported by [Potters for Peace](https://www.pottersforpeace.org/ceramic-water-filter-project)).
 
@@ -62,21 +66,21 @@ The **reference filter** used throughout is the common flowerpot form: inner rim
 | R11 | Footprint | Press within 1.0 x 0.7 m floor area and 2.0 m height, with the rail extension folded; QC rack within 0.8 x 0.8 m (relaxed from 0.8 x 0.5 m by Amish, 2026-09-25) | Model check |
 | R12 | Product-safe materials | Faces that touch clay or test water are aluminum, food-grade polyethylene or stainless steel; no lead-based paint or oiled release agents on mold faces; molds cast from lead-free scrap (no free-machining alloys; decided by Amish, 2026-09-25) | Material list review |
 
-*Table 2. Status against each requirement at TRL 3 (from PPR-CAL-001 v0.5 and, for R9, R10 and R11, the guarded model and BOM; least certain first).*
+*Table 2. Status against each requirement at TRL 3 (from PPR-CAL-001 v0.6 and, for R9, R10 and R11, the guarded model and BOM; least certain first).*
 
 | ID | TRL 3 value | Status |
 | --- | --- | --- |
-| R2 | Wall ±1.40 mm as cast; ±0.43 mm with molds hand-finished to templates; coaxial ±0.43 mm via the locating lip | **At risk** |
-| R7 | 16 pattern segments for a 250 mm printer; cavity finishing without a lathe unproven | **At risk** |
-| R9 | Guards, gate and interlocks modeled (PPR-DDR-003): 12.7 mm welded mesh with nearest moving parts about 105 to 110 mm behind it; guard-locking gate interlock and pin-presence plunger on the jack release lock bar; pump through a 25 mm slot, release T-handle outside | Met on paper; openings and distances assumed against ISO 13857, not checked (proposed, awaiting Amish) |
-| R10 | Priced BOM $1,051 (press $970, QC rack $81) against $1,060 with the guarded version | Met on paper, $9 (0.8 %) margin |
+| R10 | Priced BOM $1,143 (press $1,060, QC rack $83) with the constructable design (PPR-DDR-004) against $1,060 | **Not met on paper**, $83 (7.8 %) over; budget proposed, awaiting Amish |
+| R2 | Wall ±1.40 mm as cast; ±0.44 mm with molds hand-finished to templates; coaxial ±0.44 mm via match-drilled dowels | **At risk** |
+| R7 | 16 flat-back pattern segments for a 250 mm printer, no core boxes; no lathe needed; cavity hand finishing unproven | **At risk** |
+| R9 | Guards, gate and interlocks modeled (PPR-DDR-003): 12.7 mm welded mesh with nearest moving parts about 105 to 110 mm behind it; guard-locking gate interlock and pin-presence plunger on the jack release lock bar; pump handle through a 30 mm slot, release knob outside | Met on paper; openings and distances assumed against ISO 13857, not checked (proposed, awaiting Amish) |
 | R1 | Reference filter from `PARAMS` in `cad/src/model.py`: 12.30 L to the brim, 9.91 L working | Met on paper |
-| R3 | No yield at 294 kN: beams 190 MPa, uprights 54 MPa, 60 mm pin 258 MPa (yield 650), joint bolts 75 MPa. Deflection between the molds 0.61 mm at 10 t (1.84 mm at 294 kN) | Met on paper |
+| R3 | No yield at 294 kN: beams 190 MPa, uprights 54 MPa, 60 mm pin 272 MPa (yield 650), M16 joint bolts 117 MPa, male flange on the stop 62 MPa. Deflection between the molds 0.66 mm at 10 t (1.97 mm at 294 kN) | Met on paper |
 | R4 | 5.2 min cycle, 69 pots per 6 h | Met on paper, thin margin |
 | R5 | 310 mm opening against 270 mm needed; 110 of 150 mm jack stroke | Met on paper |
 | R6 | 4 stations; 0.1 L is 1.69 mm on the gauge; temperature correction to 25 °C | Met on paper; repeatability not verifiable at TRL 3 |
-| R8 | Heaviest part 38.9 kg (platen); upright joints bolted, largest frame part 37.4 kg | Met on paper |
-| R11 | Press 940 x 700 mm guarded with the rail extension folded (840 x 655 mm unguarded; 970 mm deep deployed, gate open), 1,806 mm tall; QC rack 780 x 780 mm | Met on paper, at the 0.7 m depth limit with no margin |
+| R8 | Heaviest part 39.6 kg (platen); upright joints bolted, largest frame part 38.0 kg | Met on paper |
+| R11 | Press 940 x 700 mm guarded with the rail extension folded (the pump handle stands 158 mm outside the right guard while in use), 1,806 mm tall; QC rack 780 x 780 mm | Met on paper, at the 0.7 m depth limit with no margin |
 | R12 | Aluminum faces, polyethylene liners, HDPE buckets; lead-free scrap alloy | Met on paper |
 
 ### Requirement changes decided by Amish, 2026-09-25 (PPR-DDR-002)
@@ -99,6 +103,11 @@ The **reference filter** used throughout is the common flowerpot form: inner rim
 ### Requirement change decided by Amish, 2026-09-27 (PPR-DDR-003 v0.2)
 
 - **R10:** budget raised from $990 to $1,060 ("i agree with the budget for potpress"; option (a) in PPR-DDR-003). The priced BOM of $1,051 meets R10 on paper with a $9 (0.8 %) margin, which is thin; any price rise moves R10 back to at risk (status not met to met on paper).
+
+### Status after the design for construction, 2026-09-30 (PPR-DDR-004)
+
+- **R10:** the parts a build needs (steel base plate under the female mold, thicker mold flanges, dowels and bushes, floor anchors, bolted jack plate, adapter disc, interlock details) bring the BOM to $1,143 against $1,060 (status met on paper to not met on paper). The budget is not changed; it is proposed, awaiting Amish.
+- No requirement text changed. R3, R8 and R11 figures are updated from PPR-CAL-001 v0.6; their status is unchanged.
 
 ## Assumptions
 

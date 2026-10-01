@@ -1,5 +1,82 @@
 # Review note: PotPress
 
+## Session 2026-09-30: constructable design and illustrated build plan (/build-plan)
+
+Authority: the `/build-plan` command and Amish's instructions of 2026-09-30 ("Design concept and constructability are different states"; "fix the design assumptions to match and be physically feasible as you draw the illustrations"; "i accept your recommended changes on design that are currently being sent across for my approval"). This replaces the earlier text-only build plan and its review section, which Amish rejected. Commit and push were skipped by instruction. `trl` and `trl_target` stay at 3.
+
+### What was done
+
+- `cad/src/model.py`: design made constructable (P1 to P17 below). New checks with `python cad/src/model.py --check`: no overlaps among 51 components with the press closed, open (platen down, stem cranked up, pin parked) and set for demolding (extension out, carriage on the tipping pins, gate open); all 47 required contacts touch; the pump handle clears the guard over its whole stroke (1.4 mm nearest at the stroke ends); the carriage hooks meet the tipping pins (1.0 mm sliding fit); the lock rod drops into the disc notch. Result: PASS.
+- `docs/decisions/0004-design-for-construction.md` (PPR-DDR-004 v0.2): every change with its reason; accepted by Amish 2026-09-30; Table 3 holds what stays proposed.
+- `docs/04-calcs/sizing.py` and `01-sizing.md` (PPR-CAL-001 v0.6): new checks (male flange on the stop, M16 joints, rails over the platen gap, pin block with screw hole, tipped mold, stop lugs, tipping pins); masses, deflection and costs from the constructable model.
+- `docs/03-requirements.md` (PPR-REQ-001 v0.8): status from CAL v0.6; no requirement text changed.
+- `bom/bom.csv`: lines rewritten to the buildable parts (anchors, studs, jack plate, M16 10.9 bolts, spacer tubes, shims, steel base plate, dowels, bushes, adapter disc, captive nut, lift handles, tipping pins, interlock parts); total $1,143.
+- `cad/src/build_plan_media.py` (new) and `docs/05-build-plan.md` (PPR-BLD-001 v0.2, rewritten from the template): overview, 14 making sketches `cad/drawings/PPR-DWG-101` to `114`, 11 joint close-ups and 18 assembly steps in `docs/05-build-plan/`, all drawn from the model and each looked at.
+- `cad/src/sheets.py`: GA PPR-DWG-001 regenerated at Rev P5. STEP and STL re-exported.
+- `cad/src/concept_media.py`: restructured so each picture renders in its own process (the full run had been killed for memory); cutaway leaves out the guards and gate. `media/hero.png`, `cutaway.png`, `exploded.png`, `flow.png`, `concept-blueprint.*`, `model.glb` (now about 12 MB) and `viewer.html` regenerated and checked.
+- `.kit/build_views.py`: `overview()` gained a `key=True` option (numbered bubbles on the parts and a key column, in place of leader lines that crossed the picture with 19 parts). Proposed for the kit.
+- `project.yaml`: `design_state: constructable`; PPR-DDR-004 added to `trl_evidence`. `README.md`: "Building the prototype" section with the overview picture; key components and concept figures updated.
+
+### Design changes made for construction (PPR-DDR-004)
+
+1. **P1 male mold:** open-topped plug, its inside a drafted cone that forms its own sand core; flat-back pattern, no core box.
+2. **P2 male flange:** 45 mm thick, 450 mm across; the stem's 190 mm disc bears on the plug floor (bedded in epoxy putty, 4 x M12); 62 MPa at 294 kN on the stop (was about 487 MPa).
+3. **P3 mold location:** two 16 mm dowels and two steel bushes, drilled with the molds clamped on 15 mm printed wall spacers; stop faces lapped on float glass; patterns with 1.3 % shrink, 3 mm lapping allowance and 2 degree draft; female cup bedded and screwed on a 15 mm steel base plate. No lathe.
+4. **P4 jack and slot:** jack turned 25 degrees to the right front; slot on the handle's line, widened from 25 to 30 mm; handle clears spring and upright by about 50 mm.
+5. **P5 lead screw:** captive nut with 8 mm float; press force through the pin only.
+6. **P6 beam gap:** 104 mm with 2 mm shims.
+7. **P7 joint bolts:** 4 x M16 10.9 per joint, 22 mm edge distance, 25 x 3 spacer tubes; 117 MPa double shear at 294 kN.
+8. **P8 tipping:** tipping pins on the extension, hooks and retaining pins on the carriage, lift handles.
+9. **P9 interlock:** lock disc, lock rod, gate slider, pin slider and plunger round the jack's release screw.
+10. **P10 feet and BOM:** feet web up with studs and anchor tubes, four floor anchors, spring lugs, tubes and shims in the BOM; QC pot shelf raised to 720 mm (35 mm clear of the buckets).
+11. **P11 (found):** rail hinge moved back from 320 to 290 mm so the folded extension clears the gate and lower panel with the platen down.
+12. **P12 (found):** 28 mm hole down the pin block so the fixed lead screw passes when the stem is cranked up.
+13. **P13 (found):** plastic guide strips on the top beam webs; stem play front to back 7 to 1 mm.
+14. **P14 (found):** pump handle (20 mm, 700 mm) added to the design and checked over its stroke.
+15. **P15 (found):** assembly order set by the model (stem in before the top beam; both molds together on the extension).
+16. **P16 (found):** female base plate on greased steel rails, not plastic strips; rails checked over the platen gap (101 MPa).
+17. **P17 (found):** lift handles behind the tipping pins (the only handle was in front of them).
+
+### Key results
+
+| Quantity | Value |
+| --- | --- |
+| Constructability checks | PASS: closed, open and demolding positions; handle stroke; hooks; lock notch |
+| Frame at 294 kN | Beams 190 MPa, pin 272 MPa (yield 650), M16 joints 117 MPa, male flange 62 MPa (cast yield about 90) |
+| Deflection at 10 t | 0.66 mm (R3 met on paper) |
+| Masses | Press 344 kg plus about 45 kg of guards; heaviest part the platen at 39.6 kg (R8, 40 kg) |
+| Parts cost | $1,143 against $1,060: **R10 not met on paper** ($83, 7.8 % over) |
+| Requirements | 1 not met on paper (R10), 2 at risk (R2, R7), 9 met on paper |
+
+### Proposed, awaiting Amish (PPR-DDR-004, Table 3)
+
+1. **Q1 budget:** raise to about $1,150, look for savings, or judge R10 on the press alone. Recommendation: raise it. `budget_usd` is unchanged.
+2. **Q2 pump slot 30 mm:** same ISO 13857 band as 25 mm; the ISO 13857 check itself is still open (PPR-DDR-003).
+3. **Q3 pump handle:** stands 158 mm outside the right guard while in use (beyond R11's 1.0 m width). Recommendation: treat it as operating space.
+4. **Q4 interlock notch angle:** set to the jack bought, at TRL 4.
+5. **Q5 demolding by tipping:** confirm with a partner factory's potters.
+
+Still open from earlier sessions: the ISO 13857 guard distance check and the first co-design partner (PPR-DDR-001 item 9).
+
+### Stale, to regenerate on Amish's Mac (Blender)
+
+- `media/render-hero.png`, `media/render-exploded.png`, `media/render-gate-open.png`, `media/render-lineup.png`, and the storefront images `media/card.png` and `media/social-preview.png` made from them: they still show the concept (closed male mold, turned lip, M20 joints, old slot and interlock, low QC shelf).
+- `cad/src/product_model.py` (appearance model) still follows the concept geometry in places and needs updating to the constructable model before the renders are redone.
+
+### Safety concerns
+
+- The build plan's safety stops cover welding, galvanised mesh, lifts up to 40 kg, standing the frame, and the only unguarded jack movement (step 13, by hand to first contact with the pin home). Nothing authorises pressing or any force above hand pressure.
+- The single load pin still carries the whole press force; the pin-presence interlock is now detailed (plunger, cable, pin slider) but untested.
+- The slot widening (Q2) and the handle outside the guard (Q3) touch the guarding and need Amish's decision and the ISO 13857 check.
+
+### TRL
+
+`trl` stays 3, now with a constructable design and an illustrated build plan. **TRL 4 remains on hold by Amish's instruction.** No build, purchase, measurement or test was started.
+
+### Recommended next step
+
+Amish to decide Q1 to Q5, then regenerate the photoreal renders from an updated appearance model on the Mac. After that, the repo is ready for a TRL 4 recommendation when Amish lifts the hold.
+
 ## Session 2026-09-27: owner decision applied
 
 Authority: Amish wrote on 2026-09-27, "i agree with the budget for potpress." This applies recommendation (a) of item 1 in the 2026-09-26 session below: raise the budget to about $1,060 for the guarded version. Decided by Amish on 2026-09-27. Only this item is decided. `trl` and `trl_target` stay at 3.

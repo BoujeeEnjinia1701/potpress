@@ -352,8 +352,9 @@ def product_parts(P=PARAMS):
     fem -= cyl(P["RIM_OD"] / 2, L["fm1"] - P["RIM_T"], L["fm1"] + 1)
     fem -= cyl(P["FLASH_R"], L["fm1"] - 3, L["fm1"] + 1) - cyl(P["RIM_OD"] / 2, L["fm1"] - 4, L["fm1"] + 2)
     r_fit = P["MM_FLANGE_D"] / 2 + P["LOC_CLEAR"] / 2
-    fem += cyl(P["FM_FLANGE_D"] / 2, L["fm1"], L["fm1"] + P["LOC_H"]) - \
-        cone(r_fit, r_fit + P["LOC_TAPER"], L["fm1"] - 0.01, L["fm1"] + P["LOC_H"] + 0.01)
+    if P["LOC_H"] > 0:      # the turned lip was replaced by locating pins (PPR-DDR-004)
+        fem += cyl(P["FM_FLANGE_D"] / 2, L["fm1"], L["fm1"] + P["LOC_H"]) - \
+            cone(r_fit, r_fit + P["LOC_TAPER"], L["fm1"] - 0.01, L["fm1"] + P["LOC_H"] + 0.01)
     fem = _fillet_try(fem, _circ_edges(fem, P["FM_FLANGE_D"] / 2), [3.0, 2.0, 1.0])
     fem = _fillet_try(fem, _circ_edges(fem, P["FM_BASE_D"] / 2), [3.0, 2.0, 1.0])
     add("Female mold (cast aluminum)", fem, C_ALU, "metal", 8, "shell", EF)
@@ -382,17 +383,17 @@ def product_parts(P=PARAMS):
     # ------------------------------------------------------------ 10 male mold slide and crank
     ES = (0, 0, 680)
     t = P["STEM_T"]
-    adp = box(-90, 90, -90, 90, L["mm1"], L["stem0"])
+    adp = box(-90, 90, -90, 90, L["mm1"], (L["mm1"] + P["ADAPTER_T"]))
     adp = _fillet_try(adp, adp.edges().filter_by(Axis.Z), [10.0, 6.0])
     screws = []
     for sx in (-1, 1):
         for sy in (-1, 1):
-            hs = _hex_z(sx * 70, sy * 70, L["stem0"], L["stem0"] + 8, 18.0)
+            hs = _hex_z(sx * 70, sy * 70, (L["mm1"] + P["ADAPTER_T"]), (L["mm1"] + P["ADAPTER_T"]) + 8, 18.0)
             screws.append(hs)
     ro = 2 * t                                           # SHS outer corner radius
-    stem = Pos(0, 0, L["stem0"]) * extrude(RectangleRounded(P["STEM"], P["STEM"], ro), amount=L["stem1"] - L["stem0"])
-    stem -= Pos(0, 0, L["stem0"] + 15) * extrude(RectangleRounded(P["STEM"] - 2 * t, P["STEM"] - 2 * t, ro - t),
-                                                 amount=L["stem1"] - L["stem0"])
+    stem = Pos(0, 0, (L["mm1"] + P["ADAPTER_T"])) * extrude(RectangleRounded(P["STEM"], P["STEM"], ro), amount=L["stem1"] - (L["mm1"] + P["ADAPTER_T"]))
+    stem -= Pos(0, 0, (L["mm1"] + P["ADAPTER_T"]) + 15) * extrude(RectangleRounded(P["STEM"] - 2 * t, P["STEM"] - 2 * t, ro - t),
+                                                 amount=L["stem1"] - (L["mm1"] + P["ADAPTER_T"]))
     stem += box(-s2 + t, s2 - t, -s2 + t, s2 - t, L["pin"] - 60, L["pin"] + 60)
     stem -= cyl_y(P["PIN_D"] / 2 + 1, -s2 - 1, s2 + 1, 0, L["pin"])
     add("Male mold stem and adapter plate", adp + stem, C_ACCENT, "painted", 10, "shell", ES)

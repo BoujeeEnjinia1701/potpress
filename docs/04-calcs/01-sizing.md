@@ -3,9 +3,9 @@ doc_id: PPR-CAL-001
 title: PotPress sizing and first-principles checks
 project: PotPress
 doc_type: Calculation note
-version: "0.5"
+version: "0.6"
 status: Draft
-date: '2026-09-27'
+date: '2026-09-30'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -29,11 +29,15 @@ revisions:
   date: '2026-09-27'
   author: Amish Chadha
   change: Cost overrun decided by Amish on 2026-09-27; budget $1,060, R10 met on paper with a $9 margin
+- version: "0.6"
+  date: '2026-09-30'
+  author: Amish Chadha
+  change: Design for construction (PPR-DDR-004); new checks for the male flange on the stop, M16 joints, rails, lead screw float, demolding tilt; masses and costs from the constructable model; R10 not met on paper
 ---
 
 # PotPress sizing and first-principles checks
 
-On paper the press forms the reference filter, opens far enough, keeps up the output and stays strong at 1.5 times the jack rating, but it is heavier and dearer than the TRL 2 estimates said. With the recommendations Amish accepted on 2026-09-25 (PPR-DDR-002) and the guarded version he decided on 2026-09-26 (PPR-DDR-003), ten of the twelve requirements are met on paper and two are at risk. Amish topped up the budget to $990 on 2026-09-26, which covered the $984 BOM; the fixed guards and interlocked front gate then added $67, and Amish raised the budget to $1,060 on 2026-09-27 (PPR-DDR-003), so R10 is met on paper at $1,051 with a $9 (0.8 %) margin. R3 is now judged at the 10 t working force with the molds closing on a metal stop (0.61 mm), R11 allows 0.8 x 0.8 m for the QC rack and a hinged rail extension keeps the press 655 mm deep, and bolting the four upright joints keeps every part under 40 kg (R8). The calculations also found three TRL 2 errors that the model now corrects: the base beam (a single UPN 100) would have been stressed to about 1,071 MPa, the two 30 mm load pins would have failed in bending (about 1,030 MPa), and solid aluminum molds would have weighed about 57 and 41 kg, so the molds are now cast shells.
+On paper the press forms the reference filter, opens far enough, keeps up the output and stays strong at 1.5 times the jack rating, but it is heavier and dearer than the TRL 2 estimates said. With the recommendations Amish accepted on 2026-09-25 (PPR-DDR-002) and the guarded version he decided on 2026-09-26 (PPR-DDR-003), ten of the twelve requirements are met on paper and two are at risk. Amish topped up the budget to $990 on 2026-09-26, which covered the $984 BOM; the fixed guards and interlocked front gate then added $67, and Amish raised the budget to $1,060 on 2026-09-27 (PPR-DDR-003), so R10 was met on paper at $1,051 with a $9 (0.8 %) margin. Making the design constructable on 2026-09-30 (PPR-DDR-004) added the parts a build needs and raised the parts cost to $1,143, $83 (7.8 %) over the budget, so R10 is now not met on paper; the budget is proposed, awaiting Amish. R3 is now judged at the 10 t working force with the molds closing on a metal stop (0.61 mm), R11 allows 0.8 x 0.8 m for the QC rack and a hinged rail extension keeps the press 655 mm deep, and bolting the four upright joints keeps every part under 40 kg (R8). The calculations also found three TRL 2 errors that the model now corrects: the base beam (a single UPN 100) would have been stressed to about 1,071 MPa, the two 30 mm load pins would have failed in bending (about 1,030 MPa), and solid aluminum molds would have weighed about 57 and 41 kg, so the molds are now cast shells.
 
 Every number in this note is printed by `docs/04-calcs/sizing.py` (run from the repo root: `python docs/04-calcs/sizing.py`). The script reads the geometry from `PARAMS`, `SECTIONS` and `levels()` in `cad/src/model.py`, takes part masses from the model solids, and reads the prices from `bom/bom.csv`, so the model, the drawing PPR-DWG-001, the BOM and this note agree. All values are first-principles estimates; nothing here is measured.
 
@@ -92,7 +96,7 @@ The pressing force needed for a well-consolidated wall was still not found. Henr
 
 ## 4. Frame and load path
 
-The press force runs from the jack through the platen, the female mold, the pot and the male mold into the stem, across one load pin into the top crossbeam, down both uprights in tension and back through the base beam to the jack. Each beam is two UPN 160 channels with a 100 mm gap between the webs; the uprights (two UPN 100 channels back to back, 100 x 100 mm) and the stem sit in that gap. The TRL 2 base was a single UPN 100 (41 cm³); under the same 44 kN·m it would reach about 1,071 MPa, so the base beam now matches the top beam.
+The press force runs from the jack through the platen, the female mold, the pot and the male mold into the stem, across one load pin into the top crossbeam, down both uprights in tension and back through the base beam to the jack. Each beam is two UPN 160 channels with a 104 mm gap between the webs (the 100 mm uprights plus a 2 mm shim each side, PPR-DDR-004); the uprights (two UPN 100 channels back to back, 100 x 100 mm) and the stem sit in that gap. The TRL 2 base was a single UPN 100 (41 cm³); under the same 44 kN·m it would reach about 1,071 MPa, so the base beam now matches the top beam.
 
 *Table 4. Stresses. Beam span 600 mm (upright centers), center load.*
 
@@ -101,15 +105,19 @@ The press force runs from the jack through the platen, the female mold, the pot 
 | Beam bending (2 x UPN 160, 232 cm³), top and base | 63 MPa | 127 MPa | 190 MPa | 165 at rating; 275 yield at design |
 | Beam web shear | 20 MPa | 41 MPa | 61 MPa | |
 | Uprights, tension (2 x 2,700 mm²) | 18 MPa | 36 MPa | 54 MPa | |
-| Load pin, 60 mm, bending (arm 37.25 mm) | | 172 MPa | 258 MPa | 650 yield |
+| Load pin, 60 mm, bending (arm 39.25 mm) | | 182 MPa | 272 MPa | 650 yield |
 | Load pin, shear (double) | | | 52 MPa | |
 | Pin bearing on web plus 12 mm doubler | | | 126 MPa (327 MPa without doubler) | |
-| Pin bearing on the stem pin block | | | 54 MPa | |
+| Pin bearing on the stem pin block, less its 28 mm lead screw hole | | | 79 MPa | |
 | Web tear-out above the pin (38.5 mm ligament) | | | 98 MPa | |
 | Stem, SHS 90 x 8, compression | | | 112 MPa | |
 | Upright joint welds, welded option (556 mm of 6 mm fillet) | | | 62 MPa | 129 |
-| Upright joints as decided, 4 x M20 8.8 in double shear per joint | | | 75 MPa | |
-| Joint bolt bearing on beam web (7.5 mm) / upright flange (8.5 mm) | | | 123 / 108 MPa | |
+| Upright joints as built, 4 x M16 10.9 in double shear per joint (thread in the shear plane) | | | 117 MPa | 400 resistance |
+| Joint bolt bearing on beam web (7.5 mm) / upright flange (8.5 mm) | | | 153 / 135 MPa | |
+| Male mold flange, 45 mm, with all the force on the stop ring (ring cantilever from the plug at 140 mm radius) | | 41 MPa | 62 MPa | about 90 yield |
+| Male plug shell in compression / stop ring bearing / adapter disc on the plug floor | | | 24 / 5.1 / 10.4 MPa | |
+| Female steel base plate, 15 mm, across the rails | | 101 MPa | 151 MPa | 275 yield |
+| Rails with the 6 mm deck, across the 104 mm gap between the platen webs | | 68 MPa | 101 MPa | 275 yield |
 | Platen (2 x UPN 140), rails at ±60 and ±170 mm | | 65 MPa | 98 MPa | |
 | Female mold floor (30 mm, span 120 mm) | 13 MPa | 25 MPa | 38 MPa | about 90 yield |
 | Male mold tip plate (30 mm, radius 100 mm) | 15 MPa | 29 MPa | 44 MPa | about 90 yield |
@@ -128,12 +136,19 @@ The mold stresses use the mean pressure; local pressure near the rim, where the 
 | Top beam (bending plus shear) | 0.20 | 0.39 | 0.59 |
 | Base beam (bending plus shear) | 0.20 | 0.39 | 0.59 |
 | Uprights | 0.11 | 0.23 | 0.34 |
-| Stem | 0.06 | 0.11 | 0.17 |
+| Stem | 0.10 | 0.20 | 0.30 |
 | Platen | 0.02 | 0.04 | 0.06 |
 | Pin allowance | 0.03 | 0.07 | 0.10 |
-| **Total** | **0.61** | **1.23** | **1.84** |
+| **Total** | **0.66** | **1.31** | **1.97** |
 
-The v0.1 R3 target of less than 1 mm at 294 kN was not met. Shear deflection is about 40 % of each beam's share because the beams are short and deep, so a deeper section helps little: 2 x UPN 200 would still give 1.34 mm for 21.8 kg more steel. The wall thickness does not depend on this deflection if the molds close on a metal stop: the male flange lands on the female stop face outside the flash groove, and the rim thickness is set by the 15 mm counterbore. Amish accepted the recommendation on 2026-09-25 (PPR-DDR-001 item 10, PPR-DDR-002): R3 now judges deflection at the 10 t maximum working force, where it is 0.61 mm, so R3 is met on paper. Strength is still checked at 294 kN.
+The v0.1 R3 target of less than 1 mm at 294 kN was not met. Shear deflection is about 40 % of each beam's share because the beams are short and deep, so a deeper section helps little: 2 x UPN 200 would still give 1.46 mm for 21.8 kg more steel. The wall thickness does not depend on this deflection if the molds close on a metal stop: the male flange lands on the female stop face outside the flash groove, and the rim thickness is set by the 15 mm counterbore. Amish accepted the recommendation on 2026-09-25 (PPR-DDR-001 item 10, PPR-DDR-002): R3 now judges deflection at the 10 t maximum working force, where it is 0.66 mm (0.61 mm before the stem was lengthened to reach down to the plug floor, PPR-DDR-004), so R3 is met on paper. Strength is still checked at 294 kN.
+
+### Checks added for construction (PPR-DDR-004)
+
+- **Male flange on the stop.** The TRL 3 model's 25 mm flange, loaded at the stop ring and supported by a 180 mm adapter, would have reached about 487 MPa at 294 kN. The constructable plug carries the stem's disc on its floor and the flange as a 45 mm ring cantilevered from the plug wall: 41 MPa at 20 t and 62 MPa at 30 t with all the force on the stop, against about 90 MPa as-cast yield.
+- **Joint bolts.** M16 grade 10.9 replaces M20 8.8, which did not fit the UPN 100 flange. The hole centre is 28 mm from the web, 22 mm from the flange tip (EN 1993-1-8 asks 21.6 mm for an 18 mm hole), and the 25 mm spacer tube inside the channel clears the web root radius by 1.0 mm. Double shear is 117 MPa at 30 t against a resistance of 400 MPa.
+- **Lead screw.** The captive nut has 8 mm of free travel in its box; the pin has at most 2 mm of play in its bores, so the pin takes the press force before the nut can touch the box floor, and the screw carries only the slide's weight. A 28 mm hole down the pin block lets the fixed screw pass as the stem rises 200 mm; it reduces the pin's bearing length in the block from 90 to 62 mm (79 MPa at 30 t).
+- **Demolding tilt.** With the carriage pulled out onto the tipping pins and the mold turned right over, about 51 kg sits 520 mm past the rail hinge: 260 N·m on the hinge, 10.8 kN on each 20 x 30 mm stop lug. Starting the tip needs about 283 N on the two lift handles together. The 12 mm tipping pins see about 180 MPa with a shock factor of 2, so they are bright medium-carbon bar (EN8 or 1045). The press still stands with 654 N·m to spare before the floor anchors are counted.
 
 ## 5. Travel, jack and crank
 
@@ -162,16 +177,16 @@ That gives about 69 pots per 6 h of pressing, above the 50 in R4, but the margin
 
 ## 7. Alignment and wall evenness
 
-The male flange centers in a 10 mm tapered lip on the female flange, finished to a 0.1 mm diametral fit, so the carriage and stem clearances do not set the mold alignment. What remains is the accuracy of each mold's cavity relative to its locating surface.
+The molds locate on two 16 mm hardened dowels in the female flange and two steel bushes in the male flange (PPR-DDR-004; this replaces the 390 mm turned lip, which needed a 420 mm lathe). The holes are drilled with the molds clamped together on printed 15 mm wall spacers, so the dowels hold the setting made with the spacers; the pin in its bush has 0.05 mm of diametral play. The carriage and stem clearances do not set the mold alignment. What remains is the accuracy of each mold's cavity relative to the other.
 
 - As cast, each mold carries about ±0.99 mm radial error (RSS of CT10, print error and core shift), so the wall varies by about ±1.40 mm. R2 (±1 mm) is not met as cast.
-- Finished by hand to printed templates at ±0.3 mm, the wall varies by about ±0.43 mm and the molds are coaxial to about ±0.43 mm, inside R2's ±1 mm and 0.5 mm.
+- Finished by hand to printed templates at ±0.3 mm, the wall varies by about ±0.44 mm and the molds are coaxial to about ±0.44 mm, inside R2's ±1 mm and 0.5 mm.
 
 R2 is therefore **at risk**: it depends on hand finishing reaching ±0.3 mm on a 400 mm casting without a lathe, which cannot be shown at TRL 3.
 
 ## 8. Casting patterns (R7)
 
-With a 1.3 % shrink allowance, the female pattern is 415 mm across by 299 mm tall and the male 395 mm by 268 mm. On a 250 mm printer each splits into four quadrants in two tiers, 16 segments in all, using about 5.1 kg of PLA at 25 % of solid mass. Printing is within reach of a maker space; finishing the cast cavity without a lathe is not proven, so R7 is **at risk**.
+With a 1.3 % shrink allowance, the female pattern is 456 mm across by 274 mm tall and the male 456 mm by 289 mm. On a 250 mm printer each splits into four quadrants in two tiers, 16 segments in all, using about 5.4 kg of PLA at 25 % of solid mass. Both are flat-back patterns: each mold's inside opens at the flange face, so the sand forms its own core and no core box is needed (PPR-DDR-004). The patterns carry 3 mm to lap off the stop faces and the female base and 2° draft on the flange rims. No part needs a lathe; the stop faces are lapped on abrasive paper on float glass. Printing is within reach of a maker space; finishing the cast cavity to ±0.3 mm by hand is not proven, so R7 is **at risk**.
 
 ## 9. Flow-rate QC
 
@@ -190,33 +205,34 @@ A 0.1 L/h step is 1.69 mm near 1.0 L/h and 1.76 mm near 2.5 L/h, so printed 1 mm
 
 Water viscosity (Vogel equation) is 1.002, 0.890 and 0.797 mPa·s at 20, 25 and 30 °C, so flow changes by about 2.3 % per °C near 25 °C, and water at 30 °C flows 1.26 times as fast as water at 20 °C. To correct to 25 °C, multiply a reading by 1.125 at 20 °C and 0.895 at 30 °C (decided band, PPR-DDR-001 item 7).
 
-Four 345 mm rims need at least 1.46 m in one row, or about 0.78 x 0.78 m in a 2 x 2 grid. The modeled rack is 780 x 780 x 550 mm, inside the 0.8 x 0.8 m that R11 now allows for the rack (decided by Amish, 2026-09-25, PPR-DDR-001 item 11).
+Four 345 mm rims need at least 1.46 m in one row, or about 0.78 x 0.78 m in a 2 x 2 grid. The modeled rack is 780 x 780 x 720 mm (pot shelf raised so the hanging pots clear the 325 mm buckets by 35 mm, PPR-DDR-004), inside the 0.8 x 0.8 m that R11 now allows for the rack (decided by Amish, 2026-09-25, PPR-DDR-001 item 11).
 
 ## 10. Masses and handling
 
-*Table 8. Masses from the model solids, kg.*
+*Table 8. Masses from the model solids, kg (constructable model, PPR-DDR-004).*
 
 | Item | Mass |
 | --- | --- |
-| 1 Base beam, feet and jack plate | 50.9 (beam weldment 37.4, each bolted foot 6.8) |
-| 2 Uprights | 58.7 (29.4 per pair), plus 7.2 of joint bolts |
-| 3 Top crossbeam | 36.9 |
+| 1 Base beam, feet and jack plate | 58.2 (base beam 34.2, jack plate 8.9, each foot 7.1, plus anchors and bolts) |
+| 2 Uprights | 67.4 (29.4 per pair, plus spacer tubes, shims and 5.1 of M16 bolts) |
+| 3 Top crossbeam with guides | 39.1 (38.0 as handled) |
 | 4 Jack | 13.0 (typical) |
-| 5 Platen with sleeves | 38.9 |
-| 7 Rails, hinged extension and carriage | 20.6 |
-| 8 Female mold | 24.3 |
-| 9 Male mold | 17.9 |
-| 10 Male mold slide and crank | 35.9 (pin 5.1) |
-| **Press, items 1 to 10** | **298** |
-| 12 QC rack | 31.1 |
+| 5 Platen with sleeves | 39.6 |
+| 7 Rails, hinged extension and carriage | 22.0 (rails 9.5, carriage 7.1) |
+| 8 Female mold with its steel base plate | 36.5 |
+| 9 Male mold | 23.0 |
+| 10 Male mold slide and crank | 44.6 (stem 21.9, bracket 13.4, pin 4.5) |
+| **Press, items 1 to 10** | **344** |
+| 12 QC rack | 30.1 |
+| 21 Interlock | 3.9 |
 
-The TRL 2 estimate of 180 kg was low, and solid molds would have weighed about 57 kg (female) and 41 kg (male); shells bring them to 24 and 18 kg. As fabricated, the heaviest part is the platen at 38.9 kg, inside R8's 40 kg. Fully welded, the frame (items 1 to 3) would be one piece of about 147 kg that two people cannot move. As decided (PPR-DDR-001 item 12), the four upright joints are bolted with 4 x M20 8.8 each, so the frame arrives as a 37.4 kg base beam, two 6.8 kg feet, two 29.4 kg upright pairs and a 36.9 kg top beam, and R8 is met on paper.
+The TRL 2 estimate of 180 kg was low, and solid molds would have weighed about 77 kg (female) and 52 kg (male); shells bring them to 22 and 23 kg. As fabricated, the heaviest part is the platen at 39.6 kg, inside R8's 40 kg with 0.4 kg to spare. The female mold is lifted as 36.5 kg with its base plate. Fully welded, the frame (items 1 to 3) would be one piece of about 165 kg that two people cannot move. As decided (PPR-DDR-001 item 12), the four upright joints are bolted, now with 4 x M16 10.9 each (PPR-DDR-004), so the frame arrives as a 34.2 kg base beam, an 8.9 kg jack plate, two 7.1 kg feet, two 29.4 kg upright pairs and a 38.0 kg top beam, and R8 is met on paper.
 
 ## 11. Tipping
 
-The press center of mass sits 7 mm in front of the frame center and 790 mm up. With the carriage, mold and charge slid 430 mm to the front it moves to 64 mm in front, well behind the front foot edge at 320 mm. The restoring moment is about 747 N·m, so a horizontal push of about 747 N at 1 m height would tip it forward. Anchoring to the floor is still advised.
+The press center of mass sits 6 mm in front of the frame center and 791 mm up. With the carriage, mold and charge slid 430 mm to the front it moves to 70 mm in front, well behind the front foot edge at 320 mm. The restoring moment is about 844 N·m, so a horizontal push of about 844 N at 1 m height would tip it forward. The feet are now anchored to the floor with four M12 anchors (PPR-DDR-004).
 
-The rails are fixed to 320 mm in front of the axis, in line with the front foot edge, and a 330 mm extension on two barrel hinges folds down when the press is not being loaded or demolded, so the press stands 840 x 655 mm (970 mm deep with the extension deployed), or 940 x 700 mm inside its guards. With the carriage fully out, about 39.7 kg sits 110 mm past the hinge line, a moment of about 43 N·m that two stop lugs carry at about 1.8 kN each.
+The rails are fixed to 290 mm in front of the axis and a 335 mm extension on two barrel hinges folds down inside the guards when the press is not being loaded or demolded (the hinge moved back 30 mm so the folded extension clears the gate and the lower front panel with the platen down, PPR-DDR-004). The press stands 940 x 700 mm inside its guards; the pump handle stands 158 mm outside the right guard while in use. With the carriage fully out, about 50.9 kg sits 140 mm past the hinge line, a moment of about 70 N·m that two stop lugs carry at about 2.9 kN each; tipped for demolding the lugs carry 10.8 kN each (section 4).
 
 ## 12. Cost
 
@@ -224,19 +240,19 @@ The rails are fixed to 320 mm in front of the axis, in line with the front foot 
 
 | Item | Cost | Item | Cost |
 | --- | --- | --- | --- |
-| 1 Base | 66 | 10 Slide and crank | 92 |
-| 2 Uprights with joint bolts | 124 | 12 QC rack | 45 |
-| 3 Top crossbeam | 56 | 13 T-gauges | 8 |
+| 1 Base, feet, jack plate, anchors | 88 | 10 Slide and crank | 101 |
+| 2 Uprights with M16 bolts, tubes, shims | 128 | 12 QC rack | 47 |
+| 3 Top crossbeam with guides | 57 | 13 T-gauges | 8 |
 | 4 Jack | 60 | 14 Buckets | 16 |
-| 5 Platen | 51 | 15 Patterns | 112 |
+| 5 Platen | 51 | 15 Patterns | 118 |
 | 6 Springs | 10 | 16 Fixed mesh guards | 67 |
-| 7 Rails, hinged extension and carriage | 45 | 17 Liners and trim tool | 10 |
-| 8 Female mold | 102 | 18 Fasteners, consumables, finish | 45 |
-| 9 Male mold | 75 | 19 Timer and thermometer | 12 |
-| | | 20 Front gate with hinges | 21 |
-| | | 21 Gate interlock and release extension | 34 |
+| 7 Rails, hinged extension and carriage | 41 | 17 Liners and trim tool | 10 |
+| 8 Female mold with steel base plate and dowels | 119 | 18 Fasteners, consumables, finish | 45 |
+| 9 Male mold with bushes | 102 | 19 Timer and thermometer | 12 |
+| | | 20 Front gate with hinges | 22 |
+| | | 21 Gate interlock and release extension | 41 |
 
-The press costs $970 and the QC rack $81, for **$1,051**. Amish raised the budget from $720 to $930 on 2026-09-25 (PPR-DDR-001 item 14), which covered the v0.1 total of $926; the decided bolted joints (16 bolt sets, $48) and hinged rail extension ($10, with a little less steel) add $58, so the total was $54 (6 %) over $930. Amish topped up the budget to $990 on 2026-09-26 (PPR-DDR-002 item 16), so R10 was met on paper with a $6 (0.6 %) margin at $984. The guarded version (decided by Amish on 2026-09-26, PPR-DDR-003) replaces the $55 allowance in item 16 with priced guard lines: fixed mesh guards $67 (4.3 m² of 12.7 mm welded mesh at about $6/m² and 24 m of 25 x 25 x 3 angle at $1.30/kg), the front gate with hinges $21 and the gate interlock with the release extension and pin-presence plunger $34. That is $122 of guarding, a net rise of $67, so the total is $1,051, which was $61 (6.2 %) over $990. Amish raised the budget to $1,060 on 2026-09-27 (PPR-DDR-003, option (a)), so R10 is met on paper with a $9 (0.8 %) margin. The margin is thin; any price rise moves R10 back to at risk. The growth since TRL 2 comes from about 120 kg of extra load-path steel, the single alloy-steel pin and lead screw, patterns sized from the real mold shells, the joint bolts and now the guards. Guard solids are left out of the mass table in section 10, because the model draws their mesh at every eighth wire; the guards weigh about 45 kg (estimate).
+The press costs $1,060 and the QC rack $83, for **$1,143**. Amish raised the budget from $720 to $930 on 2026-09-25 (PPR-DDR-001 item 14), topped it up to $990 on 2026-09-26 (PPR-DDR-002 item 16), and raised it to $1,060 on 2026-09-27 for the guarded version (PPR-DDR-003, option (a)), when R10 was met on paper at $1,051. Making the design constructable (PPR-DDR-004) added $92: the steel base plate under the female mold, the thicker 450 mm mold flanges, dowels and bushes (items 8 and 9, +$44), floor anchors, the bolted jack plate and heavier feet (item 1, +$22), the adapter disc and nut box (item 10, +$9), interlock details (item 21, +$7), and smaller changes elsewhere. The total is **$83 (7.8 %) over the $1,060 budget, so R10 is not met on paper.** The budget is not changed here; it is proposed, awaiting Amish (PPR-DDR-004, Table 3). Guard solids are left out of the mass table in section 10, because the model draws their mesh at every eighth wire; the guards weigh about 45 kg (estimate).
 
 ## 13. Results against the requirements
 
@@ -244,20 +260,20 @@ The press costs $970 and the QC rack $81, for **$1,051**. Amish raised the budge
 
 | ID | Value | Target | Status |
 | --- | --- | --- | --- |
-| R2 | ±1.40 mm as cast; ±0.43 mm wall and ±0.43 mm coaxial when finished to templates | ±1 mm wall; 0.5 mm coaxial | At risk |
-| R7 | 16 pattern segments for a 250 mm printer; cavity finishing without a lathe unproven | Printed patterns, hand and drill press finishing, no lathe over 300 mm swing | At risk |
+| R2 | ±1.40 mm as cast; ±0.44 mm wall and ±0.44 mm coaxial when finished to templates, located by match-drilled dowels | ±1 mm wall; 0.5 mm coaxial | At risk |
+| R7 | 16 flat-back pattern segments for a 250 mm printer, no core boxes; no lathe needed (dowels, lapped stop faces); cavity hand finishing unproven | Printed patterns, hand and drill press finishing, no lathe over 300 mm swing | At risk |
 | R9 | Guards, gate and interlocks modeled (PPR-DDR-003): 12.7 mm welded mesh, nearest moving parts about 105 to 110 mm behind it; guard-locking gate interlock and pin-presence plunger on the jack release | Guards, interlocked gate, controls outside, pin in place and interlocked | Met on paper; ISO 13857 distances assumed, not checked (proposed, awaiting Amish) |
-| R10 | $1,051 (press $970, QC rack $81) with the guarded version | $1,060 or less | Met on paper, $9 (0.8 %) margin |
+| R10 | $1,143 (press $1,060, QC rack $83), constructable design (PPR-DDR-004) | $1,060 or less | **Not met on paper**, $83 (7.8 %) over; budget proposed, awaiting Amish |
 | R1 | 280 mm rim, 240 mm deep, 15 mm wall, 345 mm rim; 12.30 L brim, 9.91 L working; all from `PARAMS` | Reference filter from one source file | Met on paper |
-| R3 | No yield at 294 kN: 190 MPa beams, 258 MPa pin (yield 650), 54 MPa uprights, 75 MPa joint bolts. Deflection 0.61 mm at 10 t (1.84 mm at 294 kN); molds close on a metal stop | No yield at 294 kN; under 1 mm deflection at 10 t | Met on paper |
+| R3 | No yield at 294 kN: 190 MPa beams, 272 MPa pin (yield 650), 54 MPa uprights, 117 MPa M16 joint bolts, 62 MPa male flange on the stop. Deflection 0.66 mm at 10 t (1.97 mm at 294 kN); molds close on a metal stop | No yield at 294 kN; under 1 mm deflection at 10 t | Met on paper |
 | R4 | 5.2 min cycle; 69 pots per 6 h | 6 min or less; 50 or more per 6 h | Met on paper |
 | R5 | 310 mm opening against 270 mm needed (70 mm clear of the rim); 110 of 150 mm jack stroke | 30 mm clear; press within one stroke | Met on paper |
 | R6 | 4 stations; 1.69 mm per 0.1 L; 0.061 L per 1 mm reading error; 25 °C correction | 0.1 L/h resolution, ±0.1 L/h repeatability | Met on paper (repeatability not verifiable at TRL 3) |
-| R8 | Heaviest part 38.9 kg (platen); frame bolted at the four upright joints, largest frame part 37.4 kg | 40 kg or less | Met on paper |
-| R11 | Press 940 x 700 mm guarded with the rail extension folded (840 x 655 mm unguarded; 970 mm deep deployed), 1,806 mm tall; QC rack 780 x 780 mm | Press 1.0 x 0.7 m and 2.0 m; rack 0.8 x 0.8 m | Met on paper, at the 0.7 m depth limit |
+| R8 | Heaviest part 39.6 kg (platen); frame bolted at the four upright joints, largest frame part 38.0 kg | 40 kg or less | Met on paper |
+| R11 | Press 940 x 700 mm guarded with the rail extension folded (the pump handle stands 158 mm outside the right guard while in use), 1,806 mm tall; QC rack 780 x 780 mm | Press 1.0 x 0.7 m and 2.0 m; rack 0.8 x 0.8 m | Met on paper, at the 0.7 m depth limit |
 | R12 | Aluminum mold faces, polyethylene liners, HDPE buckets, no oils on molds; lead-free scrap alloy (decided) | Product-safe faces | Met on paper |
 
-Summary: 0 not met, 2 at risk (R2, R7), 10 met on paper (R1, R3, R4, R5, R6, R8, R9, R10, R11, R12). In v0.4 the count was 1 not met (R10), 2 at risk and 9 met; in v0.3 the count was 0 not met, 3 at risk and 9 met; in v0.2 the count was 1 not met (R10), 3 at risk and 8 met; in v0.1 the count was 3 not met (R3, R10, R11), 4 at risk and 5 met.
+Summary: 1 not met (R10), 2 at risk (R2, R7), 9 met on paper (R1, R3, R4, R5, R6, R8, R9, R11, R12). In v0.5 the count was 0 not met, 2 at risk and 10 met. In v0.4 the count was 1 not met (R10), 2 at risk and 9 met; in v0.3 the count was 0 not met, 3 at risk and 9 met; in v0.2 the count was 1 not met (R10), 3 at risk and 8 met; in v0.1 the count was 3 not met (R3, R10, R11), 4 at risk and 5 met.
 
 ## 14. Changes to earlier numbers
 
@@ -272,3 +288,5 @@ Changes in v0.4 (guarded version, PPR-DDR-003): item 16 $55 to $67 (fixed mesh g
 Changes in v0.5 (cost overrun decided by Amish, 2026-09-27, PPR-DDR-003): budget $990 to $1,060; R10 not met to met on paper, $9 (0.8 %) margin. No geometry, mass or cost figure changed.
 
 > **Safety:** These are paper calculations for a 20 t press. The single load pin is the one part whose failure ejects the male mold; it must be in place, fully home and interlocked before pressing. Nothing here replaces a proof load test by a competent person before use, which is TRL 4 work and on hold.
+
+Changes in v0.6 (design for construction, PPR-DDR-004; Amish, 2026-09-30: "i accept your recommended changes on design that are currently being sent across for my approval"): beam gap 100 to 104 mm with shims; joint bolts M20 8.8 to M16 10.9 with spacer tubes (75 to 117 MPa); male flange 25 to 45 mm on a 450 mm diameter, now checked on the stop (487 to 62 MPa); pin block bearing 54 to 79 MPa (screw hole); stem lengthened to reach the plug floor (total deflection 0.61 to 0.66 mm at 10 t); new checks for the female base plate, the rails over the platen gap, the tipped mold, the stop lugs and the tipping pins; masses 298 to 344 kg for the press, heaviest part 38.9 to 39.6 kg; patterns 16 segments, 5.1 to 5.4 kg; QC rack 550 to 720 mm tall; cost $1,051 to $1,143, R10 met on paper to not met on paper (budget proposed, awaiting Amish).

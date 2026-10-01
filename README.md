@@ -8,7 +8,7 @@ Hydraulic press with printable mold geometry for silver-treated ceramic pot filt
 
 ![PotPress: hand-pumped hydraulic press for ceramic pot water filters, product render](media/render-hero.png)
 
-[Exploded render](media/render-exploded.png) · [Gate open render](media/render-gate-open.png) · [Lineup render](media/render-lineup.png) · [Interactive 3D model](media/viewer.html) · [Concept blueprint (PDF)](media/concept-blueprint.pdf) · [General arrangement PPR-DWG-001 (PDF)](cad/drawings/PPR-DWG-001.pdf) · [Sizing note PPR-CAL-001](docs/04-calcs/01-sizing.md) · [Review note](docs/REVIEW.md)
+[Exploded render](media/render-exploded.png) · [Gate open render](media/render-gate-open.png) · [Lineup render](media/render-lineup.png) · [Interactive 3D model](media/viewer.html) · [Concept blueprint (PDF)](media/concept-blueprint.pdf) · [General arrangement PPR-DWG-001 (PDF)](cad/drawings/PPR-DWG-001.pdf) · [Sizing note PPR-CAL-001](docs/04-calcs/01-sizing.md) · [Prototype build plan](docs/05-build-plan.md) · [Review note](docs/REVIEW.md)
 
 ## Concept rationale
 
@@ -55,19 +55,25 @@ Ceramic pot filters work well, but local producers have no low-cost way to form 
 
 ## Concept
 
-A 20 t bottle jack on the base lifts a guided platen carrying a cast aluminum female mold against a fixed male mold, forming one filter (280 mm inner rim, 9.9 L working volume) per stroke. The male mold is held by one 60 mm load pin in the top crossbeam for pressing and raised by a hand crank for loading, and the female mold slides out on a carriage for demolding. One parametric filter geometry drives the molds, their 3D-printed casting patterns and a printed T-gauge for the four-station, one-hour flow-rate test rack. TRL 3 calculations: a cycle of about 5.2 min and about 69 pots per 6 h, a frame that stays below yield at 1.5 times the jack rating, 0.61 mm of deflection between the molds at the 10 t working force, every part under 40 kg with the upright joints bolted, and, with the fixed mesh guards and interlocked front gate decided by Amish on 2026-09-26, $1,051 in parts against the $1,060 budget, which Amish raised from $990 on 2026-09-27 to cover the guards (see the [review note](docs/REVIEW.md)).
+A 20 t bottle jack on the base lifts a guided platen carrying a cast aluminum female mold against a fixed male mold, forming one filter (280 mm inner rim, 9.9 L working volume) per stroke. The male mold is held by one 60 mm load pin in the top crossbeam for pressing and raised by a hand crank for loading, and the female mold slides out on a carriage for demolding. One parametric filter geometry drives the molds, their 3D-printed casting patterns and a printed T-gauge for the four-station, one-hour flow-rate test rack. TRL 3 calculations: a cycle of about 5.2 min and about 69 pots per 6 h, a frame that stays below yield at 1.5 times the jack rating, 0.66 mm of deflection between the molds at the 10 t working force, every part under 40 kg with the upright joints bolted, and, with the fixed mesh guards and interlocked front gate decided by Amish on 2026-09-26, $1,051 in parts against the $1,060 budget, which Amish raised from $990 on 2026-09-27 to cover the guards. Making the design constructable on 2026-09-30 raised the parts to about $1,143, which is over that budget and proposed for Amish's decision (see the [review note](docs/REVIEW.md)).
 
 Full design precis: [docs/02-concept.md](docs/02-concept.md)
 
 ## Key components
 
-- Steel channel frame in welded subassemblies: two UPN 160 beams and back-to-back UPN 100 uprights, bolted at the upright joints with 4 x M20 8.8 each
+- Steel channel frame in welded subassemblies: two UPN 160 beams and back-to-back UPN 100 uprights, bolted at the upright joints with 4 x M16 10.9 each, with spacer tubes and shims
 - 20 t bottle jack, guided moving platen and return springs
-- Cast aluminum shell molds (about 24 and 18 kg), cast from 3D-printed patterns
+- Cast aluminum shell molds (female 36.5 kg on its steel base plate, male 23 kg), cast from 3D-printed flat-back patterns and located by two dowels
 - Mold carriage on slide rails with a hinged front extension that folds down, and male mold slide with hand crank, one load pin and a pin-presence interlock
 - Four-station (2 x 2) QC flow-test rack with printed T-gauges and collection buckets
 
 The working bill of materials is in [bom/bom.csv](bom/bom.csv).
+
+## Building the prototype
+
+![Every component of the PotPress prototype, pulled apart and numbered in build order](docs/05-build-plan/overview.png)
+
+The [prototype build plan](docs/05-build-plan.md) (PPR-BLD-001, plan, not yet built) shows how to make each component and fit it to the next, in 14 making sketches, 11 joint close-ups and 18 assembly steps drawn from the model. The frame, platen, carriage and guards are sawn, drilled and stick welded from steel channel, plate and galvanized mesh; the two molds are sand cast by a local foundry from 3D-printed flat-back patterns and lead-free scrap, then lapped and hand finished, with no lathe needed. Writing the plan made the design constructable: seventeen changes, such as an open-topped male mold, dowel location for the molds, M16 joint bolts with spacer tubes and a floating lead screw nut, are recorded in [PPR-DDR-004](docs/decisions/0004-design-for-construction.md). The parts now cost about $1,143, over the $1,060 budget, which is proposed for Amish's decision.
 
 ## Safety
 
