@@ -3,9 +3,9 @@ doc_id: PPR-REQ-001
 title: PotPress requirements
 project: PotPress
 doc_type: Requirements
-version: "0.9"
+version: "0.10"
 status: Draft
-date: '2026-10-01'
+date: '2026-10-02'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -45,11 +45,15 @@ revisions:
   date: '2026-10-01'
   author: Amish Chadha
   change: Budget treated as a value-engineering target; R10 reported against the target
+- version: "0.10"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: 'Decisions of 2026-10-02: R9 at risk until the pump slot shield is designed and the ISO 13857 desk check is signed; R9 verification and the force assumption restated'
 ---
 
 # PotPress requirements
 
-These requirements were checked by calculation at TRL 3 (PPR-CAL-001 v0.6). They are not yet validated with a filter factory and will be revised after co-design sessions (see PPR-PRB-001). With the design made constructable (PPR-DDR-004, 2026-09-30), one is over the value-engineering target (R10, the parts cost of $1,143 against the $1,060 target, $83 over), two are at risk (R2 and R7) and nine are met on paper; see Table 2. Amish's decisions of 2026-09-25 are recorded in PPR-DDR-001 and PPR-DDR-002: the R6 default band, R3 judged at the 10 t working force, the R10 target of $930 (topped up to $990 by Amish on 2026-09-26 and raised to $1,060 by Amish on 2026-09-27, PPR-DDR-003), the R11 rack area of 0.8 x 0.8 m, the pin-presence interlock in R9 and lead-free scrap in R12. The guarded version and the guarding detail in R9 were decided by Amish on 2026-09-26 (PPR-DDR-003).
+These requirements were checked by calculation at TRL 3 (PPR-CAL-001 v0.6). They are not yet validated with a filter factory and will be revised after co-design sessions (see PPR-PRB-001). With the design made constructable (PPR-DDR-004, 2026-09-30), one is over the value-engineering target (R10, the parts cost of $1,143 against the $1,060 target, $83 over), three are at risk (R2, R7 and, until the pump slot shield decided on 2026-10-02 is designed, R9) and eight are met on paper; see Table 2. Amish's decisions of 2026-09-25 are recorded in PPR-DDR-001 and PPR-DDR-002: the R6 default band, R3 judged at the 10 t working force, the R10 target of $930 (topped up to $990 by Amish on 2026-09-26 and raised to $1,060 by Amish on 2026-09-27, PPR-DDR-003), the R11 rack area of 0.8 x 0.8 m, the pin-presence interlock in R9 and lead-free scrap in R12. The guarded version and the guarding detail in R9 were decided by Amish on 2026-09-26 (PPR-DDR-003).
 
 The **reference filter** used throughout is the common flowerpot form: inner rim diameter 280 mm, inner depth 240 mm, wall 15 mm, flat rim about 345 mm across, about 12 L to the brim and about 10 L working volume (dimensions are estimates based on the 280 by 250 mm form reported by [Potters for Peace](https://www.pottersforpeace.org/ceramic-water-filter-project)).
 
@@ -65,7 +69,7 @@ The **reference filter** used throughout is the common flowerpot form: inner rim
 | R6 | Flow-rate QC | Rack tests 4 soaked filters at once; T-gauge reads flow over 1 h to 0.1 L/h; repeatability ±0.1 L/h; acceptance band set per factory (default 1.0 to 2.5 L/h in the first hour, corrected to 25 °C; decided by Amish, 2026-09-25) | Gauge calibration by volume; later repeat tests |
 | R7 | Molds made locally | Molds cast from 3D-printed patterns printed on a 250 x 250 mm class printer; finishing with hand tools and a drill press; no lathe over 300 mm swing | Pattern split and finishing review with a foundry |
 | R8 | Frame built locally | Standard steel channel and plate; stick welding, drilling and bolting only; heaviest single part 40 kg or less for two-person handling | Part list and mass estimate |
-| R9 | Safe operation | Fixed welded-mesh guards on the sides, back and roof and a hinged front gate enclose every pinch point of the molds, platen, jack and carriage; guard openings and their distance from moving parts prevent finger reach into the pinch zone, judged against ISO 13857; a guard-locking gate interlock stops the jack release closing (so the jack cannot be pumped to build pressure) unless the gate is shut, and keeps the gate shut while the release is closed; jack pump and release worked from outside the guard; a pin-presence interlock prevents pressing unless the load pin is fully home (pin interlock decided by Amish, 2026-09-25; guarding decided by Amish, 2026-09-26) | Hazard review and guard layout in the model; later guard check against ISO 13857 |
+| R9 | Safe operation | Fixed welded-mesh guards on the sides, back and roof and a hinged front gate enclose every pinch point of the molds, platen, jack and carriage; guard openings and their distance from moving parts prevent finger reach into the pinch zone, judged against ISO 13857; a guard-locking gate interlock stops the jack release closing (so the jack cannot be pumped to build pressure) unless the gate is shut, and keeps the gate shut while the release is closed; jack pump and release worked from outside the guard; a pin-presence interlock prevents pressing unless the load pin is fully home (pin interlock decided by Amish, 2026-09-25; guarding decided by Amish, 2026-09-26) | Hazard review and guard layout in the model; ISO 13857 desk check signed by a competent person before any force above hand pressure (decided by Amish, 2026-10-02) |
 | R10 | Affordable | Press plus QC rack at or under the $1,060 value-engineering target in parts (a hypothetical control target; raised from $600 to $720 and then to $930 by Amish, 2026-09-25; topped up to $990 by Amish, 2026-09-26; raised to $1,060 by Amish, 2026-09-27) | Priced BOM (`bom/bom.csv`) |
 | R11 | Footprint | Press within 1.0 x 0.7 m floor area and 2.0 m height, with the rail extension folded; QC rack within 0.8 x 0.8 m (relaxed from 0.8 x 0.5 m by Amish, 2026-09-25) | Model check |
 | R12 | Product-safe materials | Faces that touch clay or test water are aluminum, food-grade polyethylene or stainless steel; no lead-based paint or oiled release agents on mold faces; molds cast from lead-free scrap (no free-machining alloys; decided by Amish, 2026-09-25) | Material list review |
@@ -77,7 +81,7 @@ The **reference filter** used throughout is the common flowerpot form: inner rim
 | R10 | Priced BOM $1,143 (press $1,060, QC rack $83) with the constructable design (PPR-DDR-004) against $1,060 | **Over the value-engineering target by $83** (7.8 %) |
 | R2 | Wall ±1.40 mm as cast; ±0.44 mm with molds hand-finished to templates; coaxial ±0.44 mm via match-drilled dowels | **At risk** |
 | R7 | 16 flat-back pattern segments for a 250 mm printer, no core boxes; no lathe needed; cavity hand finishing unproven | **At risk** |
-| R9 | Guards, gate and interlocks modeled (PPR-DDR-003): 12.7 mm welded mesh with nearest moving parts about 105 to 110 mm behind it; guard-locking gate interlock and pin-presence plunger on the jack release lock bar; pump handle through a 30 mm slot, release knob outside | Met on paper; openings and distances assumed against ISO 13857, not checked (proposed, awaiting Amish) |
+| R9 | Guards, gate and interlocks modeled (PPR-DDR-003): 12.7 mm welded mesh with nearest moving parts about 105 to 110 mm behind it; guard-locking gate interlock and pin-presence plunger on the jack release lock bar; pump handle through a 30 mm slot, release knob outside | **At risk** until the fixed inner shield behind the pump slot is designed and the ISO 13857 desk check is signed (both decided by Amish, 2026-10-02) |
 | R1 | Reference filter from `PARAMS` in `cad/src/model.py`: 12.30 L to the brim, 9.91 L working | Met on paper |
 | R3 | No yield at 294 kN: beams 190 MPa, uprights 54 MPa, 60 mm pin 272 MPa (yield 650), M16 joint bolts 117 MPa, male flange on the stop 62 MPa. Deflection between the molds 0.66 mm at 10 t (1.97 mm at 294 kN) | Met on paper |
 | R4 | 5.2 min cycle, 69 pots per 6 h | Met on paper, thin margin |
@@ -115,8 +119,8 @@ The **reference filter** used throughout is the common flowerpot form: inner rim
 
 ## Assumptions
 
-- Pressing force needed for a well-consolidated wall is not published in the sources found (one low-cost press forms round-bottom filters with a 2 t jack, [Henry, Maley and Mehta, 2013](https://ojs.library.queensu.ca/index.php/ijsle/article/view/4532)); 5 to 10 t is assumed as the working range and the 20 t jack rating is used as the design load (estimate, to be confirmed with a partner factory).
+- Pressing force needed for a well-consolidated wall is not published in the sources found (one low-cost press forms round-bottom filters with a 2 t jack, [Henry, Maley and Mehta, 2013](https://ojs.library.queensu.ca/index.php/ijsle/article/view/4532)); 5 to 10 t is assumed as the working range and the 20 t jack rating is used as the design load. Decided by Amish on 2026-10-02: every structural check stays at the full 20 t jack, and the working force is a process setting found in pressing trials with a partner factory, starting near 2 t and stepping up.
 - Mix follows the RDI-C recipe reported by [Rayner (2009)](https://bdd.pseau.org/outils/ouvrages/wedc_current_practices_in_manufacturing_locally_made_ceramic_pot_filters_2009.pdf); the reference filter needs about 7.5 kg of mix per pot, below the 8 to 9.5 kg factories report (PPR-CAL-001).
 - The default flow acceptance band of 1.0 to 2.5 L/h follows Nicaraguan practice and the Potters for Peace range of 1.5 to 2.5 L/h; each factory sets its own band.
 - Allowable stress in structural steel is taken as 165 MPa (S275 with a factor of about 1.67).
-- Guard openings: 12.7 mm (1/2 in) square welded mesh, about 11 mm clear, with moving parts at least about 105 mm behind the mesh, is assumed to keep fingers out of the pinch zone. ISO 13857 is the reference; its tables were not checked here, so this is a stated assumption.
+- Guard openings: 12.7 mm (1/2 in) square welded mesh, about 11 mm clear, with moving parts at least about 105 mm behind the mesh, is assumed to keep fingers out of the pinch zone. ISO 13857 is the reference; its tables were not checked here, so this is a stated assumption until the desk check decided by Amish on 2026-10-02 is done.

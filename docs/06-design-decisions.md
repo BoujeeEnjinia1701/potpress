@@ -3,9 +3,9 @@ doc_id: PPR-DEC-001
 title: PotPress design decisions register
 project: PotPress
 doc_type: Design decisions register
-version: "0.2"
+version: "0.3"
 status: Draft
-date: '2026-10-01'
+date: '2026-10-02'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -17,6 +17,10 @@ revisions:
   date: '2026-10-01'
   author: Amish Chadha
   change: Budget treated as a value-engineering target
+- version: "0.3"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: 'Amish approved the recommendations for all five open decisions (2026-10-02); moved to decisions made'
 ---
 
 # PotPress design decisions register
@@ -25,13 +29,7 @@ Every design decision still to be made, and every decision made, in one place. E
 
 ## Open decisions
 
-| # | Decision needed | Options | Recommendation | Affects in the build | Source |
-| --- | --- | --- | --- | --- | --- |
-| 1 | Pump slot width | 30 mm (as built in the model) or back to 25 mm | 30 mm, with the guard distance check completed | Guard panel and slot | PPR-DDR-004, Q2; PPR-DDR-003 |
-| 2 | Pump handle outside the guard | Treat the 158 mm the handle stands out as operating space, or redesign | Treat it as operating space | Floor space beside the press | PPR-DDR-004, Q3 |
-| 3 | Demolding by tipping the mold on its pins | Confirm with a partner factory's potters, or change the method | Confirm with potters | Carriage and rail extension | PPR-DDR-004, Q5 |
-| 4 | Working pressing force | 5 to 10 t assumed; confirm with a partner factory | Confirm before any pressing test | Jack, frame and mold checks | PPR-DDR-001, item 9 |
-| 5 | Guard opening check to ISO 13857 | Check the slot and mesh distances against the tables | Complete the check | Guard panels | PPR-DDR-003 |
+None. All open decisions were decided on 2026-10-02.
 
 ## To confirm when parts are bought
 
@@ -56,3 +54,8 @@ Value-engineering target: USD 1,060 (a hypothetical control target, not a limit)
 | 2026-09-25 | TRL 2 review items and recommendations | Amish: "i accept all your recommendations, go with them across all repos." | PPR-DDR-001, PPR-DDR-002 |
 | 2026-09-27 | Guarded version with mesh guards and an interlocked front gate; budget USD 1,060 | Amish | PPR-DDR-003 |
 | 2026-09-30 | Design for construction: open-topped male mold, dowel location, M16 joints with spacer tubes, captive lead screw nut, interlock design and other changes that make the press buildable | Amish: "i accept your recommended changes on design that are currently being sent across for my approval" | PPR-DDR-004 |
+| 2026-10-02 | Pump slot: keep the 30 mm slot, approved only with a fixed inner shield or tunnel behind the slot that keeps the platen and molds out of arm's reach, sized in the ISO 13857 check (item 5) | Amish: "i approve your recommendations for all 555 open decisions." | PPR-DDR-004, Q2; PPR-DDR-003 |
+| 2026-10-02 | Pump handle: the 158 mm the handle stands outside the guard is operating space, like a door swing, marked on the floor layout; the 1.0 m width limit of R11 applies to the guarded box | Amish: "i approve your recommendations for all 555 open decisions." | PPR-DDR-004, Q3 |
+| 2026-10-02 | Demolding: keep the tipping pins for the prototype; the potters at the first partner factory confirm the method, and if they object the pot is lifted out in its liner instead | Amish: "i approve your recommendations for all 555 open decisions." | PPR-DDR-004, Q5 |
+| 2026-10-02 | Pressing force: every structural check stays at the full 20 t jack; the working force is a process setting found in pressing trials with a partner factory, starting near 2 t and stepping up | Amish: "i approve your recommendations for all 555 open decisions." | PPR-DDR-001, item 9 (as cited in the register); PPR-CAL-001, section 3 |
+| 2026-10-02 | Guard openings: the ISO 13857 desk check is done now rather than at TRL 4, signed by a competent person, and is a hold point before any force above hand pressure | Amish: "i approve your recommendations for all 555 open decisions." | PPR-DDR-003; PPR-DDR-004, Q2 |

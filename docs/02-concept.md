@@ -3,9 +3,9 @@ doc_id: PPR-PRC-001
 title: PotPress design precis
 project: PotPress
 doc_type: Design precis
-version: "0.8"
+version: "0.9"
 status: Draft
-date: '2026-10-01'
+date: '2026-10-02'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -41,6 +41,10 @@ revisions:
   date: '2026-10-01'
   author: Amish Chadha
   change: Budget treated as a value-engineering target
+- version: "0.9"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: 'Decisions of 2026-10-02 carried in: ISO 13857 desk check now as a hold point, pump slot inner shield, handle operating space, working force found in trials from about 2 t, demolding confirmed with potters'
 ---
 
 # PotPress design precis
@@ -118,10 +122,10 @@ All values are estimates from PPR-CAL-001, which lists its assumptions and the r
 | Wall evenness | ±1.40 mm as cast; ±0.43 mm finished to templates | R2 at risk |
 | Flow gauge | 0.1 L is 1.69 mm; 2.3 % per °C near 25 °C | R6 met |
 | Size and mass | Press 840 x 655 x 1,806 mm unguarded; 940 x 700 mm guarded, with the rail extension folded; 298 kg plus 7 kg of joint bolts and about 45 kg of guards (estimate); heaviest part 38.9 kg; rack 780 x 780 mm | R8 met on paper; R11 met on paper at the 0.7 m limit |
-| Guarding | Mesh 12.7 mm pitch; nearest moving parts behind the mesh: about 105 mm at the back (platen deck), 109 mm at the sides (platen sleeves), 110 mm at the front (carriage handle) | Distances assumed adequate; to be checked against ISO 13857 (proposed, awaiting Amish) |
+| Guarding | Mesh 12.7 mm pitch; nearest moving parts behind the mesh: about 105 mm at the back (platen deck), 109 mm at the sides (platen sleeves), 110 mm at the front (carriage handle) | Mesh distances assumed adequate; the ISO 13857 desk check is done now, signed by a competent person, and is a hold point before any force above hand pressure (decided by Amish, 2026-10-02); the 30 mm pump slot needs a fixed inner shield behind it (decided, 2026-10-02) |
 | Cost | Press $970, QC rack $81, total $1,051 | within the $1,060 value-engineering target, $9 (0.8 %) under |
 
-The working force is still an assumption. Henry, Maley and Mehta (2013) formed round-bottom filters with a 2 t car jack ([IJSLE 8 (1)](https://ojs.library.queensu.ca/index.php/ijsle/article/view/4532)), which suggests the real force may be well below 5 to 10 t; the frame is sized for the full 20 t jack either way.
+The working force is still an assumption. Henry, Maley and Mehta (2013) formed round-bottom filters with a 2 t car jack ([IJSLE 8 (1)](https://ojs.library.queensu.ca/index.php/ijsle/article/view/4532)), which suggests the real force may be well below 5 to 10 t; the frame is sized for the full 20 t jack either way. Decided by Amish on 2026-10-02: every structural check stays at the full 20 t jack, and the working force is a process setting found in pressing trials with a partner factory, starting near 2 t and stepping up.
 
 ## Key design choices
 
@@ -143,7 +147,7 @@ These were decided by Amish on 2026-09-25: go with recommendation (PPR-DDR-001 i
 > **Safety:** PotPress is a 20 t hydraulic press with heavy moving parts, and the workshop around it handles silica-bearing clay dust and silver compounds. Treat each of these as a hazard at every stage.
 
 - **Crushing and pinch points.** The gap between the molds, the platen and the uprights, and the carriage rails can crush fingers and hands. The guarded version (PPR-DDR-003) encloses them: fixed welded-mesh guards on the sides, back and roof, fixed front strips and a lower front panel, and a hinged front gate. The gate's guard-locking interlock holds the jack release open unless the gate is shut, and holds the gate shut while the release is closed. The pump handle works through a framed slot in the right side guard, well below the platen, and the release T-handle sits outside the lower front panel. The carriage has an end stop so it cannot be pushed past the male mold. Keep fingers clear of the rail extension hinges when folding it, and deploy it only onto its stop lugs; the extension cannot be deployed with the gate shut.
-- **Guard openings (stated assumption).** The mesh is 12.7 mm (1/2 in) square welded mesh with 1.6 mm wire, about 11 mm clear, and the nearest moving parts are about 105 to 110 mm behind the mesh. ISO 13857 (safety distances to prevent hazard zones being reached by upper and lower limbs) is the reference; this precis assumes, without having checked its tables, that these openings and distances keep fingers out of the pinch zone. The pump handle slot (25 mm wide with a brush strip) and the reach over the roof are also unchecked. If the standard asks for more, use a finer mesh or move the panels out. Never remove a guard or defeat the interlock, and inspect both before each shift.
+- **Guard openings (stated assumption).** The mesh is 12.7 mm (1/2 in) square welded mesh with 1.6 mm wire, about 11 mm clear, and the nearest moving parts are about 105 to 110 mm behind the mesh. ISO 13857 (safety distances to prevent hazard zones being reached by upper and lower limbs) is the reference; this precis assumes, without having checked its tables, that these openings and distances keep fingers out of the pinch zone. The reach over the roof is also unchecked. Decided by Amish on 2026-10-02: the ISO 13857 check is done now as a desk check from the tables and the model's distances, signed by a competent person, and is a hold point before any force above hand pressure. The pump handle slot, 30 mm wide since the design for construction, is approved only with a fixed inner shield or tunnel behind it that keeps the platen and molds out of arm's reach, sized in that check; a brush strip does not count as a guard. If the standard asks for more, use a finer mesh or move the panels out. The 158 mm the pump handle stands outside the guard while in use is operating space, marked on the floor layout. Never remove a guard or defeat the interlock, and inspect both before each shift.
 - **Load pin and stored energy.** One 60 mm pin carries the whole press force. Never press unless the pin is fully home through both beam webs and the stem; the guard includes a pin-presence interlock that stops the jack release closing until the pin is home. Check the bolted upright joints for tightness before each shift. Never exceed the jack rating, never add a cheater bar to the pump handle, and never adjust the jack's relief valve. Release pressure fully before opening the gate or pulling the pin.
 - **Falling and tipping.** The molds weigh about 24 and 18 kg and the press about 305 kg with its bolts, with its center of mass about 0.8 m up. A push of about 750 N at 1 m tips it forward, so anchor the base to the floor, lift molds with two people and wear safety boots. The lead screw is self-locking, so the male mold holds its height if the handwheel is released; still keep hands out from under it.
 - **Silica dust.** Dry clay and rice husk ash contain crystalline silica, which causes silicosis. Keep mixing and trimming wet, sweep damp, and wear a fitted P2 or N95 respirator for dry work.
@@ -154,10 +158,10 @@ These were decided by Amish on 2026-09-25: go with recommendation (PPR-DDR-001 i
 
 ## Open questions
 
-- What pressing force gives a well-consolidated wall with a typical mix? Ask a partner factory; the 2 t figure above suggests it may be low.
+- What pressing force gives a well-consolidated wall with a typical mix? Found in pressing trials with a partner factory, starting near 2 t and stepping up (decided, 2026-10-02).
 - Can hand finishing to printed templates reach ±0.3 mm on a 400 mm casting (R2, R7)?
 - Handwheel height of about 1.8 m: a side crank through a bevel gear would be easier to reach.
-- Confirm the demolding method with potters; check whether a liner leaves marks that affect flow.
+- Confirm the demolding method with the potters at the first partner factory; the tipping pins stay for the prototype, and if the potters object the pot is lifted out in its liner (decided, 2026-10-02). Check whether a liner leaves marks that affect flow.
 - Choose the first partner factory or organization (left open under the portfolio rule).
 
 Concept media: [blueprint sheet](../media/concept-blueprint.pdf), [interactive 3D model](../media/viewer.html). General arrangement: [PPR-DWG-001](../cad/drawings/PPR-DWG-001.pdf).

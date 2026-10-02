@@ -3,9 +3,9 @@ doc_id: PPR-DDR-003
 title: PotPress guarded version
 project: PotPress
 doc_type: Design decision record
-version: "0.2"
+version: "0.3"
 status: Draft
-date: '2026-09-27'
+date: '2026-10-02'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -17,12 +17,16 @@ revisions:
   date: '2026-09-27'
   author: Amish Chadha
   change: Cost overrun decided by Amish on 2026-09-27; budget raised to $1,060, R10 met on paper
+- version: "0.3"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: 'ISO 13857 distance check decided by Amish on 2026-10-02: desk check now, signed by a competent person, hold point before any force above hand pressure; pump slot only with a fixed inner shield'
 ---
 
 # 0003: Guarded version
 
 - **Date:** 2026-09-26
-- **Status:** accepted (the guarded version, decided by Amish on 2026-09-26; the budget raise to $1,060 for its cost, decided by Amish on 2026-09-27); the ISO 13857 distance check is proposed, awaiting Amish
+- **Status:** accepted (the guarded version, decided by Amish on 2026-09-26; the budget raise to $1,060 for its cost, decided by Amish on 2026-09-27); the ISO 13857 distance check was decided by Amish on 2026-10-02 ("i approve your recommendations for all 555 open decisions."): it is done now as a desk check, signed by a competent person, and is a hold point before any force above hand pressure
 
 ## Context
 
@@ -44,11 +48,11 @@ Option 1, as modeled in `cad/src/model.py` and priced in `bom/bom.csv`:
 - **Fixed guards (BOM 16):** galvanized welded mesh 12.7 x 12.7 x 1.6 mm (1/2 in, about 11 mm clear) on 25 x 25 x 3 angle frames: both sides (mesh planes at ±470 mm), back (+325 mm), two front strips and a lower front panel (-350 mm), and a roof around the top beam. Standoffs tie the panels to the beams. The pump handle works through a framed 25 mm slot with a brush strip in the right side guard, below the platen.
 - **Front gate (BOM 20):** 532 x 1,063 mm, 20 x 20 x 2 tube frame with the same mesh, two lift-off hinges on the left front post, opening outward. The 540 mm opening clears the carriage, molds and rail extension, and the extension cannot be deployed with the gate shut.
 - **Gate interlock (BOM 21):** spring-loaded locking bolt on the right front post, engaged by a striker on the gate, linked to a blocking cam on a jack release extension rod whose T-handle sits outside the lower front panel. Gate open: the release cannot be closed, so the jack cannot build pressure. Release closed: the gate cannot be opened.
-- **Guard openings (stated assumption, proposed, awaiting Amish):** the nearest moving parts are about 105 mm behind the rear mesh (platen deck), 109 mm behind the side mesh (platen sleeves) and 110 mm behind the front mesh (carriage handle). ISO 13857, on safety distances to prevent hazard zones being reached by the upper and lower limbs, is the reference. Its tables were not checked in this session, so the adequacy of the 11 mm opening at these distances, of the 25 mm pump slot and of the roof height is an assumption to be checked. If the standard asks for more, use finer mesh or move the panels out.
+- **Guard openings (stated assumption, proposed, awaiting Amish):** the nearest moving parts are about 105 mm behind the rear mesh (platen deck), 109 mm behind the side mesh (platen sleeves) and 110 mm behind the front mesh (carriage handle). ISO 13857, on safety distances to prevent hazard zones being reached by the upper and lower limbs, is the reference. Its tables were not checked in this session, so the adequacy of the 11 mm opening at these distances, of the 25 mm pump slot and of the roof height is an assumption to be checked. If the standard asks for more, use finer mesh or move the panels out. **Decided by Amish, 2026-10-02:** the ISO 13857 desk check is done now from the tables and the model's distances, not at TRL 4; a competent person signs it, and it is a hold point before any force above hand pressure. The pump slot, since widened to 30 mm (PPR-DDR-004, P4), is approved only with a fixed inner shield or tunnel behind it that keeps the platen and molds out of arm's reach, sized in that check.
 
 ## Consequences
 
-- **R9** moves from at risk to met on paper, with the ISO 13857 check open (proposed, awaiting Amish).
+- **R9** moves from at risk to met on paper, with the ISO 13857 check open; decided by Amish on 2026-10-02 as a desk check done now and a hold point before any force above hand pressure.
 - **R11:** the guarded press is 940 x 700 mm with the rail extension folded, exactly at the 0.7 m depth limit (840 x 655 mm unguarded). There is no margin.
 - **Mass:** about 45 kg of guards (estimate); no guard panel is heavier than about 10 kg. The press frame masses and the tipping figure in PPR-CAL-001 do not include the guards.
 - **R10:** the guards, gate and interlock cost $122 in place of the $55 allowance, so the BOM rises by $67 from $984 to $1,051, which was $61 (6.2 %) over the $990 budget. The options were (a) raise `budget_usd` to about $1,060, since the guards are a safety requirement (recommended); (b) cost the QC rack ($81) outside the press budget, which brings the press to $970 against $990; (c) keep $990 and record R10 as not met. **Decided by Amish on 2026-09-27:** option (a) ("i agree with the budget for potpress"). `budget_usd` in `project.yaml` is raised from $990 to $1,060, and R10 is met on paper at $1,051 against $1,060, a $9 (0.8 %) margin. The margin is thin; any price rise moves R10 back to at risk.

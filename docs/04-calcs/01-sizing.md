@@ -3,9 +3,9 @@ doc_id: PPR-CAL-001
 title: PotPress sizing and first-principles checks
 project: PotPress
 doc_type: Calculation note
-version: "0.7"
+version: "0.8"
 status: Draft
-date: '2026-10-01'
+date: '2026-10-02'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -37,6 +37,10 @@ revisions:
   date: '2026-10-01'
   author: Amish Chadha
   change: Budget treated as a value-engineering target; R10 reported against the target
+- version: "0.8"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: 'Decisions of 2026-10-02: R9 status at risk until the pump slot shield is designed; working force as a process setting found in trials'
 ---
 
 # PotPress sizing and first-principles checks
@@ -87,7 +91,7 @@ The charge of about 7.5 kg is below the 8 to 9.5 kg that factories report (Rayne
 
 ## 3. Force and pressure
 
-The pressing force needed for a well-consolidated wall was still not found. Henry, Maley and Mehta (2013) note that the Potters Without Borders press uses a 20 t jack, but their own low-cost press forms round-bottom filters with a 2 t car jack ([Henry, Maley and Mehta, *IJSLE* 8 (1), 2013](https://ojs.library.queensu.ca/index.php/ijsle/article/view/4532)). The working force may therefore be well below the assumed 5 to 10 t. The frame is sized for the full jack rating either way.
+The pressing force needed for a well-consolidated wall was still not found. Henry, Maley and Mehta (2013) note that the Potters Without Borders press uses a 20 t jack, but their own low-cost press forms round-bottom filters with a 2 t car jack ([Henry, Maley and Mehta, *IJSLE* 8 (1), 2013](https://ojs.library.queensu.ca/index.php/ijsle/article/view/4532)). The working force may therefore be well below the assumed 5 to 10 t. The frame is sized for the full jack rating either way. Decided by Amish on 2026-10-02: every structural check stays at the full 20 t jack, and the working force is a process setting found in pressing trials with a partner factory, starting near 2 t and stepping up.
 
 *Table 3. Mean pressure over the 0.0935 m² projected area of the pot.*
 
@@ -266,7 +270,7 @@ The press costs $1,060 and the QC rack $83, for **$1,143**. Amish raised the bud
 | --- | --- | --- | --- |
 | R2 | ±1.40 mm as cast; ±0.44 mm wall and ±0.44 mm coaxial when finished to templates, located by match-drilled dowels | ±1 mm wall; 0.5 mm coaxial | At risk |
 | R7 | 16 flat-back pattern segments for a 250 mm printer, no core boxes; no lathe needed (dowels, lapped stop faces); cavity hand finishing unproven | Printed patterns, hand and drill press finishing, no lathe over 300 mm swing | At risk |
-| R9 | Guards, gate and interlocks modeled (PPR-DDR-003): 12.7 mm welded mesh, nearest moving parts about 105 to 110 mm behind it; guard-locking gate interlock and pin-presence plunger on the jack release | Guards, interlocked gate, controls outside, pin in place and interlocked | Met on paper; ISO 13857 distances assumed, not checked (proposed, awaiting Amish) |
+| R9 | Guards, gate and interlocks modeled (PPR-DDR-003): 12.7 mm welded mesh, nearest moving parts about 105 to 110 mm behind it; guard-locking gate interlock and pin-presence plunger on the jack release | Guards, interlocked gate, controls outside, pin in place and interlocked | At risk until the fixed inner shield behind the pump slot is designed and the ISO 13857 desk check is signed (decided by Amish, 2026-10-02) |
 | R10 | $1,143 (press $1,060, QC rack $83), constructable design (PPR-DDR-004) | $1,060 value-engineering target | **Over the value-engineering target by $83** (7.8 %) |
 | R1 | 280 mm rim, 240 mm deep, 15 mm wall, 345 mm rim; 12.30 L brim, 9.91 L working; all from `PARAMS` | Reference filter from one source file | Met on paper |
 | R3 | No yield at 294 kN: 190 MPa beams, 272 MPa pin (yield 650), 54 MPa uprights, 117 MPa M16 joint bolts, 62 MPa male flange on the stop. Deflection 0.66 mm at 10 t (1.97 mm at 294 kN); molds close on a metal stop | No yield at 294 kN; under 1 mm deflection at 10 t | Met on paper |
@@ -277,7 +281,7 @@ The press costs $1,060 and the QC rack $83, for **$1,143**. Amish raised the bud
 | R11 | Press 940 x 700 mm guarded with the rail extension folded (the pump handle stands 158 mm outside the right guard while in use), 1,806 mm tall; QC rack 780 x 780 mm | Press 1.0 x 0.7 m and 2.0 m; rack 0.8 x 0.8 m | Met on paper, at the 0.7 m depth limit |
 | R12 | Aluminum mold faces, polyethylene liners, HDPE buckets, no oils on molds; lead-free scrap alloy (decided) | Product-safe faces | Met on paper |
 
-Summary: 1 over the value-engineering target (R10), 2 at risk (R2, R7), 9 met on paper (R1, R3, R4, R5, R6, R8, R9, R11, R12). In v0.5 the count was 0 not met, 2 at risk and 10 met. In v0.4 the count was 1 not met (R10), 2 at risk and 9 met; in v0.3 the count was 0 not met, 3 at risk and 9 met; in v0.2 the count was 1 not met (R10), 3 at risk and 8 met; in v0.1 the count was 3 not met (R3, R10, R11), 4 at risk and 5 met.
+Summary: 1 over the value-engineering target (R10), 3 at risk (R2, R7, R9), 8 met on paper (R1, R3, R4, R5, R6, R8, R11, R12). R9 moved to at risk in v0.8, when Amish decided on 2026-10-02 that the 30 mm pump slot needs a fixed inner shield. In v0.7 the count was 2 at risk and 9 met. In v0.5 the count was 0 not met, 2 at risk and 10 met. In v0.4 the count was 1 not met (R10), 2 at risk and 9 met; in v0.3 the count was 0 not met, 3 at risk and 9 met; in v0.2 the count was 1 not met (R10), 3 at risk and 8 met; in v0.1 the count was 3 not met (R3, R10, R11), 4 at risk and 5 met.
 
 ## 14. Changes to earlier numbers
 

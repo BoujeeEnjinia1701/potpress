@@ -1,5 +1,44 @@
 # Review note: PotPress
 
+## Session 2026-10-02: open decisions decided by Amish
+
+Authority: Amish, 2026-10-02: "i approve your recommendations for all 555 open decisions." The recommendations approved are those written for the five open decisions in the design decisions register (PPR-DEC-001). No model, BOM quantity or price, or picture was changed; where a decision needs one, it is listed below as a follow-up. `trl` and `trl_target` stay at 3. No commit or push.
+
+### Decisions recorded
+
+Five, all moved to "Decisions made" in `docs/06-design-decisions.md`, dated 2026-10-02:
+
+1. Pump slot: keep 30 mm, approved only with a fixed inner shield or tunnel behind the slot, sized in the ISO 13857 check.
+2. Pump handle: the 158 mm it stands outside the guard is operating space, marked on the floor layout; R11 applies to the guarded box.
+3. Demolding: keep the tipping pins for the prototype; the first partner factory's potters confirm the method, with lifting out in the liner as the fallback.
+4. Pressing force: structural checks stay at the full 20 t jack; the working force is found in pressing trials from about 2 t upward.
+5. ISO 13857: desk check done now, signed by a competent person, a hold point before any force above hand pressure.
+
+### Documents changed
+
+- `docs/06-design-decisions.md` (PPR-DEC-001 v0.3)
+- `docs/decisions/0004-design-for-construction.md` (PPR-DDR-004 v0.4): Q2, Q3 and Q5 recorded as decided; status stays Draft
+- `docs/decisions/0003-guarded-version.md` (PPR-DDR-003 v0.3): ISO 13857 check decided
+- `docs/02-concept.md` (PPR-PRC-001 v0.9)
+- `docs/03-requirements.md` (PPR-REQ-001 v0.10): R9 now at risk until the pump slot shield is designed and the check is signed
+- `docs/04-calcs/01-sizing.md` (PPR-CAL-001 v0.8): R9 status and summary count; force text
+
+### Follow-up actions to carry approved decisions into the design
+
+1. Decision 1 (model, drawings, build plan pictures, BOM): design the fixed inner shield or tunnel behind the 30 mm pump slot in `cad/src/model.py`, check that the pump handle still clears it over its stroke, add it to the GA drawing PPR-DWG-001, the right side guard sketch and the build plan pictures (section on the guards, step 3), and add it to BOM line 16.
+2. Decision 1 (calcs): once the shield is modelled, re-judge R9 in PPR-CAL-001 and PPR-REQ-001.
+3. Decision 2 (drawings): mark the pump handle's 158 mm operating space on a floor layout (GA drawing or build plan overview).
+4. Decision 4 (calcs): add the mean pressure at 2 t to PPR-CAL-001, Table 3, so the pressing trials have a starting reference.
+5. Decision 5 (calcs): do the ISO 13857 desk check of the mesh, the pump slot, the roof reach and the pump handle's 1.4 to 2 mm pass by the slot frame from the model's distances, and have a competent person sign it.
+
+### Points found in the review
+
+- Value engineering does not compare like with like: the USD 1,060 target was set on 2026-09-27 to cover the USD 1,051 BOM including the QC rack, so reading it against the press alone hides the real USD 83 gap.
+- Decision 4 cites PPR-DDR-001 item 9, which is the first co-design partner, not the pressing force. The partner decision is still open (REVIEW 2026-09-30) but is missing from the open decisions table; it was not part of the decisions approved on 2026-10-02 and should be added back to the register.
+- The pump handle runs 1.4 to 2 mm from the slot frame over its stroke; that is a finger shear point and should be covered by the ISO 13857 check (follow-up 5). A brush strip does not count as a guard.
+- PPR-DDR-004 Q2 deferred the ISO 13857 check to TRL 4, while build plan safety stop S8 required it before any force. Decision 5 resolves this in favor of S8: the check is done now.
+- PPR-DDR-004 Q4 (the interlock notch angle, set to the jack bought) remains proposed in that record; it is covered by "To confirm when parts are bought", item 1.
+
 ## Session 2026-09-30: constructable design and illustrated build plan (/build-plan)
 
 Authority: the `/build-plan` command and Amish's instructions of 2026-09-30 ("Design concept and constructability are different states"; "fix the design assumptions to match and be physically feasible as you draw the illustrations"; "i accept your recommended changes on design that are currently being sent across for my approval"). This replaces the earlier text-only build plan and its review section, which Amish rejected. Commit and push were skipped by instruction. `trl` and `trl_target` stay at 3.

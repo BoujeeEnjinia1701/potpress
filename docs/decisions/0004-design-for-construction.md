@@ -3,9 +3,9 @@ doc_id: PPR-DDR-004
 title: PotPress design for construction
 project: PotPress
 doc_type: Design decision record
-version: "0.3"
+version: "0.4"
 status: Draft
-date: '2026-10-01'
+date: '2026-10-02'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -21,12 +21,16 @@ revisions:
   date: '2026-10-01'
   author: Amish Chadha
   change: Budget treated as a value-engineering target
+- version: "0.4"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: 'Q2, Q3 and Q5 decided by Amish on 2026-10-02 as recommended (Q2 amended: 30 mm slot only with a fixed inner shield, ISO 13857 check now); record stays Draft'
 ---
 
 # 0004: Design for construction
 
 - **Date:** 2026-09-30
-- **Status:** accepted. Amish, 2026-09-30: "i accept your recommended changes on design that are currently being sent across for my approval". This covers every change in Tables 1 and 2. The questions in Table 3 would change the pitch or the safety case, or note value engineering, so they stay **proposed, awaiting Amish**.
+- **Status:** accepted. Amish, 2026-09-30: "i accept your recommended changes on design that are currently being sent across for my approval". This covers every change in Tables 1 and 2. The questions in Table 3 would change the pitch or the safety case, or note value engineering, so they stay **proposed, awaiting Amish**. On 2026-10-02 Amish approved the recommendations for Q2, Q3 and Q5 ("i approve your recommendations for all 555 open decisions."); they are decided as recorded in Table 3 and in the design decisions register (PPR-DEC-001). Q1 is a value-engineering note, not a decision, and Q4 (the interlock notch) is set to the jack bought, under "To confirm when parts are bought" in the register.
 
 ## Context
 
@@ -69,15 +73,15 @@ The changes keep what the press does: the same filter shape, 20 t jack, 600 mm f
 | Drawing | PPR-DWG-001 Rev P5; making sketches PPR-DWG-101 to 114 added. | Follows the model. |
 | Media | Concept images, blueprint and 3D viewer regenerated. The photoreal renders (`media/render-*.png`) and `cad/src/product_model.py` still show the concept and need updating in Blender on Amish's Mac. | |
 
-*Table 3. Proposed, awaiting Amish.*
+*Table 3. Questions that would change the pitch or the safety case; Q2, Q3 and Q5 decided by Amish on 2026-10-02.*
 
 | # | Question | Options | Recommendation |
 | --- | --- | --- | --- |
 | Q1 | Value engineering (a note, not a decision). The constructable BOM is $1,143, $83 (7.8 %) over the $1,060 value-engineering target (`budget_usd`, a hypothetical control target). | (a) look for savings (for example cheaper dowels and bushes, plywood QC shelves from offcuts); (b) read the target against the press alone ($1,060). | (a); the added parts are what a build needs, so savings come from how they are bought. |
-| Q2 | The pump slot widens from 25 to 30 mm. Both are in the same ISO 13857 band, but the guard distance check itself is still open (PPR-DDR-003). | (a) accept 30 mm with a brush strip and do the ISO 13857 check at TRL 4; (b) keep 25 mm and fit a thinner (16 mm) handle. | (a). |
-| Q3 | The pump handle stands 158 mm outside the right guard while in use, beyond the 1.0 m width of R11. | (a) treat the handle as operating space, like a door swing, and keep R11 on the guarded box; (b) use a two-piece handle removed between cycles. | (a). |
+| Q2 | The pump slot widens from 25 to 30 mm. Both are in the same ISO 13857 band, but the guard distance check itself is still open (PPR-DDR-003). | (a) accept 30 mm with a brush strip and do the ISO 13857 check at TRL 4; (b) keep 25 mm and fit a thinner (16 mm) handle. | (a), as amended. **Decided by Amish, 2026-10-02:** keep the 30 mm slot, approved only with a fixed inner shield or tunnel behind the slot that keeps the platen and molds out of arm's reach, sized in the ISO 13857 desk check, which is done now rather than at TRL 4 (PPR-DDR-003). A brush strip does not count as a guard. |
+| Q3 | The pump handle stands 158 mm outside the right guard while in use, beyond the 1.0 m width of R11. | (a) treat the handle as operating space, like a door swing, and keep R11 on the guarded box; (b) use a two-piece handle removed between cycles. | (a). **Decided by Amish, 2026-10-02:** the handle's 158 mm is operating space, marked on the floor layout; R11 applies to the guarded box. |
 | Q4 | The interlock notch is 120° (a third of a turn) round from the rod. Bottle jacks open their release between about a quarter and a half turn. | (a) set the notch to the jack bought, at TRL 4; (b) fix it at 120° and buy a jack to suit. | (a). |
-| Q5 | The mold is tipped over by hand on pins at the end of the extension to demold (about 51 kg in all). The method was always to be confirmed with potters (PPR-PRC-001). | (a) keep the tipping pins; (b) lift the pot out in its liner instead. | (a) for the prototype; confirm with a partner factory. |
+| Q5 | The mold is tipped over by hand on pins at the end of the extension to demold (about 51 kg in all). The method was always to be confirmed with potters (PPR-PRC-001). | (a) keep the tipping pins; (b) lift the pot out in its liner instead. | (a) for the prototype; confirm with a partner factory. **Decided by Amish, 2026-10-02:** keep the tipping pins; the potters at the first partner factory confirm the method, and if they object the pot is lifted out in its liner. |
 
 ## Consequences
 
