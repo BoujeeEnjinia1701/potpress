@@ -28,6 +28,7 @@ RHO_ST, RHO_AL, RHO_PLY, RHO_UHMW = 7850.0, 2680.0, 600.0, 940.0   # kg/m3
 # Forces (N)
 T = 1000 * G                            # one tonne-force
 F_WORK = (5 * T, 10 * T)                # assumed working range, not sourced
+F_TRIAL = 2 * T                         # pressing trials start near 2 t (decided by Amish, 2026-10-02)
 F_RATED = 20 * T                        # jack rating
 F_DESIGN = 1.5 * F_RATED                # R3 design load
 
@@ -318,6 +319,8 @@ def masses():
     ms, ctr, per = {}, {}, {}
     mom = {}
     for c in comps:
+        if c.key == "pump_shield":                   # solid sheet, so its mass is real (2026-10-02)
+            per[c.key] = c.shape.volume / 1e9 * RHO_ST
         if c.bom is None or c.bom in (11, 16, 20):   # product; guard mesh is drawn symbolically
             continue
         kg = c.shape.volume / 1e9 * DENSITY.get(c.key, RHO_ST)
@@ -394,7 +397,9 @@ def costs(ms, pat):
     pla = (per["fm_cup"] + per["mm"]) / RHO_AL * (1 + AL_SHRINK) ** 3 * PATTERN_FILL * PLA_RHO
     c["pla_kg"] = pla
     c[15] = pla * PLA_USD_KG + 10.0
-    c[16] = 67.0; c[17] = 10.0; c[18] = 45.0; c[19] = 12.0
+    c[16] = 67.0 + per["pump_shield"] * STEEL_USD_KG + 2.0   # mesh guards; pump slot shield, folded by the shop, 4 x M8
+    c["shield"] = per["pump_shield"] * STEEL_USD_KG + 2.0
+    c[17] = 10.0; c[18] = 45.0; c[19] = 12.0
     c[20] = 21.0 + 1.0                                      # gate, plus the tongue plate
     c[21] = (ms[21]) * STEEL_USD_KG + 2 * 8.0 + 10.0 + 3.0 + 4.0 + 3.0   # two universal joints, push-pull cable, springs, plunger, handle
     c["total"] = sum(v for k, v in c.items() if isinstance(k, int))
@@ -437,7 +442,7 @@ def main():
     print(f"  dried {m['dried']:.2f} kg (drying loss {m['drying_loss']:.2f}); fired {m['fired']:.2f} kg (firing loss {m['firing_loss']:.2f})")
     print(f"  passes QC {m['passed']:.2f} kg per pot made (rejects {m['reject']:.2f} kg at {REJECT*100:.0f} %)")
     print("3 Force and pressure")
-    for tag, F in (("5 t", F_WORK[0]), ("10 t", F_WORK[1]), ("20 t", F_RATED), ("30 t (1.5 x)", F_DESIGN)):
+    for tag, F in (("2 t (trials start)", F_TRIAL), ("5 t", F_WORK[0]), ("10 t", F_WORK[1]), ("20 t", F_RATED), ("30 t (1.5 x)", F_DESIGN)):
         print(f"  {tag:13s} {F/1000:6.1f} kN  mean pressure {F/g['a_proj']/1e6:5.2f} MPa")
     print("4 Frame and load path (two channels per beam, span %.0f mm)" % P["SPAN"])
     print(f"  beam {P['BEAM_SEC']} pair W = {f['beam_W_cm3']:.0f} cm3")
@@ -499,7 +504,7 @@ def main():
     hd = ms["handled"]
     print(f"  press items 1 to 10 {t['mass']:.0f} kg (joint bolts {ms['bolts']:.1f} kg included); frame (1 to 3) {frame_weld:.0f} kg; heaviest part as handled {max(hd.values()):.1f} kg ({max(hd, key=hd.get)})")
     print("  parts as handled: " + ", ".join(f"{k_} {v_:.1f}" for k_, v_ in hd.items()))
-    print(f"  load pin {cost['pin_kg']:.1f} kg")
+    print(f"  load pin {cost['pin_kg']:.1f} kg; pump slot shield {ms['per']['pump_shield']:.1f} kg (with the guards, not in the press mass)")
     print("11 Tipping")
     print(f"  press CG y {t['cg_y']:.0f} mm, z {t['cg_z']:.0f} mm; carriage out: CG y {t['cg_y_out']:.0f} mm vs front foot edge {-P['FOOT_L']/2:.0f} mm")
     print(f"  restoring moment {t['restoring_Nm']:.0f} N m; horizontal push at 1 m height to tip forward {t['push_N_at_1m']:.0f} N")
@@ -511,9 +516,12 @@ def main():
     print(f"  QC rack {qw:.0f} x {qw:.0f} x {P['QC_SHELF_Z']:.0f} mm; minimum for 4 rims in one row {4*(P['RIM_OD']+20):.0f} mm")
     print("13 Cost (USD)")
     print("  " + ", ".join(f"{i}: {v:.0f}" for i, v in cost.items() if isinstance(i, int)))
-    print(f"  estimate: press {cost['press']:.0f}, QC {cost['qc']:.0f}, total {cost['total']:.0f}")
+    print(f"  estimate: press {cost['press']:.0f}, QC {cost['qc']:.0f}, total {cost['total']:.0f}; pump slot shield {cost['shield']:.2f}")
     gap = "over by" if bt > bud else "margin"
     print(f"  bom.csv: {nrows} lines, total {bt:.2f}, press {bp:.2f}, QC {bt-bp:.2f}; budget_usd {bud:.0f}; {gap} {abs(bt-bud):.0f} ({abs(bt/bud-1)*100:.1f} %)")
+    print("15 ISO 13857 desk check (from the model; see cad/src/model.py iso13857_check)")
+    from model import iso13857_check
+    iso13857_check()
 
 
 if __name__ == "__main__":

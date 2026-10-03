@@ -1,5 +1,77 @@
 # Review note: PotPress
 
+## Session 2026-10-02: Photoreal renders redone on the constructable design
+
+Amish, 2026-10-02: "Photoreal renders are out of date in most repos ... COMPLETE THESE". Rendered with Blender Cycles on Amish's Mac (batch F1) from the scenes exported from `cad/src/product_model.py`, captioned with `.kit/photo_caption.py`; `media/card.png` and `media/social-preview.png` regenerated with `.kit/cards.py`. Each raw render was looked at once. No commit or push; `trl` unchanged.
+
+- Views: `media/render-hero.png`, `media/render-exploded.png`, `media/render-lineup.png`, `media/render-gate-open.png`.
+- Re-renders: hero (twice), lineup and gate-open. The mannequin stood at the front right, in line with the hero camera, and hid most of the press and the pump handle; in the lineup it stood in front of the press's right side. `cad/src/product_model.py` now stands it at the front left facing the press (clear of the open gate by at least 0.2 m) and extends the floor slab to suit; the hero note says "1.75 m person at the front left for scale". The hero was then re-rendered with `--focus` on the guards, handwheel, mat and person, because the larger slab left most of the frame empty. `.kit/export_views.py` does not carry `--focus`, so a re-render of the hero needs it passed by hand.
+- Appearance deviations already logged (2026-10-02, render only): mesh drawn at every wire; coiled springs with hooks; jack split into red body and polished ram; nameplate and load rating label; hazard label; floor slab, anti-fatigue mat and 1.75 m mannequin (now at the front left rather than the front right); floor anchors left out.
+- `python3 .kit/image_qc.py`: 6 images, 0 problems. `python3 .kit/render.py --check`: no FAIL, no storefront warning.
+- The "Stale, to regenerate on Amish's Mac (Blender)" note (2026-09-30 session) is removed; this work resolves it.
+
+## Session 2026-10-02: approved follow-ups carried out
+
+Authority: Amish, 2026-10-02: "497 follow-up actions that need CAD, drawing, picture, BOM or calculation work ... APPROVED CHANGES, COMPLETE THESE", and "Photoreal renders are out of date in most repos ... COMPLETE THESE" (render scenes prepared here; the renders themselves are made on Amish's Mac). Follow-ups from the 2026-10-02 list below and `/home/claude/review/applied/potpress.json`. `trl` and `trl_target` stay at 3. No commit or push.
+
+### Approved follow-ups carried out
+
+| # | Follow-up | Done | Where |
+| --- | --- | --- | --- |
+| 1 | Design the fixed inner shield behind the 30 mm pump slot; check the handle clears it over its stroke | Done. A tunnel of 2 mm folded sheet, 30 mm wide inside, along the handle's line from the slot to 3 mm off the jack body, with a 3 mm flange bolted through the slot frame and a 30 x 6 mm stay to the base beam (2.8 kg). Sized in the desk check: the slot is lengthened from 220 to 272 mm (174 to 446 mm up) and the tunnel's roof and floor follow the handle, so the handle stops 25 mm short of them and of the slot ends at both ends of its stroke (ISO 13854 finger gap); 5 mm to the side walls; 2.3 mm past the slot frame. Constructability checks PASS (52 components, no overlaps, all 49 contacts, open and demold states, handle stroke, hooks, lock notch); new checks for the shield's contacts, side clearance and stroke-end gaps | `cad/src/model.py` (`pump_shield`, `HANDLE_STROKE`, `guard_solids`), STEP and STL re-exported |
+| 1 | Add the shield to the GA and the right side guard sketch | Done | PPR-DWG-001 Rev P6; PPR-DWG-110 Rev P2 |
+| 1 | Show the shield in the build plan guard section, item 3 | Done: section 3.10 items 3 and 6, Figure 20 (joint 11, shield cut along the handle), steps 14 and 16 | `docs/05-build-plan.md` v0.5; `docs/05-build-plan/joint-11.png`, `step-14.png`, `step-16.png`, `overview.png` |
+| 1 | Add the shield to BOM line 16 | Done: $67 to $73 (2.8 kg x $1.30/kg plus $2 bolts); brush strip dropped | `bom/bom.csv`, `bom/bom-notes.md` |
+| 1 | Re-judge R9 once the shield is modelled | Done: R9 **at risk to not met on paper** (see below) | PPR-CAL-001 v0.9, PPR-REQ-001 v0.11 |
+| 2 | Mark the pump handle's 158 mm operating space on a floor layout | Done: outlined on the floor beside the right guard in the GA (159 x 122 mm zone) and noted in the build plan workspace | PPR-DWG-001 Rev P6; PPR-BLD-001 section 7 |
+| 4 | Mean pressure at 2 t in PPR-CAL-001 Table 3 | Done: 19.6 kN, 0.21 MPa, the starting reference for pressing trials | PPR-CAL-001 v0.9 section 3; `sizing.py` |
+| 5 | ISO 13857 desk check of the mesh, pump slot, roof reach and the handle's pass by the slot frame, signed by a competent person | Desk check done from the model's distances (`model.py --iso`, printed by `sizing.py`), every guard opening included. **Not signed**: a competent person must review it against the published table and sign; the signature block is left blank | PPR-CAL-001 v0.9 section 15 |
+
+### Key results
+
+- **Desk check (ISO 13857:2019 Table 4, as read):** side and rear mesh 100 to 110 mm from moving parts (80 needed): meets. Pump slot: opens only into the shield; no moving part enters it in any position: meets. Handle past the slot frame: 2.3 mm, a gap too small for a fingertip: meets on paper. **Does not meet:** front right strip 39 mm, front gate 44 mm, lower front panel 45 mm, front left strip 60 mm (all to the folding rail extension, which moves with the platen), roof mesh 77 mm (stem); release shaft opening (16 mm gaps, 120 needed, 61 found) and pin cable opening (40 mm square, 200 needed, 166 found); the top beam gap is open from above (104 x 150 and 104 x 60 mm openings) and reaches the stem and, cranked up, the male flange 15 mm under the beam; above the roof, the stem cap rises to 10 mm under the crank bracket top in a bracket open front and back.
+- **Requirement status changes:** R9 at risk to **not met on paper**. R10 stays over the value-engineering target, now by $89. Summary: 1 over the target (R10), 1 not met on paper (R9), 2 at risk (R2, R7), 8 met on paper.
+- **Cost:** Value-engineering target: USD 1,060. Estimated cost of the constructable design: USD 1,149 (USD 89 over the target). `budget_usd` unchanged.
+- **Mass:** press 344 kg unchanged; guards about 48 kg with the 2.8 kg shield (was about 45 kg); heaviest part still the platen at 39.6 kg.
+
+### Proposed, awaiting Amish
+
+Added as open decisions 1 to 4 in the design decisions register (PPR-DEC-001 v0.4), from the desk check: (1) 6.35 mm (1/4 in) mesh on the front strips, lower front panel, gate and roof; (2) small-hole plates at the release shaft and pin cable openings; (3) cover plates over the top beam gap; (4) covers on the front and back of the crank bracket. About USD 15 together (estimate). With all four, every opening meets Table 4 on paper. The handle's real stroke and play on the jack bought is added to "To confirm when parts are bought".
+
+Appearance model deviations from `model.py` (render only): guard and gate mesh drawn at every wire (12.7 mm) instead of every 8th; coiled springs with hooks in place of the spring envelopes; jack split into a red body and a polished ram; nameplate and load rating label on the top beam; hazard label on the front right strip; floor slab, anti-fatigue mat and a 1.75 m mannequin standing to the front right; floor anchors left out (below the floor).
+
+### Documents changed and new versions
+
+- `docs/04-calcs/01-sizing.md` PPR-CAL-001 v0.9 and `docs/04-calcs/sizing.py`
+- `docs/03-requirements.md` PPR-REQ-001 v0.11
+- `docs/02-concept.md` PPR-PRC-001 v0.10
+- `docs/06-design-decisions.md` PPR-DEC-001 v0.4
+- `docs/decisions/0004-design-for-construction.md` PPR-DDR-004 v0.5
+- `docs/05-build-plan.md` PPR-BLD-001 v0.5
+- `bom/bom.csv`, `bom/bom-notes.md`, `README.md`
+- `cad/src/model.py`, `sheets.py`, `build_plan_media.py`, `concept_media.py`, `product_model.py` (rebuilt from the constructable components)
+
+### Pictures regenerated (each looked at)
+
+GA PPR-DWG-001 Rev P6 (notes shortened to fit above the title block); making sketch PPR-DWG-110 Rev P2; build plan `overview.png`, `joint-11.png` (redrawn as a cut through the shield), `step-14.png` (shield shown pulled out to the right), `step-15.png` to `step-18.png`; concept `hero.png`, `cutaway.png`, `exploded.png` (guard line renamed so its legend no longer runs into the picture), `concept-blueprint.*` (Rev P2: force from trials at 2 t, shield), `model.glb` and `viewer.html`. `python3 .kit/drawing.py --check-text` passes on every drawing and the blueprint. No "pictures not yet updated" notes remained to remove.
+
+### Render scenes
+
+`cad/src/product_model.py` rebuilt from `model.components()` so every dimension is the constructable model's. Exported with `.kit/export_views.py` to `/home/claude/renders/potpress/`: `potpress__hero`, `__exploded`, `__lineup`, `__gate-open` (.npz and .json each) and `potpress__jobs.json`. Photoreal renders, `card.png` and `social-preview.png` are still the concept's until they are rendered on Amish's Mac.
+
+### Cross-repo actions
+
+None.
+
+### Safety concerns
+
+- The desk check is unsigned and finds openings short of ISO 13857; nothing above hand pressure until the proposed guard changes are made and a competent person signs the check (build plan safety stop S8).
+- The folding rail extension, which moves with the platen, is the part nearest the front guards; this was not visible in the earlier "105 to 110 mm" figures.
+
+### Recommended next step
+
+Amish to decide open decisions 1 to 4; then model the chosen guard changes, re-run the desk check, and render on the Mac.
+
 ## Session 2026-10-02: open decisions decided by Amish
 
 Authority: Amish, 2026-10-02: "i approve your recommendations for all 555 open decisions." The recommendations approved are those written for the five open decisions in the design decisions register (PPR-DEC-001). No model, BOM quantity or price, or picture was changed; where a decision needs one, it is listed below as a follow-up. `trl` and `trl_target` stay at 3. No commit or push.
@@ -96,11 +168,6 @@ Authority: the `/build-plan` command and Amish's instructions of 2026-09-30 ("De
 5. **Q5 demolding by tipping:** confirm with a partner factory's potters.
 
 Still open from earlier sessions: the ISO 13857 guard distance check and the first co-design partner (PPR-DDR-001 item 9).
-
-### Stale, to regenerate on Amish's Mac (Blender)
-
-- `media/render-hero.png`, `media/render-exploded.png`, `media/render-gate-open.png`, `media/render-lineup.png`, and the storefront images `media/card.png` and `media/social-preview.png` made from them: they still show the concept (closed male mold, turned lip, M20 joints, old slot and interlock, low QC shelf).
-- `cad/src/product_model.py` (appearance model) still follows the concept geometry in places and needs updating to the constructable model before the renders are redone.
 
 ### Safety concerns
 

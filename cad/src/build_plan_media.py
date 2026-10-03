@@ -26,7 +26,7 @@ from model import PARAMS as P, levels, box  # noqa: E402
 
 OUT = ROOT / "docs" / "05-build-plan"
 DWG = ROOT / "cad" / "drawings"
-DATE = "2026-09-30"
+DATE = "2026-10-02"                  # pictures redrawn for the pump slot shield
 L = levels()
 _C = None
 
@@ -104,7 +104,7 @@ def groups():
         ("carriage", "Mold carriage", ("carriage", "retaining_pins"), COL["carriage"]),
         ("fm", "Female mold on its base plate", ("fm_cup", "fm_plate", "loc_pins", "fm_screws"), COL["fm"]),
         ("mm", "Male mold", ("mm", "bushes", "adapter_bolts"), COL["mm"]),
-        ("guards", "Fixed mesh guards", ("guards",), COL["guard"]),
+        ("guards", "Fixed mesh guards and pump slot shield", ("guards", "pump_shield"), COL["guard"]),
         ("gate", "Front gate", ("gate",), COL["gate"]),
         ("lock", "Interlock", ("release", "lock_post", "lock_rod", "sliders", "pin_sensor"), COL["lock"]),
         ("qc", "QC rack", ("qc_frame", "qc_shelves"), COL["qc"]),
@@ -137,11 +137,17 @@ def overview():
 
 
 # ----------------------------------------------------------------- making sketches
+# Sheets revised after their first issue on 2026-09-30: (rev, date, revision rows)
+SHEET_REVS = {110: ("P2", "2026-10-02", [("P1", "First issue", "2026-09-30", "AC"),
+                                        ("P2", "Pump slot lengthened; fixed inner shield added", "2026-10-02", "AC")])}
+
+
 def sheet(n, key_or_shape, name, color, neighbours, title, material, notes, view_shape=None, inset=(24, -58)):
     shape = fuse(*key_or_shape) if isinstance(key_or_shape, tuple) else key_or_shape
+    rev, date, revs = SHEET_REVS.get(n, ("P1", "2026-09-30", None))
     return bv.component_sheet(part(name, shape, color), neighbours, project="PotPress", dwg_no=f"PPR-DWG-{n}",
-                              title=f"PotPress {title}: making sketch", material=material, notes=notes, date=DATE,
-                              view_shape=view_shape, inset_view=inset, out_dir=str(DWG))
+                              title=f"PotPress {title}: making sketch", material=material, notes=notes, date=date,
+                              rev=rev, revisions=revs, view_shape=view_shape, inset_view=inset, out_dir=str(DWG))
 
 
 def sheets(which=None):
@@ -298,13 +304,18 @@ def sheets(which=None):
          "  260 mm handwheel with a crank knob. 40 turns lift the mold 200 mm.",
          "Check: the pin slides through beam and stem together by hand."], inset=(20, -55))
     S[110] = lambda: sheet(110, _right_guard(), "Right side guard", COL["guard"], grey("uprights", "base", "top", "jack"),
-        "fixed mesh guards (right side guard drawn)", "Galvanised welded mesh 12.7 x 12.7 x 1.6 mm; 25 x 25 x 3 angle",
+        "fixed mesh guards (right side guard drawn)", "Galvanised welded mesh 12.7 x 12.7 x 1.6 mm; 25 x 25 x 3 angle; 2 mm steel sheet (shield)",
         ["Seven panels, each mesh on a welded frame of 25 x 25 x 3 angle:",
          "  sides 635 (right) and 675 (left) x 1,391 mm; rear 940 x 1,391;",
          "  front strips 180 x 1,391; lower front 580 x 320; roof 940 x 675",
          "  with a cut-out round the top beam. Mesh drawn at every 8th wire.",
-         "Pump slot (right side): 30 x 220 mm, 200 to 420 mm up, centred 218 mm",
-         "  in front of the middle; frame it with 3 mm strip and a brush strip.",
+         "Pump slot (right side): 30 x 272 mm, 174 to 446 mm up, centred 218 mm",
+         "  in front of the middle; frame it with 3 mm strip. No brush strip.",
+         "Shield behind the slot: 2 mm sheet folded into a tunnel 30 mm wide",
+         "  inside, along the pump handle's line to 3 mm off the jack body; roof",
+         "  and floor 25 mm clear of the handle at both ends of its stroke. A",
+         "  3 mm flange bolts through the slot frame (4 x M8); a 30 x 6 mm stay",
+         "  bolts to the base beam. The handle goes in through slot and tunnel.",
          "Interlock holes (front right strip): 44 mm square at the release",
          "  shaft and a 40 mm square for the pin cable.",
          "Fixing mesh: clamp it under bolted flat strips, or grind the zinc",
@@ -391,7 +402,7 @@ def _right_guard():
     import build123d as b
     g = comps()["guards"].shape
     kept = [s for s in g.solids() if s.bounding_box().min.X > P["GUARD_X"] - 40 and s.bounding_box().min.Y > P["STRIP_Y"] - 5]
-    return b.Compound(children=kept)
+    return b.Compound(children=kept + [comps()["pump_shield"].shape])
 
 
 # ----------------------------------------------------------------- joints
@@ -487,19 +498,31 @@ def joints(which=None):
                              subtitle="The disc is bedded on steel epoxy putty on the mold floor and held by four M12 bolts",
                              elev=15, azim=-125, size=(8.5, 6))
     # 11 pump handle through the guard slot
-    py = m.pump_slot_y()
-    bx = (420, 520, py - 70, py + 70, 170, 450)
-    J[11] = lambda bx=bx: bv.joint([W("guards", "Right side guard and slot frame", COL["guard"], bx),
-                              W("pump_handle", "Pump handle, 20 mm", COL["handle"], bx)],
-                             OUT / "joint-11.png", "Joint 11: the pump handle passes the right side guard",
-                             subtitle="30 mm slot, 200 to 420 mm up; the handle crosses the guard at 25 degrees with about 2 mm clear each side",
-                             elev=10, azim=-5, size=(8.5, 6))
+    J[11] = lambda: _joint_shield()
     for n in sorted(J):
         if which and n not in which:
             continue
         out.append(J[n]())
         print("joint", n, "->", out[-1], flush=True)
     return out
+
+
+def _joint_shield():
+    """Joint 11: the pump handle through the slot and the fixed inner shield, cut along the handle's line."""
+    import build123d as b
+    c = comps()
+    py = m.pump_slot_y()
+    half = b.Rot(0, 0, P["JACK_TURN"]) * box(-1000, 1000, 0, 1000, 0, 1000)      # keep the back half of the tunnel
+    shield = c["pump_shield"].shape & half
+    gw = win(c["guards"].shape, 440, 480, py - 90, py + 90, 120, 500)
+    jw = win(c["jack"].shape, -100, 200, -150, 100, L["jack0"], L["jack0"] + 150)
+    return bv.joint([part("Right side guard and slot frame", gw, COL["guard"]),
+                     part("Shield, cut along the handle", shield, "#64748B"),
+                     part("Pump handle, 20 mm", c["pump_handle"].shape, COL["handle"]),
+                     part("Jack, pump socket end", jw, COL["jack"])],
+                    OUT / "joint-11.png", "Joint 11: pump handle, slot and the fixed shield behind it (shield cut along the handle)",
+                    subtitle="30 x 272 mm slot; a 2 mm steel tunnel round the handle to 3 mm off the jack body: 5 mm each side, 25 mm above and below at the stroke ends",
+                    elev=20, azim=-75, size=(8.5, 6))
 
 
 def _joint_hook():
@@ -600,15 +623,16 @@ def steps(which=None):
                        "Putty on the mold floor; pump slowly until the floor meets the disc; four M12 bolts from above. Hold point",
                        elev=22, azim=-55, label_done=False)
     frame4 = [feet, base, jpl, jack, upr, plat, spr, top, stem, pin, crank, car, fm, mm]
-    E[14] = lambda: st(14, frame4, [mv(guards, (0, 0, 0))], "fixed guards",
-                       "Standoffs on the beam webs; side, rear, front strips, lower panel and roof; M8 bolts at every corner",
+    E[14] = lambda: st(14, frame4, [part("Fixed mesh guards", fuse("guards"), COL["guard"]),
+                                    K("pump_shield", "Pump slot shield", "#64748B", (420, 0, 0))], "fixed guards and pump slot shield",
+                       "Standoffs on the beam webs; side, rear, front strips, lower panel and roof; M8 bolts at every corner; shield bolted behind the slot",
                        elev=22, azim=-55, label_done=False)
     E[15] = lambda: st(15, frame4 + [guards], [mv(gate, (0, -350, 0))], "front gate",
                        "Weld the fixed hinge leaves on the left front strip; lift the gate onto its hinges; check it swings clear",
                        elev=22, azim=-55, label_done=False)
     E[16] = lambda: st(16, frame4 + [guards, gate], [mv(lock, (250, -300, 0)), mv(handle, (300, -150, 0))],
                        "interlock and pump handle",
-                       "Coupling on the release screw, shaft, disc and knob; post, rod, sliders; plunger and cable; handle through the slot",
+                       "Coupling on the release screw, shaft, disc and knob; post, rod, sliders; plunger and cable; handle in through the slot and shield",
                        elev=22, azim=-55, label_done=False)
     qc = G("qc"); qcb = G("qcb")
     E[17] = lambda: st(17, [], [mv(part("QC rack frame", c["qc_frame"].shape, COL["qc"]), (0, 0, 0)),

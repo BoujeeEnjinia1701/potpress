@@ -3,7 +3,7 @@ doc_id: PPR-DDR-004
 title: PotPress design for construction
 project: PotPress
 doc_type: Design decision record
-version: "0.4"
+version: "0.5"
 status: Draft
 date: '2026-10-02'
 author: Amish Chadha
@@ -25,6 +25,10 @@ revisions:
   date: '2026-10-02'
   author: Amish Chadha
   change: 'Q2, Q3 and Q5 decided by Amish on 2026-10-02 as recommended (Q2 amended: 30 mm slot only with a fixed inner shield, ISO 13857 check now); record stays Draft'
+- version: "0.5"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: 'Decisions carried into the design: pump slot shield modelled, slot lengthened to 272 mm, handle operating space on the GA floor layout; record stays Draft'
 ---
 
 # 0004: Design for construction
@@ -82,6 +86,12 @@ The changes keep what the press does: the same filter shape, 20 t jack, 600 mm f
 | Q3 | The pump handle stands 158 mm outside the right guard while in use, beyond the 1.0 m width of R11. | (a) treat the handle as operating space, like a door swing, and keep R11 on the guarded box; (b) use a two-piece handle removed between cycles. | (a). **Decided by Amish, 2026-10-02:** the handle's 158 mm is operating space, marked on the floor layout; R11 applies to the guarded box. |
 | Q4 | The interlock notch is 120° (a third of a turn) round from the rod. Bottle jacks open their release between about a quarter and a half turn. | (a) set the notch to the jack bought, at TRL 4; (b) fix it at 120° and buy a jack to suit. | (a). |
 | Q5 | The mold is tipped over by hand on pins at the end of the extension to demold (about 51 kg in all). The method was always to be confirmed with potters (PPR-PRC-001). | (a) keep the tipping pins; (b) lift the pot out in its liner instead. | (a) for the prototype; confirm with a partner factory. **Decided by Amish, 2026-10-02:** keep the tipping pins; the potters at the first partner factory confirm the method, and if they object the pot is lifted out in its liner. |
+
+## Carried into the design, 2026-10-02
+
+- **Q2.** The fixed inner shield is in the model (`pump_shield`, BOM item 16): a tunnel of 2 mm folded sheet, 30 mm wide inside, along the handle's line from the slot to 3 mm off the jack body, with a flange bolted through the slot frame and a flat-bar stay to the base beam. The slot is lengthened from 220 to 272 mm (174 to 446 mm up) so that the handle stops 25 mm short of its ends and of the tunnel's roof and floor at both ends of its stroke. The constructability checks pass with the shield in all positions. Sized in the ISO 13857 desk check, PPR-CAL-001 section 15, which also found other openings short of the standard (now open decisions in PPR-DEC-001).
+- **Q3.** The handle's operating space outside the right guard (158 mm) is outlined on the floor in the general arrangement PPR-DWG-001, Rev P6.
+- **Q5.** No change to the design; confirmed with the partner factory's potters when one is chosen.
 
 ## Consequences
 

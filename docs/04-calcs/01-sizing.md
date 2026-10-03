@@ -3,7 +3,7 @@ doc_id: PPR-CAL-001
 title: PotPress sizing and first-principles checks
 project: PotPress
 doc_type: Calculation note
-version: "0.8"
+version: "0.9"
 status: Draft
 date: '2026-10-02'
 author: Amish Chadha
@@ -41,11 +41,15 @@ revisions:
   date: '2026-10-02'
   author: Amish Chadha
   change: 'Decisions of 2026-10-02: R9 status at risk until the pump slot shield is designed; working force as a process setting found in trials'
+- version: "0.9"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: 'Approved follow-ups carried out: mean pressure at 2 t in Table 3; pump slot shield costed; ISO 13857 desk check (section 15); R9 at risk to not met on paper; cost $1,149, $89 over the value-engineering target'
 ---
 
 # PotPress sizing and first-principles checks
 
-On paper the press forms the reference filter, opens far enough, keeps up the output and stays strong at 1.5 times the jack rating, but it is heavier and dearer than the TRL 2 estimates said. With the recommendations Amish accepted on 2026-09-25 (PPR-DDR-002) and the guarded version he decided on 2026-09-26 (PPR-DDR-003), ten of the twelve requirements are met on paper and two are at risk. The value-engineering target stood at $990 on 2026-09-26, which the $984 BOM was within; the fixed guards and interlocked front gate then added $67, and the target was set at $1,060 on 2026-09-27 (PPR-DDR-003), so R10 was within the target at $1,051 with a $9 (0.8 %) margin. Making the design constructable on 2026-09-30 (PPR-DDR-004) added the parts a build needs and raised the parts cost to $1,143, $83 (7.8 %) over the $1,060 value-engineering target, so R10 is now over the target by $83; the design decisions register lists the cost drivers and savings worth trying. R3 is now judged at the 10 t working force with the molds closing on a metal stop (0.61 mm), R11 allows 0.8 x 0.8 m for the QC rack and a hinged rail extension keeps the press 655 mm deep, and bolting the four upright joints keeps every part under 40 kg (R8). The calculations also found three TRL 2 errors that the model now corrects: the base beam (a single UPN 100) would have been stressed to about 1,071 MPa, the two 30 mm load pins would have failed in bending (about 1,030 MPa), and solid aluminum molds would have weighed about 57 and 41 kg, so the molds are now cast shells.
+On paper the press forms the reference filter, opens far enough, keeps up the output and stays strong at 1.5 times the jack rating, but it is heavier and dearer than the TRL 2 estimates said. With the recommendations Amish accepted on 2026-09-25 (PPR-DDR-002) and the guarded version he decided on 2026-09-26 (PPR-DDR-003), ten of the twelve requirements are met on paper and two are at risk. The value-engineering target stood at $990 on 2026-09-26, which the $984 BOM was within; the fixed guards and interlocked front gate then added $67, and the target was set at $1,060 on 2026-09-27 (PPR-DDR-003), so R10 was within the target at $1,051 with a $9 (0.8 %) margin. Making the design constructable on 2026-09-30 (PPR-DDR-004) added the parts a build needs and raised the parts cost to $1,143, $83 (7.8 %) over the $1,060 value-engineering target, so R10 was over the target by $83; the design decisions register lists the cost drivers and savings worth trying. The fixed inner shield behind the pump slot, decided by Amish on 2026-10-02, adds $6 (now $1,149, $89 over the target), and the ISO 13857 desk check done the same day (section 15) found guard openings that fall short of the standard, so R9 is not met on paper until the guard changes it proposes are decided and made. R3 is now judged at the 10 t working force with the molds closing on a metal stop (0.61 mm), R11 allows 0.8 x 0.8 m for the QC rack and a hinged rail extension keeps the press 655 mm deep, and bolting the four upright joints keeps every part under 40 kg (R8). The calculations also found three TRL 2 errors that the model now corrects: the base beam (a single UPN 100) would have been stressed to about 1,071 MPa, the two 30 mm load pins would have failed in bending (about 1,030 MPa), and solid aluminum molds would have weighed about 57 and 41 kg, so the molds are now cast shells.
 
 Every number in this note is printed by `docs/04-calcs/sizing.py` (run from the repo root: `python docs/04-calcs/sizing.py`). The script reads the geometry from `PARAMS`, `SECTIONS` and `levels()` in `cad/src/model.py`, takes part masses from the model solids, and reads the prices from `bom/bom.csv`, so the model, the drawing PPR-DWG-001, the BOM and this note agree. All values are first-principles estimates; nothing here is measured.
 
@@ -97,10 +101,13 @@ The pressing force needed for a well-consolidated wall was still not found. Henr
 
 | Force | kN | Mean pressure |
 | --- | --- | --- |
+| 2 t (start of pressing trials) | 19.6 | 0.21 MPa |
 | 5 t | 49.0 | 0.52 MPa |
 | 10 t | 98.1 | 1.05 MPa |
 | 20 t (rating) | 196.2 | 2.10 MPa |
 | 30 t (1.5 x rating) | 294.3 | 3.15 MPa |
+
+Pressing trials start near 2 t, where the mean pressure on the pot is 0.21 MPa, a fifth of the 1.05 MPa at 10 t. That is the starting reference for the trials; the force is then stepped up until the wall is well consolidated.
 
 ## 4. Frame and load path
 
@@ -233,6 +240,7 @@ Four 345 mm rims need at least 1.46 m in one row, or about 0.78 x 0.78 m in a 2 
 | **Press, items 1 to 10** | **344** |
 | 12 QC rack | 30.1 |
 | 21 Interlock | 3.9 |
+| 16 Pump slot shield (with the guards) | 2.8 |
 
 The TRL 2 estimate of 180 kg was low, and solid molds would have weighed about 77 kg (female) and 52 kg (male); shells bring them to 22 and 23 kg. As fabricated, the heaviest part is the platen at 39.6 kg, inside R8's 40 kg with 0.4 kg to spare. The female mold is lifted as 36.5 kg with its base plate. Fully welded, the frame (items 1 to 3) would be one piece of about 165 kg that two people cannot move. As decided (PPR-DDR-001 item 12), the four upright joints are bolted, now with 4 x M16 10.9 each (PPR-DDR-004), so the frame arrives as a 34.2 kg base beam, an 8.9 kg jack plate, two 7.1 kg feet, two 29.4 kg upright pairs and a 38.0 kg top beam, and R8 is met on paper.
 
@@ -240,7 +248,7 @@ The TRL 2 estimate of 180 kg was low, and solid molds would have weighed about 7
 
 The press center of mass sits 6 mm in front of the frame center and 791 mm up. With the carriage, mold and charge slid 430 mm to the front it moves to 70 mm in front, well behind the front foot edge at 320 mm. The restoring moment is about 844 N·m, so a horizontal push of about 844 N at 1 m height would tip it forward. The feet are now anchored to the floor with four M12 anchors (PPR-DDR-004).
 
-The rails are fixed to 290 mm in front of the axis and a 335 mm extension on two barrel hinges folds down inside the guards when the press is not being loaded or demolded (the hinge moved back 30 mm so the folded extension clears the gate and the lower front panel with the platen down, PPR-DDR-004). The press stands 940 x 700 mm inside its guards; the pump handle stands 158 mm outside the right guard while in use. With the carriage fully out, about 50.9 kg sits 140 mm past the hinge line, a moment of about 70 N·m that two stop lugs carry at about 2.9 kN each; tipped for demolding the lugs carry 10.8 kN each (section 4).
+The rails are fixed to 290 mm in front of the axis and a 335 mm extension on two barrel hinges folds down inside the guards when the press is not being loaded or demolded (the hinge moved back 30 mm so the folded extension clears the gate and the lower front panel with the platen down, PPR-DDR-004). The press stands 940 x 700 mm inside its guards; the pump handle stands 158 mm outside the right guard while in use. That 158 mm is operating space, like a door swing (decided by Amish, 2026-10-02), outlined on the floor in the general arrangement PPR-DWG-001 (Rev P6). With the carriage fully out, about 50.9 kg sits 140 mm past the hinge line, a moment of about 70 N·m that two stop lugs carry at about 2.9 kN each; tipped for demolding the lugs carry 10.8 kN each (section 4).
 
 ## 12. Cost
 
@@ -253,14 +261,14 @@ The rails are fixed to 290 mm in front of the axis and a 335 mm extension on two
 | 3 Top crossbeam with guides | 57 | 13 T-gauges | 8 |
 | 4 Jack | 60 | 14 Buckets | 16 |
 | 5 Platen | 51 | 15 Patterns | 118 |
-| 6 Springs | 10 | 16 Fixed mesh guards | 67 |
+| 6 Springs | 10 | 16 Fixed mesh guards and pump slot shield | 73 |
 | 7 Rails, hinged extension and carriage | 41 | 17 Liners and trim tool | 10 |
 | 8 Female mold with steel base plate and dowels | 119 | 18 Fasteners, consumables, finish | 45 |
 | 9 Male mold with bushes | 102 | 19 Timer and thermometer | 12 |
 | | | 20 Front gate with hinges | 22 |
 | | | 21 Gate interlock and release extension | 41 |
 
-The press costs $1,060 and the QC rack $83, for **$1,143**. Amish raised the budget from $720 to $930 on 2026-09-25 (PPR-DDR-001 item 14), topped it up to $990 on 2026-09-26 (PPR-DDR-002 item 16), and raised it to $1,060 on 2026-09-27 for the guarded version (PPR-DDR-003, option (a)), when R10 was met on paper at $1,051. Making the design constructable (PPR-DDR-004) added $92: the steel base plate under the female mold, the thicker 450 mm mold flanges, dowels and bushes (items 8 and 9, +$44), floor anchors, the bolted jack plate and heavier feet (item 1, +$22), the adapter disc and nut box (item 10, +$9), interlock details (item 21, +$7), and smaller changes elsewhere. The total is **$83 (7.8 %) over the $1,060 value-engineering target, so R10 is over the target by $83.** The target is a hypothetical control target and is not changed here; the design decisions register lists the cost drivers and savings worth trying (PPR-DDR-004, Q1). Guard solids are left out of the mass table in section 10, because the model draws their mesh at every eighth wire; the guards weigh about 45 kg (estimate).
+The press costs $1,066 and the QC rack $83, for **$1,149**. Amish raised the budget from $720 to $930 on 2026-09-25 (PPR-DDR-001 item 14), topped it up to $990 on 2026-09-26 (PPR-DDR-002 item 16), and raised it to $1,060 on 2026-09-27 for the guarded version (PPR-DDR-003, option (a)), when R10 was met on paper at $1,051. Making the design constructable (PPR-DDR-004) added $92: the steel base plate under the female mold, the thicker 450 mm mold flanges, dowels and bushes (items 8 and 9, +$44), floor anchors, the bolted jack plate and heavier feet (item 1, +$22), the adapter disc and nut box (item 10, +$9), interlock details (item 21, +$7), and smaller changes elsewhere. The fixed inner shield behind the pump slot (decided by Amish on 2026-10-02) adds $6: 2.8 kg of 2 mm sheet and flat bar at $1.30/kg plus $2 for bolts. Value-engineering target: USD 1,060. Estimated cost of the constructable design: USD 1,149 (USD 89 over the target), so **R10 is over the value-engineering target by $89 (8.4 %).** The target is a hypothetical control target and is not changed here; the design decisions register lists the cost drivers and savings worth trying (PPR-DDR-004, Q1). Guard solids are left out of the mass table in section 10, because the model draws their mesh at every eighth wire; the guards weigh about 45 kg (estimate), plus 2.8 kg for the pump slot shield, which is solid sheet and so is taken from the model.
 
 ## 13. Results against the requirements
 
@@ -270,8 +278,8 @@ The press costs $1,060 and the QC rack $83, for **$1,143**. Amish raised the bud
 | --- | --- | --- | --- |
 | R2 | ±1.40 mm as cast; ±0.44 mm wall and ±0.44 mm coaxial when finished to templates, located by match-drilled dowels | ±1 mm wall; 0.5 mm coaxial | At risk |
 | R7 | 16 flat-back pattern segments for a 250 mm printer, no core boxes; no lathe needed (dowels, lapped stop faces); cavity hand finishing unproven | Printed patterns, hand and drill press finishing, no lathe over 300 mm swing | At risk |
-| R9 | Guards, gate and interlocks modeled (PPR-DDR-003): 12.7 mm welded mesh, nearest moving parts about 105 to 110 mm behind it; guard-locking gate interlock and pin-presence plunger on the jack release | Guards, interlocked gate, controls outside, pin in place and interlocked | At risk until the fixed inner shield behind the pump slot is designed and the ISO 13857 desk check is signed (decided by Amish, 2026-10-02) |
-| R10 | $1,143 (press $1,060, QC rack $83), constructable design (PPR-DDR-004) | $1,060 value-engineering target | **Over the value-engineering target by $83** (7.8 %) |
+| R9 | Guards, gate and interlocks modeled (PPR-DDR-003); fixed inner shield behind the pump slot modelled. ISO 13857 desk check (section 15): side and rear mesh and the pump slot meet Table 4; front strips, lower front panel, front gate and roof mesh, the release shaft and pin cable openings and the top beam gap do not | Guards, interlocked gate, controls outside, pin in place and interlocked; openings to ISO 13857 | **Not met on paper** until the proposed guard changes are made and the check is signed |
+| R10 | $1,149 (press $1,066, QC rack $83), constructable design (PPR-DDR-004) with the pump slot shield | $1,060 value-engineering target | **Over the value-engineering target by $89** (8.4 %) |
 | R1 | 280 mm rim, 240 mm deep, 15 mm wall, 345 mm rim; 12.30 L brim, 9.91 L working; all from `PARAMS` | Reference filter from one source file | Met on paper |
 | R3 | No yield at 294 kN: 190 MPa beams, 272 MPa pin (yield 650), 54 MPa uprights, 117 MPa M16 joint bolts, 62 MPa male flange on the stop. Deflection 0.66 mm at 10 t (1.97 mm at 294 kN); molds close on a metal stop | No yield at 294 kN; under 1 mm deflection at 10 t | Met on paper |
 | R4 | 5.2 min cycle; 69 pots per 6 h | 6 min or less; 50 or more per 6 h | Met on paper |
@@ -281,7 +289,7 @@ The press costs $1,060 and the QC rack $83, for **$1,143**. Amish raised the bud
 | R11 | Press 940 x 700 mm guarded with the rail extension folded (the pump handle stands 158 mm outside the right guard while in use), 1,806 mm tall; QC rack 780 x 780 mm | Press 1.0 x 0.7 m and 2.0 m; rack 0.8 x 0.8 m | Met on paper, at the 0.7 m depth limit |
 | R12 | Aluminum mold faces, polyethylene liners, HDPE buckets, no oils on molds; lead-free scrap alloy (decided) | Product-safe faces | Met on paper |
 
-Summary: 1 over the value-engineering target (R10), 3 at risk (R2, R7, R9), 8 met on paper (R1, R3, R4, R5, R6, R8, R11, R12). R9 moved to at risk in v0.8, when Amish decided on 2026-10-02 that the 30 mm pump slot needs a fixed inner shield. In v0.7 the count was 2 at risk and 9 met. In v0.5 the count was 0 not met, 2 at risk and 10 met. In v0.4 the count was 1 not met (R10), 2 at risk and 9 met; in v0.3 the count was 0 not met, 3 at risk and 9 met; in v0.2 the count was 1 not met (R10), 3 at risk and 8 met; in v0.1 the count was 3 not met (R3, R10, R11), 4 at risk and 5 met.
+Summary: 1 over the value-engineering target (R10), 1 not met on paper (R9), 2 at risk (R2, R7), 8 met on paper (R1, R3, R4, R5, R6, R8, R11, R12). R9 moved from at risk to not met on paper in v0.9, when the ISO 13857 desk check found openings short of the standard. In v0.8 the count was 3 at risk (R2, R7, R9) and 8 met; R9 had moved to at risk in v0.8, when Amish decided on 2026-10-02 that the 30 mm pump slot needs a fixed inner shield. In v0.7 the count was 2 at risk and 9 met. In v0.5 the count was 0 not met, 2 at risk and 10 met. In v0.4 the count was 1 not met (R10), 2 at risk and 9 met; in v0.3 the count was 0 not met, 3 at risk and 9 met; in v0.2 the count was 1 not met (R10), 3 at risk and 8 met; in v0.1 the count was 3 not met (R3, R10, R11), 4 at risk and 5 met.
 
 ## 14. Changes to earlier numbers
 
@@ -300,3 +308,51 @@ Changes in v0.5 (cost overrun decided by Amish, 2026-09-27, PPR-DDR-003): budget
 Changes in v0.6 (design for construction, PPR-DDR-004; Amish, 2026-09-30: "i accept your recommended changes on design that are currently being sent across for my approval"): beam gap 100 to 104 mm with shims; joint bolts M20 8.8 to M16 10.9 with spacer tubes (75 to 117 MPa); male flange 25 to 45 mm on a 450 mm diameter, now checked on the stop (487 to 62 MPa); pin block bearing 54 to 79 MPa (screw hole); stem lengthened to reach the plug floor (total deflection 0.61 to 0.66 mm at 10 t); new checks for the female base plate, the rails over the platen gap, the tipped mold, the stop lugs and the tipping pins; masses 298 to 344 kg for the press, heaviest part 38.9 to 39.6 kg; patterns 16 segments, 5.1 to 5.4 kg; QC rack 550 to 720 mm tall; cost $1,051 to $1,143, R10 within the value-engineering target to $83 over it.
 
 Changes in v0.7 (budget treated as a value-engineering target, 2026-10-01): R10 is reported against the $1,060 value-engineering target, $83 over, and no longer as a requirement that is not met. No number changed.
+
+Changes in v0.8 (decisions of 2026-10-02): R9 met on paper to at risk until the pump slot shield is designed and the ISO 13857 desk check is signed; the working force is a process setting found in trials from about 2 t.
+
+Changes in v0.9 (approved follow-ups, 2026-10-02): mean pressure at 2 t added to Table 3 (0.21 MPa); the pump slot shield is modelled and costed (item 16 $67 to $73, 2.8 kg; total $1,143 to $1,149, $83 to $89 over the target); the pump slot is lengthened from 220 to 272 mm so its ends stand 25 mm beyond the handle at the ends of its stroke; the ISO 13857 desk check is added (section 15); R9 at risk to not met on paper.
+
+## 15. ISO 13857 desk check of the guard openings
+
+Decided by Amish on 2026-10-02: the check is done now, from the tables and the model's distances, signed by a competent person, and it is a hold point before any force above hand pressure. This section is the desk check. **It is not yet signed**; until it is, and until the openings that fall short are closed, nothing above hand pressure is allowed (build plan safety stop S8).
+
+**Method.** For each opening, the opening size e and its kind (slot, square or round) give the safety distance sr from ISO 13857:2019, Table 4 (upper limbs, persons 14 years and older), as read for this check: e up to 4 mm needs 2 mm; over 10 up to 12 mm, 100 mm for a slot and 80 mm for a square; over 12 up to 20 mm, 120 mm; over 20 up to 30 mm, 850 mm for a slot and 120 mm for a square; over 30 up to 40 mm, 850 mm for a slot and 200 mm for a square; over 40 up to 120 mm, 850 mm for every kind. The distance found is the straight line from the outer face of the opening to the nearest part that moves, with the press closed and open, measured on the model by `cad/src/model.py --iso` (called by `sizing.py`). The parts that move are the platen and everything it carries (rails, folding extension, carriage, female mold and pot) and the springs, moved by the jack, and the male mold and stem, moved by the crank. The load pin is moved only by hand with the press open and is left out. A real reach round an obstacle is longer than the straight line, so the distances are conservative.
+
+*Table 11. Openings against ISO 13857 Table 4.*
+
+| Opening | Kind and size e | sr needed | Nearest moving part | Result |
+| --- | --- | --- | --- | --- |
+| Mesh, right and left side guards | Square, 11.1 mm (12.7 mm pitch, 1.6 mm wire) | 80 mm | 110 mm, platen | Meets |
+| Mesh, rear guard | Square, 11.1 mm | 80 mm | 100 mm, female mold | Meets |
+| Pump slot with the fixed inner shield | Slot, 30 mm | 850 mm | The slot opens only into the shield; no moving part enters the space inside it in any position | Meets: the shield encloses the reach |
+| Mesh, front right strip | Square, 11.1 mm | 80 mm | 39 mm, folding rail extension | **Does not meet** |
+| Mesh, front gate | Square, 11.1 mm | 80 mm | 44 mm, folding rail extension | **Does not meet** |
+| Mesh, lower front panel | Square, 11.1 mm | 80 mm | 45 mm, folding rail extension (press open) | **Does not meet** |
+| Mesh, front left strip | Square, 11.1 mm | 80 mm | 60 mm, folding rail extension | **Does not meet** |
+| Mesh, roof guard | Square, 11.1 mm | 80 mm | 77 mm, stem (moved by the crank) | **Does not meet** |
+| Release shaft opening, front right strip | 44 mm square round a 12 mm shaft: slot-like gaps of 16 mm | 120 mm | 61 mm, folding rail extension (press open) | **Does not meet** |
+| Pin cable opening, front right strip | Square, 40 mm | 200 mm | 166 mm, carriage | **Does not meet** |
+| Top beam gap, 100 to 250 mm each side of the middle | 104 x 150 mm, open from above between the guides and the uprights | 850 mm | 55 mm, stem (moved by the crank) | **Does not meet** |
+| Top beam gap, 350 to 410 mm each side | 104 x 60 mm, between the uprights and the end blocks | 850 mm | 215 mm, male mold (press open) | **Does not meet** |
+
+**Pump slot and shield.** The shield is a tunnel of 2 mm folded steel sheet, 30 mm wide inside, from the slot along the handle's line to 3.0 mm off the jack body, with a flange bolted through the slot frame and a flat-bar stay to the base beam. Through the slot only the pump handle and the end of the jack's pump socket can be reached; the platen, molds, springs and ram are behind steel, the nearest of them 51 mm outside the shield. The handle runs 5 mm from the side walls over its whole stroke, a sliding pass with no closing gap. The slot was lengthened from 220 to 272 mm, and the tunnel's roof and floor follow the handle, so that at both ends of the stroke the handle stops 25 mm short of the slot ends and of the roof and floor (ISO 13854 gives 25 mm as the minimum gap that does not crush a finger). The 3 mm gap between the tunnel and the jack body is between fixed parts.
+
+**The pump handle passing the slot frame.** The handle crosses the guard at 25 degrees and passes the sides of the slot frame at 2.3 mm at the ends of its stroke, closer near mid-stroke, moving along the slot. A gap of 4 mm or less does not admit a fingertip (Table 4, first row), so this pass is not a finger shear point on paper; the competent person should confirm it on the jack bought, since the handle's own play sets the real gap.
+
+**Roof reach.** The roof mesh stands 28 mm above the top beam, with its cut-out 5 mm clear of the beam all round. The top beam itself is open from above between its two channels wherever nothing fills the gap: from the stem guides to the uprights (104 x 150 mm each side) and from the uprights to the end blocks (104 x 60 mm). An arm reaching through these meets the stem, and, with the male mold cranked up, the male flange, which then stands 15 mm under the top beam: both moved by the crank, not the jack, but a 15 mm gap closed by a self-locking screw is a crush point. Above the roof, the stem's cap plate rises to 10 mm under the crank bracket's top plate at full lift, inside a bracket open at the front and back.
+
+**Findings and proposed changes (awaiting Amish; see the design decisions register).**
+
+1. Finer mesh on the front strips, lower front panel, front gate and roof: 6.35 mm (1/4 in) welded mesh with 0.9 mm wire is about 5.5 mm clear, which needs 5 mm (square, over 4 up to 6 mm), so every front and roof distance above meets. Moving the front panels out by 41 mm instead would break the 0.7 m depth of R11.
+2. Close the release shaft and pin cable openings to a 4 mm gap or less: a bolted plate with a 20 mm hole round the 12 mm shaft, and a grommet plate with a 10 mm hole for the 6 mm cable.
+3. Cover plates of 3 mm steel over the four openings in the top beam gap, bolted to the top flanges, so the roof reach meets only fixed steel.
+4. Close the open front and back of the crank bracket with mesh or sheet, so the stem's cap plate cannot be reached as it rises under the bracket's top plate.
+
+With all four, every opening in Table 11 meets ISO 13857 Table 4 on paper (about USD 15 in parts, estimate). The check then needs the competent person's review against the published tables and signature.
+
+| Desk check | Name | Signature | Date |
+| --- | --- | --- | --- |
+| Prepared from the model | Amish Chadha (calculation note author) | | 2026-10-02 |
+| Checked and signed by a competent person | | Not yet signed | |
+

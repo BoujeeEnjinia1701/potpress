@@ -144,9 +144,19 @@ PARAMS = {
     "GATE_Z0": 380.0,       # gate bottom; the lower front panel is fixed below it
     "GATE_TUBE": 20.0,      # 20 x 20 x 2 square tube gate frame
     "GATE_OPEN_DEG": 0.0,   # 0 = closed (pressing); about 105 = swung open to the left
-    "PUMP_SLOT": (30.0, 200.0, 420.0),  # jack pump handle slot in the right side guard: width, z from, z to (DDR-004: 30 wide
-                            # so the 20 mm handle passes the 6 mm guard at 25 deg; still in the 20 to 30 mm slot band)
+    "PUMP_SLOT": (30.0, 174.0, 446.0),  # jack pump handle slot in the right side guard: width, z from, z to (DDR-004: 30 wide
+                            # so the 20 mm handle passes the 6 mm guard at 25 deg; still in the 20 to 30 mm slot band).
+                            # 2026-10-02: each end 25 mm beyond the handle at its stroke ends (ISO 13854 finger gap)
     "HANDLE_D": 20.0,       # jack pump handle, bought with the jack (or 20 mm tube), about 700 mm long
+    "HANDLE_STROKE": (211.0, 409.0),  # handle centre line height where it crosses the guard, at the bottom and top of a stroke
+    # Fixed inner shield (tunnel) behind the pump slot (decided by Amish 2026-10-02, PPR-DEC-001): 2 mm folded sheet
+    # round the handle's path from the guard to the jack body, so through the slot only the handle and the jack's
+    # pump socket can be reached; the platen, molds, springs and ram stay behind steel
+    "SHIELD_T": 2.0,        # sheet thickness
+    "SHIELD_W": 30.0,       # clear width across the handle (5 mm each side of the 20 mm handle)
+    "SHIELD_GAP": 25.0,     # roof and floor stand this far beyond the handle at its stroke ends (ISO 13854 finger gap)
+    "SHIELD_JACK_GAP": 3.0,  # inner end follows the jack body this far off it
+    "SHIELD_STAY_R": 235.0,  # flat-bar stay from the tunnel floor to the base beam, this far out along the handle line
     # Interlock (DDR-004): lock rod on a post in front of the right front strip
     "STRIP_Y": -310.0,      # front right guard strip, set back 40 mm to make a pocket for the interlock (DDR-004)
     "LOCK_X": 330.0,        # lock rod and release shaft line, X
@@ -362,6 +372,53 @@ def pump_handle(P=PARAMS, z_slot=None):
     return h + cyl_between(pt(r0, z0), pt(r1, z1), P["HANDLE_D"] / 2)
 
 
+def pump_shield(P=PARAMS, core_only=False, interior=False):
+    """Fixed inner shield behind the pump slot (2026-10-02): a tunnel of 2 mm folded sheet that follows the
+    handle's path from the slot to the jack body, with a flange bolted behind the slot frame and a flat-bar stay
+    down to the base beam. Built along the handle line, then turned with the jack.
+    core_only: only the roof and floor (the part between the side walls), to measure the stroke-end gaps.
+    interior: the space inside the tunnel, from the guard's outer face to the jack body (for the desk check)."""
+    bd = _b()
+    L = levels(P)
+    a = math.radians(P["JACK_TURN"])
+    t, w, gap = P["SHIELD_T"], P["SHIELD_W"] / 2, P["SHIELD_GAP"]
+    rh = P["HANDLE_D"] / 2
+    z0, r0 = L["jack0"] + 72.0, 170.0                     # handle pivot, as in pump_handle()
+    rs = P["GUARD_X"] / math.cos(a)
+    zlo, zhi = P["HANDLE_STROKE"]
+    k_lo, k_hi = (zlo - z0) / (rs - r0), (zhi - z0) / (rs - r0)
+    roof = lambda r: z0 + k_hi * (max(r, r0) - r0) + (rh + gap) / math.cos(math.atan(k_hi))   # noqa: E731
+    floor = lambda r: z0 + k_lo * (max(r, r0) - r0) - (rh + gap) / math.cos(math.atan(k_lo))  # noqa: E731
+    r_a, r_b = 30.0, rs + 40.0
+
+    def prism(dz, s0, s1, ra=r_a, rb=r_b):
+        pts = [(ra, floor(ra) - dz), (r0, floor(r0) - dz), (rb, floor(rb) - dz),
+               (rb, roof(rb) + dz), (r0, roof(r0) + dz), (ra, roof(ra) + dz)]
+        face = bd.Plane.XZ * bd.Polygon(*pts, align=None)
+        return bd.Pos(0, s1, 0) * bd.extrude(face, amount=s1 - s0)   # Plane.XZ extrudes toward -Y
+
+    inner = prism(0.0, -w, w, r_a - 10, r_b + 10)
+    if interior:
+        sp = (bd.Rot(0, 0, P["JACK_TURN"]) * inner) & box(-1000, P["GUARD_X"], -1000, 1000, 0, 2000)
+        return sp - cyl(P["JACK_BODY_D"] / 2 + P["SHIELD_JACK_GAP"], L["jack0"], L["platen0_low"])
+    body = (prism(t, -w, w) if core_only else prism(t, -w - t, w + t)) - inner
+    # stay: 30 x 6 flat bar from the base beam's top flange up to the floor, with a 26 x 20 foot plate
+    rst = P["SHIELD_STAY_R"]
+    if not core_only:
+        body += box(rst - 15, rst + 15, -3, 3, L["base1"], floor(rst - 15) - t + 1) - inner
+        body += box(rst - 13, rst + 13, -10, 10, L["base1"], L["base1"] + 6)
+    body = bd.Rot(0, 0, P["JACK_TURN"]) * body
+    gx = P["GUARD_X"]
+    sw, sz0, sz1 = P["PUMP_SLOT"]
+    py = pump_slot_y(P)
+    body &= box(-1000, gx - 6.2, -1000, 1000, 0, 2000)        # trimmed square to the slot frame
+    body -= cyl(P["JACK_BODY_D"] / 2 + P["SHIELD_JACK_GAP"], L["jack0"], L["platen0_low"])   # follows the jack body
+    if not core_only:                                       # flange behind the slot frame, bolted through it
+        fl = box(gx - 9.2, gx - 6.2, py - sw / 2 - 12, py + sw / 2 + 12, sz0 - 12, sz1 + 12)
+        body += fl - bd.Rot(0, 0, P["JACK_TURN"]) * inner
+    return body
+
+
 def release_z(P=PARAMS):
     return levels(P)["jack0"] + 12.0
 
@@ -389,6 +446,35 @@ def guard_layout(P=PARAMS):
         dict(name="Roof guard", plane="xy", a0=-gx, a1=gx, b0=yf, b1=yb, c_out=z1 + 3.2 + P["GUARD_ANGLE"], inward=-1,
              holes=[(-P["BEAM_L"] / 2 - 5, P["BEAM_L"] / 2 + 5, -y_beam - 5, y_beam + 5)]),
     ]
+
+
+def guard_solids(P=PARAMS, pitch=None):
+    """Fixed guards as a list of solids: angle frames, mesh (every 8th wire by default; pitch=MESH_PITCH draws every
+    wire, for the appearance model), pump slot frame, standoffs, fixed hinge leaves and the strip's return plate."""
+    L = levels(P)
+    pitch = pitch or P["MESH_PITCH"] * P["MESH_SHOW_EVERY"]
+    b = SECTIONS[P["BEAM_SEC"]]
+    yw = P["BEAM_GAP"] / 2 + b["tw"]; bl = P["BEAM_L"] / 2
+    zc_base = (L["base0"] + L["base1"]) / 2; zc_top = (L["top0"] + L["top1"]) / 2
+    g = []
+    for pnl in guard_layout(P):
+        g.append(angle_frame(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
+                             P["GUARD_ANGLE"], P["GUARD_ANGLE_T"]))
+        g += mesh_panel(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
+                        pitch, P["MESH_WIRE"], pnl["holes"])
+    sw, sz0, sz1 = P["PUMP_SLOT"]; py = pump_slot_y(P)
+    gx = P["GUARD_X"]
+    g.append(box(gx - 6.2, gx - 3.2, py - sw / 2 - 12, py + sw / 2 + 12, sz0 - 12, sz1 + 12) -
+             box(gx - 7, gx - 2, py - sw / 2, py + sw / 2, sz0, sz1))                          # pump slot frame
+    for sx in (-1, 1):                                                                          # side standoffs on the beam webs
+        for zc in (zc_base, zc_top):
+            for sy in (-1, 1):
+                g.append(box(*sorted((sx * (bl - 40), sx * (gx - 3.2 - P["GUARD_ANGLE"]))), *sorted((sy * yw, sy * (yw + 6))), zc - 20, zc + 20))
+    hx, hy = -P["GATE_HALF"], P["GUARD_Y_FRONT"] - 12
+    for zh in (P["GATE_Z0"] + 124, L["top1"] - 124):                                           # fixed hinge leaves
+        g.append(box(hx - 30, hx - 8, hy - 3, P["GUARD_Y_FRONT"], zh - 25, zh + 25))
+    g.append(box(P["GATE_HALF"], P["GATE_HALF"] + 3, P["GUARD_Y_FRONT"], P["STRIP_Y"], P["GUARD_Z0"], L["top1"]))   # return plate of the set-back strip
+    return g
 
 
 def gate_geometry(P=PARAMS, pitch=None, open_deg=None):
@@ -807,26 +893,9 @@ def components(P=PARAMS):
     add("water", "Water in test pot", cone(P["R_IN_BOT"] - 0.5, rw1 - 0.5, wz0, wz1, gx_, gy_), "#7DD3FC", None, "product", "qc", (0, 0, 0))
 
     # ---- Fixed guards: welded mesh on 25 x 25 x 3 angle frames; standoffs bolted to the beam webs
-    pitch = P["MESH_PITCH"] * P["MESH_SHOW_EVERY"]
-    g = []
-    for pnl in guard_layout(P):
-        g.append(angle_frame(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
-                             P["GUARD_ANGLE"], P["GUARD_ANGLE_T"]))
-        g += mesh_panel(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
-                        pitch, P["MESH_WIRE"], pnl["holes"])
-    sw, sz0, sz1 = P["PUMP_SLOT"]; py = pump_slot_y(P)
-    gx = P["GUARD_X"]
-    g.append(box(gx - 6.2, gx - 3.2, py - sw / 2 - 12, py + sw / 2 + 12, sz0 - 12, sz1 + 12) -
-             box(gx - 7, gx - 2, py - sw / 2, py + sw / 2, sz0, sz1))                          # pump slot frame
-    for sx in (-1, 1):                                                                          # side standoffs on the beam webs
-        for zc in (zc_base, zc_top):
-            for sy in (-1, 1):
-                g.append(box(*sorted((sx * (bl - 40), sx * (gx - 3.2 - P["GUARD_ANGLE"]))), *sorted((sy * yw, sy * (yw + 6))), zc - 20, zc + 20))
-    hx, hy = -P["GATE_HALF"], P["GUARD_Y_FRONT"] - 12
-    for zh in (P["GATE_Z0"] + 124, L["top1"] - 124):                                           # fixed hinge leaves
-        g.append(box(hx - 30, hx - 8, hy - 3, P["GUARD_Y_FRONT"], zh - 25, zh + 25))
-    g.append(box(P["GATE_HALF"], P["GATE_HALF"] + 3, P["GUARD_Y_FRONT"], P["STRIP_Y"], P["GUARD_Z0"], L["top1"]))   # return plate of the set-back strip
+    g = guard_solids(P)
     add("guards", "Fixed mesh guards", bd_comp(g), "#CA8A04", 16, "make", "guard", (0, 0, 0))
+    add("pump_shield", "Pump slot inner shield", pump_shield(P), "#A16207", 16, "make", "guard", (0, 0, 0))
     add("gate", "Front gate", bd_comp(gate_geometry(P)), "#EAB308", 20, "make", "guard", (0, 0, 0))
 
     # ---- Interlock (BOM 21): release shaft with two universal joints, lock disc and knob; lock rod on a post
@@ -894,7 +963,7 @@ BOM_NAMES = {
     12: ("QC flow-test rack (2 x 2)", "#A16207", (0, 0, 0)),
     13: ("Printed T-gauge", "#F59E0B", (0, 0, 520)),
     14: ("Collection buckets", "#2563EB", (0, 0, -150)),
-    16: ("Fixed mesh guards (sides, back, front strips, roof)", "#CA8A04", (0, 900, 250)),
+    16: ("Fixed mesh guards and pump slot shield", "#CA8A04", (0, 900, 250)),
     20: ("Front gate, mesh in a tube frame, with hinges and tongue", "#EAB308", (0, -650, 250)),
     21: ("Gate and pin interlock, release shaft", "#1D4ED8", (250, -700, -150)),
 }
@@ -944,7 +1013,7 @@ CONTACTS = [
     ("nut", "stem"), ("screw", "bracket"), ("bracket", "top_beam"), ("bracket_bolts", "bracket"),
     ("pot", "fm_cup"), ("pot", "mm"), ("guards", "base_beam"), ("guards", "top_beam"), ("gate", "guards"),
     ("release", "jack"), ("lock_rod", "release"), ("gate", "sliders"), ("lock_post", "guards"),
-    ("pin_sensor", "pin"), ("pin_sensor", "top_beam"), ("qc_shelves", "qc_frame"), ("test_pots", "qc_shelves"),
+    ("pin_sensor", "pin"), ("pin_sensor", "top_beam"), ("pump_shield", "guards"), ("pump_shield", "base_beam"), ("qc_shelves", "qc_frame"), ("test_pots", "qc_shelves"),
     ("buckets", "qc_shelves"), ("gauge", "test_pots"),
 ]
 
@@ -1076,17 +1145,26 @@ def check_states(comps=None, verbose=True):
                 print(f"  carriage hooks to tipping pins: {d:.2f} mm (sliding fit, must be 1.5 or less)")
             if d > 1.5:
                 fails.append((state, "hooks", d))
-    # pump handle over its stroke: lowest and highest position in the slot
+    # pump handle over its stroke: lowest and highest position where it crosses the guard
     sw, sz0, sz1 = P["PUMP_SLOT"]
     others = [c for c in comps if c.key not in ("jack", "pump_handle", "pot")]
-    for zz in (sz0 + P["HANDLE_D"] / 2 + 1, sz1 - P["HANDLE_D"] / 2 - 1):
+    shield = next(c.shape for c in comps if c.key == "pump_shield")
+    core = pump_shield(P, core_only=True)
+    for zz in P["HANDLE_STROKE"]:
         h = C("pump_handle", "handle", pump_handle(P, zz), "", 4, "buy", "press")
         ov, _ = check_fits([h] + others, verbose=False, contacts=())
         ov = [o for o in ov if "pump_handle" in o[:2]]
         clear = min(h.shape.distance_to(c.shape) for c in others if not _bb_apart(h.shape.bounding_box(), c.shape.bounding_box(), 30))
+        d_wall = h.shape.distance_to(shield)
+        z0_, r0_ = L["jack0"] + 72.0, 170.0                     # the slot end, measured square to the handle
+        cos_ = math.cos(math.atan((zz - z0_) / (P["GUARD_X"] / math.cos(math.radians(P["JACK_TURN"])) - r0_)))
+        d_end = min(h.shape.distance_to(core), (sz1 - zz if zz > (sz0 + sz1) / 2 else zz - sz0) * cos_ - P["HANDLE_D"] / 2)
         if verbose:
-            print(f"pump handle at {zz:.0f} mm in the slot: {len(ov)} overlaps; nearest part {clear:.1f} mm")
+            print(f"pump handle at {zz:.0f} mm at the guard: {len(ov)} overlaps; nearest part {clear:.1f} mm; "
+                  f"shield side walls {d_wall:.1f} mm; shield roof or floor and slot end {d_end:.1f} mm (finger gap, 25 or more)")
         fails += [("handle", "overlap", o) for o in ov]
+        if d_end < P["SHIELD_GAP"] - 0.6:
+            fails.append(("handle", "finger gap", d_end))
     # lock rod dropped into the disc notch with the valve turned open (the notch comes to the top)
     rel = next(c.shape for c in comps if c.key == "release")
     rod = next(c.shape for c in comps if c.key == "lock_rod")
@@ -1108,10 +1186,145 @@ def check_states(comps=None, verbose=True):
     return fails
 
 
+# ---------------------------------------------------------------------------
+# ISO 13857 desk check (decided by Amish 2026-10-02: done now, signed by a competent person, a hold point
+# before any force above hand pressure). Distances are straight lines from the outer face of each opening to
+# the nearest moving part, with the press closed and open; a real reach round an obstacle is longer.
+# ---------------------------------------------------------------------------
+# Moving parts and what moves them. The load pin is left out: it is moved only by hand, with the press open.
+HAZARD = {**{k: "jack" for k in WITH_PLATEN + ("springs", "pot")}, **{k: "crank" for k in WITH_SLIDE}}
+
+# ISO 13857:2019 Table 4 (persons 14 years and older), upper limbs through regular openings, as read for this
+# desk check: (e up to, slot, square, round) in mm. The competent person confirms against the published table.
+ISO13857_T4 = [(4, 2, 2, 2), (6, 10, 5, 5), (8, 20, 15, 5), (10, 80, 25, 20), (12, 100, 80, 80),
+               (20, 120, 120, 120), (30, 850, 120, 120), (40, 850, 200, 120), (120, 850, 850, 850)]
+
+
+def iso_sr(e, kind):
+    """Safety distance sr (mm) for an opening e (mm) of kind 'slot', 'square' or 'round' (Table 4)."""
+    col = {"slot": 1, "square": 2, "round": 3}[kind]
+    for row in ISO13857_T4:
+        if e <= row[0]:
+            return row[col]
+    return None
+
+
+def iso_openings(P=PARAMS):
+    """Every guard opening as (name, kind, e, slab), slab a thin box on the opening's outer face."""
+    L = levels(P)
+    gx = P["GUARD_X"]; sw, sz0, sz1 = P["PUMP_SLOT"]; py = pump_slot_y(P)
+    lx, ys, zr = P["LOCK_X"], P["STRIP_Y"], release_z(P)
+    g2, top1 = P["BEAM_GAP"] / 2, L["top1"]
+    s2 = P["STEM"] / 2
+    xs, ub, bl = P["SPAN"] / 2, SECTIONS[P["UPRIGHT_SEC"]]["b"], P["BEAM_L"] / 2
+    out = [("Pump slot, right side guard", "slot", sw, box(gx - 0.5, gx, py - sw / 2, py + sw / 2, sz0, sz1)),
+           ("Release shaft opening, front right strip (16 mm round the 12 mm shaft)", "slot", 22 - 6,
+            box(lx - 22, lx + 22, ys - 0.5, ys, zr - 22, zr + 22)),
+           ("Pin cable opening, front right strip", "square", 40, box(lx + 50, lx + 90, ys - 0.5, ys, 731, 771))]
+    for sx in (-1, 1):                                        # top beam gap, open from above between the parts in it
+        side = "right" if sx > 0 else "left"
+        for x0_, x1_ in ((100.0, xs - ub), (xs + ub, bl - P["END_BLOCK_L"])):
+            out.append((f"Top beam gap, {side}, {x0_:.0f} to {x1_:.0f} mm from the middle", "square", min(x1_ - x0_, 2 * g2),
+                        box(*sorted((sx * x0_, sx * x1_)), -g2, g2, top1 - 0.5, top1)))
+    return out
+
+
+def iso13857_check(comps=None, verbose=True):
+    """Desk check of the guard openings against ISO 13857 Table 4 from the model's distances. Returns rows
+    (item, kind, e, sr needed, distance found, verdict) and prints them."""
+    bd = _b()
+    P = PARAMS
+    L = levels(P)
+    comps = comps or components()
+    states = {"closed": comps, "open": moved(comps, "open")}
+    haz = {k: [c for c in v if c.key in HAZARD] for k, v in states.items()}
+
+    def nearest(slab):
+        best = (1e9, "", "")
+        for st, cs in haz.items():
+            for c in cs:
+                if _bb_apart(slab.bounding_box(), c.shape.bounding_box(), best[0]):
+                    continue
+                d = slab.distance_to(c.shape)
+                if d < best[0]:
+                    best = (d, f"{c.name}, moved by the {HAZARD[c.key]}", st)
+        return best
+    rows = []
+    e_mesh = P["MESH_PITCH"] - P["MESH_WIRE"]
+    for pnl in guard_layout(P):
+        a0, a1, b0, b1, c = pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"]
+        if pnl["plane"] == "yz":
+            slab = box(*sorted((c, c - 0.5 * pnl["inward"])), a0, a1, b0, b1)
+            holes = [box(c - 1, c + 1, h[0], h[1], h[2], h[3]) for h in pnl["holes"]]
+        elif pnl["plane"] == "xz":
+            slab = box(a0, a1, *sorted((c, c - 0.5 * pnl["inward"])), b0, b1)
+            holes = [box(h[0], h[1], c - 1, c + 1, h[2], h[3]) for h in pnl["holes"]]
+        else:
+            slab = box(a0, a1, b0, b1, *sorted((c, c - 0.5 * pnl["inward"])))
+            holes = [box(h[0], h[1], h[2], h[3], c - 1, c + 1) for h in pnl["holes"]]
+        for h in holes:
+            slab -= h
+        d, who, st = nearest(slab)
+        rows.append((f"Mesh, {pnl['name'].lower()}", "square", e_mesh, iso_sr(e_mesh, "square"), d, who, st))
+    gh, yf, z1 = P["GATE_HALF"], P["GUARD_Y_FRONT"], L["top1"]
+    gate_slab = box(-gh + 4, gh - 4, yf, yf + 0.5, P["GATE_Z0"] + 4, z1 - 4)
+    d, who, st = nearest(gate_slab)
+    rows.append(("Mesh, front gate", "square", e_mesh, iso_sr(e_mesh, "square"), d, who, st))
+    for name, kind, e, slab in iso_openings(P):
+        d, who, st = nearest(slab)
+        rows.append((name, kind, e, iso_sr(e, kind), d, who, st))
+    # the pump slot opens only into the shield: no moving part may enter the space inside it in any position
+    space = pump_shield(P, interior=True)
+    inside = [c.name for st, cs in haz.items() for c in cs
+              if not _bb_apart(space.bounding_box(), c.shape.bounding_box()) and ((space & c.shape) is not None)
+              and (space & c.shape).volume > 1.0]
+    out = []
+    for name, kind, e, sr, d, who, st in rows:
+        ok = d >= sr
+        if name.startswith("Pump slot"):
+            ok = not inside
+            who = "none inside the shield" if ok else ", ".join(sorted(set(inside)))
+        out.append(dict(item=name, kind=kind, e=e, sr=sr, d=d, part=who, state=st, ok=ok))
+    # the pump slot: what can be reached through it is inside the shield
+    shield = next(c.shape for c in comps if c.key == "pump_shield")
+    jack = next(c.shape for c in comps if c.key == "jack")
+    a = math.radians(P["JACK_TURN"])
+    zj = L["jack0"] + 150
+    d_jack = shield.distance_to(jack & cyl(P["JACK_BODY_D"] / 2 + 1, zj - 60, zj + 60))
+    sh_d = min(shield.distance_to(c.shape) for st, cs in haz.items() for c in cs
+               if not _bb_apart(shield.bounding_box(), c.shape.bounding_box(), 200))
+    extra = dict(shield_jack_gap=d_jack, shield_to_hazard=sh_d)
+    # pump handle passing the slot frame (sideways), at both stroke ends
+    guards = next(c.shape for c in comps if c.key == "guards")
+    extra["handle_pass"] = min(pump_handle(P, z).distance_to(guards) for z in P["HANDLE_STROKE"])
+    # crank: the stem's cap plate under the bracket top plate at full lift (moved by the handwheel, not the jack)
+    extra["cap_to_bracket"] = L["bracket0"] - (L["stem1"] + 10 + P["CRANK_LIFT"])
+    extra["flange_to_beam"] = P["LIFT_CLEAR"]
+    if verbose:
+        print("ISO 13857 desk check (Table 4, as read; straight-line distance from the opening to the nearest moving part)")
+        for r in out:
+            if r["item"].startswith("Pump slot"):
+                print(f"  {r['item']}: {r['kind']} e {r['e']:.1f} mm, sr needed {r['sr']} mm; the slot opens only into the fixed "
+                      f"inner shield; moving parts inside it: {r['part']} (only the pump handle and the jack's pump socket): "
+                      f"{'meets' if r['ok'] else 'DOES NOT MEET'}")
+                continue
+            print(f"  {r['item']}: {r['kind']} e {r['e']:.1f} mm, sr needed {r['sr']} mm; nearest moving part "
+                  f"{r['d']:.0f} mm ({r['part']}, press {r['state']}): {'meets' if r['ok'] else 'DOES NOT MEET'}")
+        print(f"  pump slot shield: inner end {extra['shield_jack_gap']:.1f} mm off the jack body; nearest moving part outside "
+              f"the shield {extra['shield_to_hazard']:.0f} mm from it")
+        print(f"  pump handle passing the slot frame: {extra['handle_pass']:.1f} mm at the stroke ends")
+        print(f"  crank: stem cap plate {extra['cap_to_bracket']:.0f} mm under the bracket top at full lift; male flange "
+              f"{extra['flange_to_beam']:.0f} mm under the top beam at full lift")
+    return out, extra
+
+
 if __name__ == "__main__":
     import sys
     from build123d import Compound, export_step, export_stl
     comps = components()
+    if "--iso" in sys.argv:
+        iso13857_check(comps)
+        sys.exit(0)
     if "--check" in sys.argv:
         ov, gp = check_fits(comps)
         fl = check_states(comps)
