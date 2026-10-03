@@ -3,9 +3,9 @@ doc_id: PPR-BLD-001
 title: PotPress prototype build plan
 project: PotPress
 doc_type: Build plan
-version: "0.5"
+version: "0.6"
 status: Draft
-date: '2026-10-02'
+date: '2026-10-03'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -29,6 +29,10 @@ revisions:
   date: '2026-10-02'
   author: Amish Chadha
   change: Decisions of 2026-10-02 carried in; fixed inner shield behind a longer pump slot (section 3.10, steps 14 and 16, new pictures); handle operating space on the floor; first checks and safety stops for the ISO 13857 desk check
+- version: "0.6"
+  date: '2026-10-03'
+  author: Amish Chadha
+  change: 'Four guard fixes decided by Amish (2026-10-03): 6.35 mm mesh on the front strips, lower front panel, gate and roof; small-hole plates; top beam cover plates; crank bracket covers (sections 3.10 and 3.11, steps 14 and 15, new pictures); cost $1,169'
 ---
 
 # PotPress prototype build plan
@@ -41,7 +45,7 @@ revisions:
 
 *Figure 1. Every component pulled apart and numbered in build order.*
 
-The prototype is a 20 t bottle-jack press that squeezes a clay charge between two cast aluminium molds to form a ceramic water filter pot, inside welded mesh guards with an interlocked front gate, plus a separate four-station rack for flow-testing finished pots. Figure 1 shows the 19 groups of parts in the order you make or fit them. The steel frame is a base beam and a top crossbeam, each two channels side by side, joined by two upright pairs with bolts; the jack pushes a moving platen up the uprights, and the platen carries rails on which a carriage slides the lower (female) mold in and out. The upper (male) mold hangs from a square stem that is pinned to the top crossbeam for pressing and wound up and down by a hand crank. The work is sawing, drilling and stick welding steel channel, plate and bar; 3D printing two casting patterns; having a local foundry sand-cast the two molds; hand finishing and lapping the molds; printing a gauge; and fitting bought parts (jack, springs, bolts, lead screw, mesh, buckets). The parts cost about $1,149 from the bill of materials, which is $89 over the $1,060 value-engineering target.
+The prototype is a 20 t bottle-jack press that squeezes a clay charge between two cast aluminium molds to form a ceramic water filter pot, inside welded mesh guards with an interlocked front gate, plus a separate four-station rack for flow-testing finished pots. Figure 1 shows the 19 groups of parts in the order you make or fit them. The steel frame is a base beam and a top crossbeam, each two channels side by side, joined by two upright pairs with bolts; the jack pushes a moving platen up the uprights, and the platen carries rails on which a carriage slides the lower (female) mold in and out. The upper (male) mold hangs from a square stem that is pinned to the top crossbeam for pressing and wound up and down by a hand crank. The work is sawing, drilling and stick welding steel channel, plate and bar; 3D printing two casting patterns; having a local foundry sand-cast the two molds; hand finishing and lapping the molds; printing a gauge; and fitting bought parts (jack, springs, bolts, lead screw, mesh, buckets). The parts cost about $1,169 from the bill of materials, which is $109 over the $1,060 value-engineering target.
 
 > **Safety:** PotPress is a 20 t hydraulic press. A crushing hazard exists wherever the platen, molds or stem move. Its build involves stick welding, grinding galvanised mesh (zinc fume), lifts of up to 40 kg to 1.5 m, and a foundry pour done by others. Never pump the jack with anyone's hands inside the guard, never pump with the load pin out or half in, and do not go past hand pressure before the safety stops in section 6 allow it. Nothing in this plan authorises a pressing test; that is TRL 4 work and on hold.
 
@@ -317,18 +321,20 @@ The bushes slide over the dowels (Figure 14); the flange lands on the female's s
 
 ![Figure 19. Making sketch of the fixed guards](../cad/drawings/PPR-DWG-110.png)
 
-*Figure 19. Fixed guards making sketch (PPR-DWG-110), with the right side guard drawn.*
+*Figure 19. Fixed guards making sketch (PPR-DWG-110, Rev P3), with the right side guard drawn.*
 
-**What it is and what it is made from.** Seven welded-mesh panels that fence the press on all sides and the top, and a fixed steel shield behind the pump slot. Galvanised welded mesh 12.7 x 12.7 x 1.6 mm (half-inch, about 11 mm clear); 25 x 25 x 3 mm steel angle; 40 x 6 mm flat bar; 2 mm and 3 mm steel sheet; 30 x 6 mm flat bar.
+**What it is and what it is made from.** Seven welded-mesh panels that fence the press on all sides and the top, a fixed steel shield behind the pump slot, and the plates and covers that close the remaining openings (the guard fixes Amish decided on 2026-10-03). Galvanised welded mesh in two sizes: 12.7 x 12.7 x 1.6 mm (half-inch, about 11 mm clear) on the sides and back, which stand 100 mm or more from anything that moves, and 6.35 x 6.35 x 0.9 mm (quarter-inch, about 5.5 mm clear) on the front strips, lower front panel and roof, which stand as close as 39 mm; 25 x 25 x 3 mm steel angle; 40 x 6 mm flat bar; 2 mm and 3 mm steel sheet; 30 x 6 mm flat bar; a rubber grommet.
 
 **How to make it.**
 
 1. Weld a frame of angle for each panel, one leg flat behind the mesh and one pointing inward: right side 635 x 1,391 mm; left side 675 x 1,391; rear 940 x 1,391; two front strips 180 x 1,391; lower front 580 x 320; roof 940 x 675 with a cut-out round the top beam.
-2. Fix the mesh to each frame. Clamping it under bolted flat strips avoids zinc fume; if you weld it, grind the zinc off at each weld first (safety stop S3).
+2. Fix the mesh to each frame: the 12.7 mm mesh on the two sides and the rear, the 6.35 mm mesh on the two front strips, the lower front panel and the roof. Do not swap them; the finer mesh is what lets the front and roof stand so close to the moving parts. Clamping it under bolted flat strips avoids zinc fume; if you weld it, grind the zinc off at each weld first (safety stop S3).
 3. Pump slot in the right side guard: 30 mm wide from 174 to 446 mm up, centred 218 mm in front of the middle. Frame it with 3 mm strip. No brush strip: the shield is the guard.
-4. In the right front strip: a 44 mm square opening for the release shaft and a 40 mm square for the pin cable.
+4. In the right front strip: a 44 mm square opening for the release shaft and a 40 mm square for the pin cable. Close each from behind with a 3 mm steel plate bolted through the mesh with three M5 bolts: for the shaft a 55 x 60 mm plate with a 20 mm hole, butted against the strip's frame, leaving 4 mm round the 12 mm shaft; for the cable a 50 x 50 mm plate with a 10 mm hole and a rubber grommet, leaving 2 mm round the 6 mm cable.
 5. Eight standoffs of 40 x 6 mm flat bar, bolted to the outside of the beam webs, reaching out to the side guards.
-6. Shield behind the pump slot (Figure 20): fold 2 mm sheet into a tunnel 30 mm wide inside, running from the slot along the pump handle's line to the jack. Its roof and floor slope with the handle so that they stand 25 mm clear of it at both ends of its stroke: at the slot the tunnel is as tall as the slot; at the jack end it is 73 mm tall inside, from 266 to 339 mm up. Cut the jack end to the curve of the jack body, 3 mm off it, and the slot end square to the guard. Weld on a 3 mm flange the size of the slot frame, drilled for four M8 bolts through the frame and the mesh. Weld a 30 x 6 mm flat-bar stay under the tunnel floor, 235 mm out from the jack's centre along the handle's line, with a small foot plate that bolts to the base beam's top flange.
+6. Top beam cover plates: two 3 mm plates 320 x 180 mm. Each lies on the top beam's top flanges from the edge of the crank bracket's base plate (100 mm from the middle) to the beam end, covering the gap between the channels and the open tops of the upright's two channels. Drill and tap the flanges for four M8 bolts per plate.
+7. Crank bracket covers: two pieces of 2 mm sheet 170 x 285 mm, screwed with four M6 each into tapped holes in the front and back edges of the bracket's side plates, from the base plate to the top plate, so the bracket is closed on all four sides.
+8. Shield behind the pump slot (Figure 20): fold 2 mm sheet into a tunnel 30 mm wide inside, running from the slot along the pump handle's line to the jack. Its roof and floor slope with the handle so that they stand 25 mm clear of it at both ends of its stroke: at the slot the tunnel is as tall as the slot; at the jack end it is 73 mm tall inside, from 266 to 339 mm up. Cut the jack end to the curve of the jack body, 3 mm off it, and the slot end square to the guard. Weld on a 3 mm flange the size of the slot frame, drilled for four M8 bolts through the frame and the mesh. Weld a 30 x 6 mm flat-bar stay under the tunnel floor, 235 mm out from the jack's centre along the handle's line, with a small foot plate that bolts to the base beam's top flange.
 
 **How it fits the parts next to it.**
 
@@ -336,22 +342,22 @@ The bushes slide over the dowels (Figure 14); the flange lands on the female's s
 
 *Figure 20. Joint 11, with the shield cut along the handle. The handle crosses the guard at 25 degrees, about 2 mm clear of the slot frame each side; inside the tunnel it runs 5 mm from the walls and stops 25 mm short of the roof, the floor and the slot ends at both ends of its stroke. Through the slot only the handle and the end of the jack's pump socket can be reached.*
 
-The side panels bolt to the standoffs; the panels bolt to each other at every corner with M8 bolts. The right front strip sits 40 mm back from the front line, leaving a pocket in front of it for the interlock. The shield's flange bolts behind the slot frame with the mesh between them, and its stay bolts to the base beam; the jack must be in place first, and to take the jack out, unbolt the shield.
+The side panels bolt to the standoffs; the panels bolt to each other at every corner with M8 bolts. The right front strip sits 40 mm back from the front line, leaving a pocket in front of it for the interlock. The shield's flange bolts behind the slot frame with the mesh between them, and its stay bolts to the base beam; the jack must be in place first, and to take the jack out, unbolt the shield. The small-hole plates go on after the release shaft and the pin cable are threaded through them (step 16). The top beam cover plates and the crank bracket covers go on after the crank is fitted and checked; take them off only with the press at rest and the release open.
 
-**Check before moving on.** Each panel flat within 3 mm and no heavier than about 10 kg; no loose or sharp wire ends. The shield's inside is 30 mm wide along its length and its jack end stands 3 mm off the jack body all round.
+**Check before moving on.** Each panel flat within 3 mm and no heavier than about 10 kg; no loose or sharp wire ends. The 6.35 mm mesh is on the front strips, the lower front panel, the roof and the gate. The shield's inside is 30 mm wide along its length and its jack end stands 3 mm off the jack body all round. No gap of more than 4 mm round the release shaft or 2 mm round the cable; no opening into the top beam or the crank bracket.
 
 ### 3.11 Front gate
 
 ![Figure 21. Making sketch of the front gate](../cad/drawings/PPR-DWG-111.png)
 
-*Figure 21. Front gate making sketch (PPR-DWG-111).*
+*Figure 21. Front gate making sketch (PPR-DWG-111, Rev P2).*
 
-**What it is and what it is made from.** The hinged mesh door the operator opens to load and unload. 20 x 20 x 2 mm square tube; the same mesh; two weld-on lift-off hinges; a bent bar handle; 6 mm plate.
+**What it is and what it is made from.** The hinged mesh door the operator opens to load and unload. 20 x 20 x 2 mm square tube; 6.35 x 6.35 x 0.9 mm welded mesh, the finer mesh of the front panels; two weld-on lift-off hinges; a bent bar handle; 6 mm plate.
 
 **How to make it.**
 
 1. Weld a 572 x 1,063 mm frame of tube with a mid rail; diagonals equal within 2 mm.
-2. Fix the mesh on the front face.
+2. Fix the 6.35 mm mesh on the front face.
 3. Weld the gate leaves of two lift-off hinges to the left post, 120 mm in from the top and bottom.
 4. Weld the pull handle near the right edge, 905 mm up.
 5. Tongue: an arm off the right-hand post and a 6 mm plate that reaches over the lock rod, with a 14 mm hole centred on the rod.
@@ -521,11 +527,11 @@ Push the carriage with both molds in to the end stop (the male's top clears the 
 
 **Hold point:** safety stop S6. Pump the jack slowly by hand until the plug floor just meets the stem's disc (about 110 mm of ram travel), and stop. Put the four M12 bolts down through the disc into the floor (a long extension through the open top of the plug) and tighten. Let the putty cure, then open the release valve and let the platen down. Crank the male mold up and down its full 200 mm to check it runs free.
 
-### Step 14: fixed guards
+### Step 14: fixed guards, shield, plates and covers
 
 ![Step 14](05-build-plan/step-14.png)
 
-Bolt the standoffs to the beam webs. Fit the side, rear and front panels, the lower front panel and the roof, with M8 bolts at every corner. Slide the shield in from inside the guard along the handle's line until its flange meets the slot frame; bolt the flange through the frame and the stay to the base beam.
+Bolt the standoffs to the beam webs. Fit the side, rear and front panels, the lower front panel and the roof, with M8 bolts at every corner. Slide the shield in from inside the guard along the handle's line until its flange meets the slot frame; bolt the flange through the frame and the stay to the base beam. Bolt the two cover plates onto the top beam and the two covers onto the crank bracket. Leave the small-hole plates loose behind the right front strip until step 16 threads the shaft and cable through them.
 
 ### Step 15: front gate
 
@@ -537,7 +543,7 @@ Weld the fixed hinge leaves to the left front strip's frame, lift the gate onto 
 
 ![Step 16](05-build-plan/step-16.png)
 
-Fit the coupling on the release screw, the shaft with its universal joints, the disc and the knob; the post, lock rod and sliders; the plunger over the pin head and its cable to the pin slider. Put the pump handle in through the slot and along the shield into the socket. **Hold point:** safety stop S7.
+Fit the coupling on the release screw, the shaft with its universal joints, the disc and the knob; the post, lock rod and sliders; the plunger over the pin head and its cable to the pin slider. Thread the shaft and the cable through the small-hole plates and bolt the plates on behind the right front strip. Put the pump handle in through the slot and along the shield into the socket. **Hold point:** safety stop S7.
 
 ### Step 17: QC rack
 
@@ -568,7 +574,7 @@ These are the checks a TRL 4 test report would record; this plan only lists them
 | Gate interlock | R9 | Release open, no pressure: try to close the release with the gate open; close it with the gate shut, then try to open the gate | Neither is possible |
 | Pin interlock | R9 | Gate shut, pin drawn back 10 mm: try to close the release | Not possible |
 | Pump handle | R9 | Pump the handle over its full stroke by hand, release open | Never touches the slot frame or the shield; at each end of the stroke it stops at least 25 mm short of the slot ends |
-| Guard openings | R9 | A competent person reviews the ISO 13857 desk check against the guards as built and signs it | Every opening meets the standard |
+| Guard openings | R9 | A competent person reviews the ISO 13857 desk check (all 23 openings meet on paper, PPR-CAL-001 v0.10) against the guards as built and signs it; push on the 6.35 mm mesh by hand to see it keeps its shape | Every opening meets the standard |
 | Footprint | R11 | Measure the guarded press, extension folded, and the rack | Within 1.0 x 0.7 x 2.0 m and 0.8 x 0.8 m |
 | Gauge scale | R6 | Draw off 1.0 L and 2.5 L measured volumes | 16.7 mm and 42.6 mm within 1 mm |
 | Mold materials | R12 | Foundry scrap note; look at the mold faces | Lead-free; no paint or oil on the faces |
@@ -603,7 +609,7 @@ Stop at each point. Carry on only when everything listed is true.
 - Model and constructability checks: `cad/src/model.py` (`python cad/src/model.py --check`, closed, open and demolding positions); STEP and STL exports in `cad/step/` and `cad/stl/`.
 - Pictures: `cad/src/build_plan_media.py`, using `.kit/build_views.py`; written to `docs/05-build-plan/` and `cad/drawings/PPR-DWG-101` to `PPR-DWG-114`.
 - General arrangement: `cad/drawings/PPR-DWG-001.pdf`, Rev P6, with the pump handle's operating space on the floor.
-- Calculations: `docs/04-calcs/01-sizing.md` (PPR-CAL-001 v0.9) and `docs/04-calcs/sizing.py`; frame and joints section 4, travel and crank section 5, alignment section 7, patterns section 8, masses section 10, tipping section 11, ISO 13857 desk check section 15.
+- Calculations: `docs/04-calcs/01-sizing.md` (PPR-CAL-001 v0.10) and `docs/04-calcs/sizing.py`; frame and joints section 4, travel and crank section 5, alignment section 7, patterns section 8, masses section 10, tipping section 11, ISO 13857 desk check section 15.
 - Bill of materials: `bom/bom.csv`.
 - Decisions: `docs/decisions/0004-design-for-construction.md` (PPR-DDR-004), with PPR-DDR-001 to PPR-DDR-003.
 - Requirements: `docs/03-requirements.md` (PPR-REQ-001 v0.11).

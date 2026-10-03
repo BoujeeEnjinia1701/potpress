@@ -1,4 +1,4 @@
-"""PotPress general arrangement drawing PPR-DWG-001 (Rev P6).
+"""PotPress general arrangement drawing PPR-DWG-001 (Rev P7).
 
 Run from the repo root:  python cad/src/sheets.py
 Builds cad/drawings/PPR-DWG-001.svg, .pdf and .png from the parametric model.
@@ -39,16 +39,17 @@ work = ROOT / "cad/drawings/_views"
 views = project_views(Compound(children=[press, op_space]), work)
 
 s = Sheet(project="PotPress", title="General arrangement, press closed, guarded", dwg_no="PPR-DWG-001",
-          rev="P6", author="Amish Chadha", date="2026-10-02", concept=True, scale=None,
+          rev="P7", author="Amish Chadha", date="2026-10-03", concept=True, scale=None,
           material="S275 channel and plate; molds cast Al-Si (lead-free scrap); pin 42CrMo4 QT. See bom/bom.csv",
           revisions=[("P1", "Preliminary GA from the TRL 3 model (PPR-CAL-001)", "2026-09-25", "AC"),
                      ("P2", "Recommendations accepted (DDR-002): bolted joints, hinged rails", "2026-09-25", "AC"),
                      ("P3", "Guards and interlocked front gate added", "2026-09-26", "AC"),
                      ("P4", "Budget raised to $1,060 (DDR-003); R10 met; note only", "2026-09-27", "AC"),
                      ("P5", "Design for construction (DDR-004); cost note removed", "2026-09-30", "AC"),
-                     ("P6", "Pump slot shield; handle operating space on the floor", "2026-10-02", "AC")])
+                     ("P6", "Pump slot shield; handle operating space on the floor", "2026-10-02", "AC"),
+                     ("P7", "Guard fixes: 6.35 mesh front and roof, plates, covers", "2026-10-03", "AC")])
 s.add_ortho(views, ["front", "top", "right"])
-s.add_svg(views["iso"], 276, 50, 140, 68, label="Isometric view", sublabel="Not to scale; mesh drawn at every 8th wire")
+s.add_svg(views["iso"], 276, 57, 140, 62, label="Isometric view", sublabel="Not to scale; mesh drawn at every 8th wire")
 s.add_notes("Key dimensions (mm) and data", [
     f"Frame {P['BEAM_L']:.0f} x {P['FOOT_L']:.0f} on feet; guarded 940 x {bb.size.Y:.0f}",
     f"Floor: outline right of guard = pump handle space, {op_out:.0f} x {oy1 - oy0:.0f}",
@@ -61,8 +62,9 @@ s.add_notes("Key dimensions (mm) and data", [
     f"Pot: inner rim {2 * P['R_IN_RIM']:.0f}, depth {P['D_IN']:.0f}, wall {P['WALL']:.0f}, rim {P['RIM_OD']:.0f}",
     f"Molds {P['FM_FLANGE_D']:.0f} dia flanges, located by 2 x {P['LOC_PIN_D']:.0f} mm pins",
     f"At 294 kN: frame 190, pin 272, bolts 117, {P['MM_FLANGE_T']:.0f} mm male flange 62 MPa",
-    "Press about 344 kg plus about 48 kg of guards; heaviest part 40 kg",
-    f"Guards: welded mesh {P['MESH_PITCH']:.1f} x {P['MESH_PITCH']:.1f} x {P['MESH_WIRE']:.1f}, planes {2 * P['GUARD_X']:.0f} x {P['GUARD_Y_BACK'] - P['GUARD_Y_FRONT']:.0f}",
+    "Press about 344 kg plus about 51 kg of guards; heaviest part 40 kg",
+    f"Mesh {P['MESH_PITCH']:.1f} x {P['MESH_WIRE']:.1f} sides, rear; {P['FINE_PITCH']:.2f} x {P['FINE_WIRE']:.1f} front, gate, roof",
+    f"Plates at release shaft and cable; covers on top beam and crank bracket",
     f"Gate {2 * P['GATE_HALF']:.0f} wide, hinged left; lock rod holds jack release open",
     "PRELIMINARY, NOT FOR FABRICATION",
 ], x=276, y=130, width=140)

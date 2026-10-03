@@ -22,7 +22,7 @@ import concept as K  # noqa: E402
 from concept import Part  # noqa: E402
 from model import build_parts, components  # noqa: E402
 
-PROJECT, TITLE, DWG, DATE = "PotPress", "Filter press and QC rig concept", "PPR-DWG-010", "2026-10-02"
+PROJECT, TITLE, DWG, DATE = "PotPress", "Filter press and QC rig concept", "PPR-DWG-010", "2026-10-03"
 MD = ROOT / "media"
 NO_CUT = ("Return springs", "Printed T-gauge", "Fixed mesh guards and pump slot shield",
           "Front gate, mesh in a tube frame, with hinges and tongue")
@@ -75,11 +75,12 @@ def blueprint():
     shown = K.with_scale_figure(ps)
     views = project_views(Compound(children=[p.shape for p in ps]), MD / "_views")
     views["iso"] = project_views(Compound(children=[p.shape for p in shown]), MD / "_views_fig")["iso"]
-    s = Sheet(project=PROJECT, title=TITLE, dwg_no=DWG, rev="P2", author="Amish Chadha", date=DATE, theme="blueprint",
+    s = Sheet(project=PROJECT, title=TITLE, dwg_no=DWG, rev="P3", author="Amish Chadha", date=DATE, theme="blueprint",
               material="Massing model for concept communication",
-              revisions=[("P1", "Concept sheet", "2026-09-25", "AC"), ("P2", "Pump slot shield; trial force from 2 t", DATE, "AC")])
+              revisions=[("P1", "Concept sheet", "2026-09-25", "AC"), ("P2", "Pump slot shield; trial force from 2 t", "2026-10-02", "AC"),
+                         ("P3", "Guard fixes: finer front and roof mesh, plates, covers", DATE, "AC")])
     s.add_ortho(views)
-    s.add_svg(views["iso"], 276, 32, 140, 118, label="Isometric view", sublabel="Not to scale; figure is a 1.75 m person")
+    s.add_svg(views["iso"], 276, 37, 140, 113, label="Isometric view", sublabel="Not to scale; figure is a 1.75 m person")
     s.add_notes("Key figures", [
         "20 t bottle jack; working force found in trials from about 2 t",
         "Mean pressure on the pot 0.21 MPa at 2 t, 1.05 MPa at 10 t",
@@ -87,8 +88,8 @@ def blueprint():
         f"About {m['charge']:.1f} kg mix per pot; about {m['fired']:.1f} kg fired (est.)",
         f"Cycle about {c['total_min']:.1f} min; about {c['pots_6h']:.0f} pots per 6 h (est.)",
         "QC: 1.0 to 2.5 L/h in the first hour, at 25 C",
-        "Press 940 x 700 x 1,806 mm guarded, rails folded; about 390 kg (est.)",
-        "Mesh guards, pump slot shield; gate interlocked with the release"], x=276, y=168, width=140)
+        "Press 940 x 700 x 1,806 mm guarded, rails folded; about 395 kg (est.)",
+        "Mesh guards, 6.35 mm front and roof; plates, covers; gate interlocked"], x=276, y=168, width=140)
     s.save(MD / "concept-blueprint")
     import shutil
     shutil.rmtree(MD / "_views", ignore_errors=True); shutil.rmtree(MD / "_views_fig", ignore_errors=True)

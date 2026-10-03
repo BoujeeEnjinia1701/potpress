@@ -26,7 +26,7 @@ from model import PARAMS as P, levels, box  # noqa: E402
 
 OUT = ROOT / "docs" / "05-build-plan"
 DWG = ROOT / "cad" / "drawings"
-DATE = "2026-10-02"                  # pictures redrawn for the pump slot shield
+DATE = "2026-10-03"                  # guard pictures redrawn for the four guard fixes
 L = levels()
 _C = None
 
@@ -104,7 +104,8 @@ def groups():
         ("carriage", "Mold carriage", ("carriage", "retaining_pins"), COL["carriage"]),
         ("fm", "Female mold on its base plate", ("fm_cup", "fm_plate", "loc_pins", "fm_screws"), COL["fm"]),
         ("mm", "Male mold", ("mm", "bushes", "adapter_bolts"), COL["mm"]),
-        ("guards", "Fixed mesh guards and pump slot shield", ("guards", "pump_shield"), COL["guard"]),
+        ("guards", "Fixed guards, pump slot shield, plates and covers", ("guards", "pump_shield", "opening_plates", "beam_covers",
+                                                                         "bracket_covers"), COL["guard"]),
         ("gate", "Front gate", ("gate",), COL["gate"]),
         ("lock", "Interlock", ("release", "lock_post", "lock_rod", "sliders", "pin_sensor"), COL["lock"]),
         ("qc", "QC rack", ("qc_frame", "qc_shelves"), COL["qc"]),
@@ -138,8 +139,11 @@ def overview():
 
 # ----------------------------------------------------------------- making sketches
 # Sheets revised after their first issue on 2026-09-30: (rev, date, revision rows)
-SHEET_REVS = {110: ("P2", "2026-10-02", [("P1", "First issue", "2026-09-30", "AC"),
-                                        ("P2", "Pump slot lengthened; fixed inner shield added", "2026-10-02", "AC")])}
+SHEET_REVS = {110: ("P3", "2026-10-03", [("P1", "First issue", "2026-09-30", "AC"),
+                                        ("P2", "Pump slot lengthened; fixed inner shield added", "2026-10-02", "AC"),
+                                        ("P3", "Guard fixes: 6.35 mm mesh, plates and covers", "2026-10-03", "AC")]),
+              111: ("P2", "2026-10-03", [("P1", "First issue", "2026-09-30", "AC"),
+                                        ("P2", "6.35 mm mesh (guard fix)", "2026-10-03", "AC")])}
 
 
 def sheet(n, key_or_shape, name, color, neighbours, title, material, notes, view_shape=None, inset=(24, -58)):
@@ -304,31 +308,30 @@ def sheets(which=None):
          "  260 mm handwheel with a crank knob. 40 turns lift the mold 200 mm.",
          "Check: the pin slides through beam and stem together by hand."], inset=(20, -55))
     S[110] = lambda: sheet(110, _right_guard(), "Right side guard", COL["guard"], grey("uprights", "base", "top", "jack"),
-        "fixed mesh guards (right side guard drawn)", "Galvanised welded mesh 12.7 x 12.7 x 1.6 mm; 25 x 25 x 3 angle; 2 mm steel sheet (shield)",
-        ["Seven panels, each mesh on a welded frame of 25 x 25 x 3 angle:",
-         "  sides 635 (right) and 675 (left) x 1,391 mm; rear 940 x 1,391;",
-         "  front strips 180 x 1,391; lower front 580 x 320; roof 940 x 675",
-         "  with a cut-out round the top beam. Mesh drawn at every 8th wire.",
+        "fixed mesh guards (right side guard drawn)", "Welded mesh 12.7 x 1.6 and 6.35 x 0.9 mm; 25 x 25 x 3 angle; 2 and 3 mm steel sheet",
+        ["Seven panels, mesh on a welded frame of 25 x 25 x 3 angle: sides 635",
+         "  (right) and 675 (left) x 1,391; rear 940 x 1,391 in 12.7 x 1.6 mesh.",
+         "  Front strips 180 x 1,391, lower front 580 x 320 and roof 940 x 675",
+         "  (cut-out round the top beam) in 6.35 x 0.9 mesh. Every 8th wire drawn.",
          "Pump slot (right side): 30 x 272 mm, 174 to 446 mm up, centred 218 mm",
-         "  in front of the middle; frame it with 3 mm strip. No brush strip.",
-         "Shield behind the slot: 2 mm sheet folded into a tunnel 30 mm wide",
-         "  inside, along the pump handle's line to 3 mm off the jack body; roof",
-         "  and floor 25 mm clear of the handle at both ends of its stroke. A",
-         "  3 mm flange bolts through the slot frame (4 x M8); a 30 x 6 mm stay",
-         "  bolts to the base beam. The handle goes in through slot and tunnel.",
-         "Interlock holes (front right strip): 44 mm square at the release",
-         "  shaft and a 40 mm square for the pin cable.",
-         "Fixing mesh: clamp it under bolted flat strips, or grind the zinc",
-         "  off before welding (fume: see safety stops).",
-         "Standoffs: eight 40 x 6 mm flat bars bolted to the beam webs; the",
-         "  side panels bolt to them. Panels bolt to each other with M8.",
-         "Right front strip sits 40 mm back to leave a pocket for the interlock.",
+         "  in front of the middle, framed with 3 mm strip. Shield behind it:",
+         "  2 mm sheet tunnel 30 mm wide inside to 3 mm off the jack body, roof",
+         "  and floor 25 mm clear of the handle at its stroke ends; 3 mm flange",
+         "  (4 x M8 through the slot frame); 30 x 6 mm stay to the base beam.",
+         "Front right strip: 44 mm square hole at the release shaft and 40 mm",
+         "  square at the pin cable, each closed behind the mesh by a 3 mm plate",
+         "  (6 x M5): 55 x 60 with a 20 mm hole, 50 x 50 with a 10 mm grommet.",
+         "Top beam: two 3 mm plates 320 x 180, 100 mm to 420 mm each side of",
+         "  the middle, over the gap and the upright tops; 4 x M8 each.",
+         "Crank bracket: 2 mm sheet 170 x 285 front and back, 4 x M6 each.",
+         "Fix mesh under bolted flat strips, or grind the zinc off first.",
+         "Eight 40 x 6 standoffs to the beam webs; M8 at panel corners.",
          "Check: flat within 3 mm; no panel over about 10 kg."], inset=(18, -40))
     S[111] = lambda: sheet(111, ("gate",), "Front gate", COL["gate"], grey("guards", "lock"),
-        "front gate", "20 x 20 x 2 square tube; welded mesh; lift-off hinges",
+        "front gate", "20 x 20 x 2 square tube; 6.35 x 0.9 mm welded mesh; lift-off hinges",
         ["Frame: 20 x 20 x 2 square tube, 572 wide x 1,063 tall outside, with a",
          "  mid rail. Weld square; diagonals equal within 2 mm.",
-         "Mesh: the same welded mesh, clamped or welded on the front face.",
+         "Mesh: 6.35 x 6.35 x 0.9 mm welded mesh on the front face, clamped.",
          "Hinges: two weld-on lift-off hinges on the left, 120 mm in from the",
          "  top and bottom; the fixed leaves weld to the left front strip frame.",
          "Handle: bent 15 x 12 mm bar, 140 mm grip, near the right edge at",
@@ -467,7 +470,8 @@ def joints(which=None):
                              W("sliders", "Gate slider and pin slider", COL["slider"], bx),
                              W("gate", "Gate tongue", COL["gate"], bx),
                              W("lock_post", "Post with guide tabs", "#1E3A8A", bx),
-                             W("pin_sensor", "Cable from the pin plunger", "#7F1D1D", bx)],
+                             W("pin_sensor", "Cable from the pin plunger", "#7F1D1D", bx),
+                             W("opening_plates", "Grommet plate behind the strip", "#64748B", bx)],
                             OUT / "joint-06.png", "Joint 6: interlock at the gate (gate shut, valve closed, rod up)",
                             subtitle="The rod stands through the tongue, so the gate stays shut until the valve is opened",
                             elev=22, azim=-55, size=(8.5, 6))
@@ -624,8 +628,12 @@ def steps(which=None):
                        elev=22, azim=-55, label_done=False)
     frame4 = [feet, base, jpl, jack, upr, plat, spr, top, stem, pin, crank, car, fm, mm]
     E[14] = lambda: st(14, frame4, [part("Fixed mesh guards", fuse("guards"), COL["guard"]),
-                                    K("pump_shield", "Pump slot shield", "#64748B", (420, 0, 0))], "fixed guards and pump slot shield",
-                       "Standoffs on the beam webs; side, rear, front strips, lower panel and roof; M8 bolts at every corner; shield bolted behind the slot",
+                                    K("pump_shield", "Pump slot shield", "#64748B", (420, 0, 0)),
+                                    K("opening_plates", "Small-hole plates", "#64748B", (0, -250, 0)),
+                                    K("beam_covers", "Top beam cover plates", "#64748B", (0, 0, 250)),
+                                    K("bracket_covers", "Crank bracket covers", "#78716C", (0, 0, 450))],
+                       "fixed guards, shield, plates and covers",
+                       "Panels and roof bolted on; shield behind the slot; plates behind the right strip; covers on the top beam and crank bracket",
                        elev=22, azim=-55, label_done=False)
     E[15] = lambda: st(15, frame4 + [guards], [mv(gate, (0, -350, 0))], "front gate",
                        "Weld the fixed hinge leaves on the left front strip; lift the gate onto its hinges; check it swings clear",

@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "cad/src"))
-from model import PARAMS as P, SECTIONS as S, levels, pot_outer  # noqa: E402
+from model import CLOSURES, PARAMS as P, SECTIONS as S, levels, pot_outer  # noqa: E402
 
 G = 9.81
 E_STEEL, G_STEEL = 200e3, 80e3          # MPa
@@ -56,6 +56,11 @@ BOLT_USD = 2.50                         # M16 x 110 10.9 bolt, nut and two harde
 FY_BOLT109, FU_BOLT109 = 900.0, 1000.0   # grade 10.9
 AS_M16 = 157.0                          # tensile stress area, mm2
 HINGE_USD = 10.0                        # two weld-on barrel hinges and stop lugs for the rail extension
+# Guard mesh (2026-10-03, guard fixes decided by Amish): galvanized welded mesh, regional retail estimates
+MESH_USD_M2 = 6.0                       # 12.7 x 12.7 x 1.6 mm (1/2 in), as priced since PPR-DDR-003
+FINE_MESH_USD_M2 = 10.5                 # 6.35 x 6.35 x 0.9 mm (1/4 in, 23 gauge) hardware cloth, estimate
+SMALL_BOLT_USD = 0.25                   # M5 to M8 bolt, nut and washer, regional retail
+GROMMET_USD = 0.5                       # rubber grommet for the pin cable hole
 
 
 def frustum(r0, r1, h):
@@ -312,6 +317,22 @@ DENSITY = {"fm_cup": RHO_AL, "mm": RHO_AL, "liners": RHO_UHMW, "qc_shelves": RHO
            "pot": 1640.0, "test_pots": 1640.0, "water": 1000.0}
 
 
+def mesh_areas():
+    """Mesh area (m2) by mesh, from the guard layout and the gate frame: 12.7 mm and 6.35 mm (2026-10-03)."""
+    from model import guard_layout
+    a = {"coarse": 0.0, "fine": 0.0, "gate": 0.0}
+    for pnl in guard_layout(P):
+        ar = (pnl["a1"] - pnl["a0"]) * (pnl["b1"] - pnl["b0"]) - sum((h[1] - h[0]) * (h[3] - h[2]) for h in pnl["holes"])
+        a["fine" if pnl["fine"] else "coarse"] += ar / 1e6
+    a["gate"] = (2 * P["GATE_HALF"] - 8) * (levels()["top1"] - 4 - P["GATE_Z0"] - 4) / 1e6
+    return a
+
+
+def mesh_kg_m2(pitch, wire):
+    """Welded mesh mass per m2: two layers of round wire at the given pitch."""
+    return 2 * (1000.0 / pitch) * math.pi / 4 * wire ** 2 * 1e-6 * RHO_ST
+
+
 def masses():
     """Per-item masses from the model components (steel unless listed in DENSITY); guards priced from the BOM."""
     from model import components
@@ -319,7 +340,7 @@ def masses():
     ms, ctr, per = {}, {}, {}
     mom = {}
     for c in comps:
-        if c.key == "pump_shield":                   # solid sheet, so its mass is real (2026-10-02)
+        if c.key in ("pump_shield",) + CLOSURES:      # solid sheet and plate, so their mass is real (2026-10-02, -03)
             per[c.key] = c.shape.volume / 1e9 * RHO_ST
         if c.bom is None or c.bom in (11, 16, 20):   # product; guard mesh is drawn symbolically
             continue
@@ -397,10 +418,20 @@ def costs(ms, pat):
     pla = (per["fm_cup"] + per["mm"]) / RHO_AL * (1 + AL_SHRINK) ** 3 * PATTERN_FILL * PLA_RHO
     c["pla_kg"] = pla
     c[15] = pla * PLA_USD_KG + 10.0
-    c[16] = 67.0 + per["pump_shield"] * STEEL_USD_KG + 2.0   # mesh guards; pump slot shield, folded by the shop, 4 x M8
-    c["shield"] = per["pump_shield"] * STEEL_USD_KG + 2.0
+    c["shield"] = per["pump_shield"] * STEEL_USD_KG + 2.0   # pump slot shield, folded by the shop, 4 x M8 (2026-10-02)
+    # Guard fixes (decided by Amish 2026-10-03): the finer mesh costs the price difference on the panels that take it;
+    # the plates and covers are steel by mass plus their fixings
+    ma = mesh_areas()
+    c["fix_mesh"] = ma["fine"] * (FINE_MESH_USD_M2 - MESH_USD_M2)
+    c["fix_gate"] = ma["gate"] * (FINE_MESH_USD_M2 - MESH_USD_M2)
+    c["fix_plates"] = per["opening_plates"] * STEEL_USD_KG + 6 * SMALL_BOLT_USD + GROMMET_USD      # 6 x M5 through the mesh
+    c["fix_covers"] = per["beam_covers"] * STEEL_USD_KG + 8 * SMALL_BOLT_USD + 1.0                  # 8 x M8, tapping the flanges
+    c["fix_bracket"] = per["bracket_covers"] * STEEL_USD_KG + 8 * SMALL_BOLT_USD                    # 8 x M6 into the plate edges
+    c["fixes"] = c["fix_mesh"] + c["fix_gate"] + c["fix_plates"] + c["fix_covers"] + c["fix_bracket"]
+    c["mesh_areas"] = ma
+    c[16] = 67.0 + c["shield"] + c["fix_mesh"] + c["fix_plates"] + c["fix_covers"] + c["fix_bracket"]
     c[17] = 10.0; c[18] = 45.0; c[19] = 12.0
-    c[20] = 21.0 + 1.0                                      # gate, plus the tongue plate
+    c[20] = 21.0 + 1.0 + c["fix_gate"]                      # gate, plus the tongue plate; 6.35 mm mesh (2026-10-03)
     c[21] = (ms[21]) * STEEL_USD_KG + 2 * 8.0 + 10.0 + 3.0 + 4.0 + 3.0   # two universal joints, push-pull cable, springs, plunger, handle
     c["total"] = sum(v for k, v in c.items() if isinstance(k, int))
     c["press"] = sum(c[i] for i in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 17, 18, 20, 21))
@@ -505,6 +536,13 @@ def main():
     print(f"  press items 1 to 10 {t['mass']:.0f} kg (joint bolts {ms['bolts']:.1f} kg included); frame (1 to 3) {frame_weld:.0f} kg; heaviest part as handled {max(hd.values()):.1f} kg ({max(hd, key=hd.get)})")
     print("  parts as handled: " + ", ".join(f"{k_} {v_:.1f}" for k_, v_ in hd.items()))
     print(f"  load pin {cost['pin_kg']:.1f} kg; pump slot shield {ms['per']['pump_shield']:.1f} kg (with the guards, not in the press mass)")
+    ma = cost["mesh_areas"]
+    kc, kf = mesh_kg_m2(P["MESH_PITCH"], P["MESH_WIRE"]), mesh_kg_m2(P["FINE_PITCH"], P["FINE_WIRE"])
+    d_mesh = (ma["fine"] + ma["gate"]) * (kf - kc)
+    cl = sum(ms["per"][k] for k in CLOSURES)
+    print(f"  guard fixes (2026-10-03): mesh {kc:.2f} kg/m2 (12.7 mm) and {kf:.2f} kg/m2 (6.35 mm); 6.35 mm mesh on {ma['fine']:.2f} m2 "
+          f"of panels and {ma['gate']:.2f} m2 of gate ({ma['coarse']:.2f} m2 stays 12.7 mm), {d_mesh:+.1f} kg; plates and covers "
+          + ", ".join(f"{k} {ms['per'][k]:.2f}" for k in CLOSURES) + f" kg, {cl:.1f} kg together; guards change {d_mesh + cl:+.1f} kg")
     print("11 Tipping")
     print(f"  press CG y {t['cg_y']:.0f} mm, z {t['cg_z']:.0f} mm; carriage out: CG y {t['cg_y_out']:.0f} mm vs front foot edge {-P['FOOT_L']/2:.0f} mm")
     print(f"  restoring moment {t['restoring_Nm']:.0f} N m; horizontal push at 1 m height to tip forward {t['push_N_at_1m']:.0f} N")
@@ -517,6 +555,9 @@ def main():
     print("13 Cost (USD)")
     print("  " + ", ".join(f"{i}: {v:.0f}" for i, v in cost.items() if isinstance(i, int)))
     print(f"  estimate: press {cost['press']:.0f}, QC {cost['qc']:.0f}, total {cost['total']:.0f}; pump slot shield {cost['shield']:.2f}")
+    print(f"  guard fixes (2026-10-03): finer mesh on panels {cost['fix_mesh']:.2f} and gate {cost['fix_gate']:.2f}; small-hole plates "
+          f"{cost['fix_plates']:.2f}; top beam cover plates {cost['fix_covers']:.2f}; crank bracket covers {cost['fix_bracket']:.2f}; "
+          f"together {cost['fixes']:.2f}")
     gap = "over by" if bt > bud else "margin"
     print(f"  bom.csv: {nrows} lines, total {bt:.2f}, press {bp:.2f}, QC {bt-bp:.2f}; budget_usd {bud:.0f}; {gap} {abs(bt-bud):.0f} ({abs(bt/bud-1)*100:.1f} %)")
     print("15 ISO 13857 desk check (from the model; see cad/src/model.py iso13857_check)")

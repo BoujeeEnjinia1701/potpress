@@ -9,7 +9,8 @@ carriage slides out this way) to back (+Y), Z up from the floor. Units mm. The p
 is shown closed at the end of a pressing stroke, load pin home, jack release closed,
 with a formed pot between the molds, guarded: fixed welded-mesh guards and the hinged
 front gate closed (PPR-DDR-003). The QC flow-test rack (2 x 2 stations) stands to the
-right (+X). Guard mesh is drawn at every 8th wire (101.6 mm); the specified mesh is 12.7 mm.
+right (+X). Guard mesh is drawn at every 8th wire: 101.6 mm for the 12.7 mm mesh on the sides and rear,
+50.8 mm for the 6.35 mm mesh on the front, gate and roof (decided by Amish 2026-10-03, PPR-DEC-001).
 
 components() returns every made or bought component on its own (for the build plan);
 build_parts() groups them by BOM line (for the concept media, the drawing and the masses).
@@ -144,6 +145,18 @@ PARAMS = {
     "GATE_Z0": 380.0,       # gate bottom; the lower front panel is fixed below it
     "GATE_TUBE": 20.0,      # 20 x 20 x 2 square tube gate frame
     "GATE_OPEN_DEG": 0.0,   # 0 = closed (pressing); about 105 = swung open to the left
+    # Guard fixes from the ISO 13857 desk check (decided by Amish 2026-10-03: "move forward with the four guard
+    # fixes. I accept the cost."; PPR-DEC-001, PPR-CAL-001 section 15)
+    "FINE_PITCH": 6.35,     # (1) 6.35 mm (1/4 in) welded mesh, 0.9 mm wire, about 5.5 mm clear, on the front strips,
+    "FINE_WIRE": 0.9,       #     lower front panel, front gate and roof
+    "FINE_PANELS": ("Front left strip", "Front right strip", "Lower front panel", "Roof guard"),
+    "CLOSE_T": 3.0,         # (2) small-hole plates behind the front right strip, 3 mm steel
+    "RELEASE_HOLE": 20.0,   #     round the 12 mm release shaft: 4 mm gap all round
+    "CABLE_HOLE": 10.0,     #     round the 6 mm pin cable: 2 mm gap all round
+    "BEAM_COVER_T": 3.0,    # (3) cover plates on the top beam's top flanges, over the gap and the upright tops
+    "BEAM_COVER_X": (100.0, 420.0),  # each side, from the crank bracket's base plate to the beam end
+    "BEAM_COVER_Y": 90.0,   #     half-width across the beam (the flanges reach 117)
+    "BRK_COVER_T": 2.0,     # (4) 2 mm sheet covers on the open front and back of the crank bracket
     "PUMP_SLOT": (30.0, 174.0, 446.0),  # jack pump handle slot in the right side guard: width, z from, z to (DDR-004: 30 wide
                             # so the 20 mm handle passes the 6 mm guard at 25 deg; still in the 20 to 30 mm slot band).
                             # 2026-10-02: each end 25 mm beyond the handle at its stroke ends (ISO 13854 finger gap)
@@ -317,9 +330,10 @@ def mesh_panel(plane, a0, a1, b0, b1, c_out, inward, pitch, wire, holes=()):
     return out
 
 
-def angle_frame(plane, a0, a1, b0, b1, c_out, inward, leg, t):
-    """Rectangular frame of equal angle behind a mesh panel: one leg flat behind the mesh, one pointing inward."""
-    c_back = c_out + inward * 3.2                       # behind the two wire layers
+def angle_frame(plane, a0, a1, b0, b1, c_out, inward, leg, t, back=3.2):
+    """Rectangular frame of equal angle behind a mesh panel: one leg flat behind the mesh, one pointing inward.
+    back: the depth of the two wire layers in front of it (2 x the wire diameter)."""
+    c_back = c_out + inward * back                      # behind the two wire layers
     flat_lo, flat_hi = sorted((c_back, c_back + inward * t))
     out_lo, out_hi = sorted((c_back, c_back + inward * leg))
     if plane == "xz":
@@ -434,7 +448,7 @@ def guard_layout(P=PARAMS):
     py = pump_slot_y(P)
     zr = release_z(P)
     lx = P["LOCK_X"]
-    return [
+    out = [
         dict(name="Right side guard", plane="yz", a0=P["STRIP_Y"], a1=yb, b0=z0, b1=z1, c_out=gx, inward=-1,
              holes=[(py - sw / 2, py + sw / 2, sz0, sz1)]),
         dict(name="Left side guard", plane="yz", a0=yf, a1=yb, b0=z0, b1=z1, c_out=-gx, inward=+1, holes=[]),
@@ -446,22 +460,33 @@ def guard_layout(P=PARAMS):
         dict(name="Roof guard", plane="xy", a0=-gx, a1=gx, b0=yf, b1=yb, c_out=z1 + 3.2 + P["GUARD_ANGLE"], inward=-1,
              holes=[(-P["BEAM_L"] / 2 - 5, P["BEAM_L"] / 2 + 5, -y_beam - 5, y_beam + 5)]),
     ]
+    for pnl in out:
+        pnl["fine"] = pnl["name"] in P["FINE_PANELS"]
+    return out
 
 
-def guard_solids(P=PARAMS, pitch=None):
-    """Fixed guards as a list of solids: angle frames, mesh (every 8th wire by default; pitch=MESH_PITCH draws every
-    wire, for the appearance model), pump slot frame, standoffs, fixed hinge leaves and the strip's return plate."""
+def mesh_spec(fine, P=PARAMS, every_wire=False):
+    """(pitch drawn, wire, clear opening e) for the 12.7 mm mesh or the 6.35 mm mesh (2026-10-03). The model draws
+    every 8th wire; every_wire=True draws them all (appearance model)."""
+    pitch, wire = (P["FINE_PITCH"], P["FINE_WIRE"]) if fine else (P["MESH_PITCH"], P["MESH_WIRE"])
+    return (pitch if every_wire else pitch * P["MESH_SHOW_EVERY"]), wire, pitch - wire
+
+
+def guard_solids(P=PARAMS, every_wire=False):
+    """Fixed guards as a list of solids: angle frames, mesh (every 8th wire by default; every_wire=True draws every
+    wire, for the appearance model), pump slot frame, standoffs, fixed hinge leaves and the strip's return plate.
+    The front strips, lower front panel and roof carry the 6.35 mm mesh (2026-10-03), the rest the 12.7 mm mesh."""
     L = levels(P)
-    pitch = pitch or P["MESH_PITCH"] * P["MESH_SHOW_EVERY"]
     b = SECTIONS[P["BEAM_SEC"]]
     yw = P["BEAM_GAP"] / 2 + b["tw"]; bl = P["BEAM_L"] / 2
     zc_base = (L["base0"] + L["base1"]) / 2; zc_top = (L["top0"] + L["top1"]) / 2
     g = []
     for pnl in guard_layout(P):
+        pitch, wire, _ = mesh_spec(pnl["fine"], P, every_wire)
         g.append(angle_frame(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
-                             P["GUARD_ANGLE"], P["GUARD_ANGLE_T"]))
+                             P["GUARD_ANGLE"], P["GUARD_ANGLE_T"], back=2 * wire))
         g += mesh_panel(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
-                        pitch, P["MESH_WIRE"], pnl["holes"])
+                        pitch, wire, pnl["holes"])
     sw, sz0, sz1 = P["PUMP_SLOT"]; py = pump_slot_y(P)
     gx = P["GUARD_X"]
     g.append(box(gx - 6.2, gx - 3.2, py - sw / 2 - 12, py + sw / 2 + 12, sz0 - 12, sz1 + 12) -
@@ -477,20 +502,44 @@ def guard_solids(P=PARAMS, pitch=None):
     return g
 
 
-def gate_geometry(P=PARAMS, pitch=None, open_deg=None):
-    """Hinged front gate (closed or swung open) as a list of solids: tube frame, mesh, hinges, handle, tongue."""
+def guard_closures(P=PARAMS):
+    """The three closures added by the guard fixes of 2026-10-03 (PPR-DEC-001), as a dict of shapes:
+    'opening_plates': 3 mm plates behind the front right strip, bolted through the mesh, with a 20 mm hole round the
+        12 mm release shaft and a 10 mm hole round the 6 mm pin cable (fix 2);
+    'beam_covers': a 3 mm plate each side on the top beam's top flanges, from the crank bracket's base plate to the
+        beam end, over the beam gap and the open tops of the upright channels (fix 3);
+    'bracket_covers': 2 mm sheet over the open front and back of the crank bracket (fix 4)."""
+    L = levels(P)
+    t, wire = P["CLOSE_T"], P["FINE_WIRE"]
+    lx, ys, zr = P["LOCK_X"], P["STRIP_Y"], release_z(P)
+    y0 = ys + 2 * wire                                    # inner face of the strip's mesh, in the frame's plane
+    leg = P["GUARD_ANGLE"]
+    zc = 751.0                                            # pin cable height through the strip (see components())
+    rel = box(P["GATE_HALF"] + leg, lx + 40, y0, y0 + t, zr - 30, zr + 30) - \
+        cyl_y(P["RELEASE_HOLE"] / 2, y0 - 1, y0 + t + 1, lx, zr)
+    cab = box(lx + 45, lx + 95, y0, y0 + t, zc - 25, zc + 25) - cyl_y(P["CABLE_HOLE"] / 2, y0 - 1, y0 + t + 1, lx + 70, zc)
+    x0, x1 = P["BEAM_COVER_X"]; w = P["BEAM_COVER_Y"]; tc = P["BEAM_COVER_T"]
+    covers = box(x0, x1, -w, w, L["top1"], L["top1"] + tc) + box(-x1, -x0, -w, w, L["top1"], L["top1"] + tc)
+    tb = P["BRK_COVER_T"]
+    brk = box(-85, 85, 80, 80 + tb, L["top1"] + 10, L["bracket1"]) + box(-85, 85, -80 - tb, -80, L["top1"] + 10, L["bracket1"])
+    return {"opening_plates": rel + cab, "beam_covers": covers, "bracket_covers": brk}
+
+
+def gate_geometry(P=PARAMS, every_wire=False, open_deg=None):
+    """Hinged front gate (closed or swung open) as a list of solids: tube frame, 6.35 mm mesh (2026-10-03), hinges,
+    handle, tongue. every_wire=True draws every wire (appearance model); otherwise every 8th."""
     bd = _b()
     L = levels(P)
-    pitch = pitch or P["MESH_PITCH"] * P["MESH_SHOW_EVERY"]
+    pitch, wire, _ = mesh_spec(True, P, every_wire)
     open_deg = P["GATE_OPEN_DEG"] if open_deg is None else open_deg
     gh, yf, tb = P["GATE_HALF"], P["GUARD_Y_FRONT"], P["GATE_TUBE"]
     x0, x1 = -gh + 4, gh - 4
     z0, z1 = P["GATE_Z0"] + 4, L["top1"] - 4
-    yin = yf + 3.2                                          # frame sits behind the mesh
+    yin = yf + 2 * wire                                     # frame sits behind the mesh
     fr = box(x0, x1, yin, yin + tb, z0, z1) - box(x0 + tb, x1 - tb, yin - 1, yin + tb + 1, z0 + tb, z1 - tb)
     zm = (z0 + z1) / 2
     fr += box(x0 + tb, x1 - tb, yin, yin + tb, zm - tb / 2, zm + tb / 2)            # mid rail
-    solids = [fr] + mesh_panel("xz", x0, x1, z0, z1, yf, +1, pitch, P["MESH_WIRE"])
+    solids = [fr] + mesh_panel("xz", x0, x1, z0, z1, yf, +1, pitch, wire)
     hx, hy = -gh, yf - 12                                   # hinge axis, just ahead of the mesh
     for zh in (z0 + 120, z1 - 120):
         solids.append(cyl(8, zh - 40, zh + 40, x=hx, y=hy))                          # hinge knuckle
@@ -897,6 +946,11 @@ def components(P=PARAMS):
     add("guards", "Fixed mesh guards", bd_comp(g), "#CA8A04", 16, "make", "guard", (0, 0, 0))
     add("pump_shield", "Pump slot inner shield", pump_shield(P), "#A16207", 16, "make", "guard", (0, 0, 0))
     add("gate", "Front gate", bd_comp(gate_geometry(P)), "#EAB308", 20, "make", "guard", (0, 0, 0))
+    cl = guard_closures(P)                                  # guard fixes, decided by Amish 2026-10-03
+    add("opening_plates", "Small-hole plates at the release shaft and pin cable", cl["opening_plates"], "#A16207", 16,
+        "make", "guard", (0, 0, 0))
+    add("beam_covers", "Top beam cover plates", cl["beam_covers"], "#A16207", 16, "make", "guard", (0, 0, 0))
+    add("bracket_covers", "Crank bracket covers", cl["bracket_covers"], "#A16207", 16, "make", "guard", (0, 0, 0))
 
     # ---- Interlock (BOM 21): release shaft with two universal joints, lock disc and knob; lock rod on a post
     # in the pocket in front of the set-back right guard strip; two sliders stop the rod lifting
@@ -1013,7 +1067,8 @@ CONTACTS = [
     ("nut", "stem"), ("screw", "bracket"), ("bracket", "top_beam"), ("bracket_bolts", "bracket"),
     ("pot", "fm_cup"), ("pot", "mm"), ("guards", "base_beam"), ("guards", "top_beam"), ("gate", "guards"),
     ("release", "jack"), ("lock_rod", "release"), ("gate", "sliders"), ("lock_post", "guards"),
-    ("pin_sensor", "pin"), ("pin_sensor", "top_beam"), ("pump_shield", "guards"), ("pump_shield", "base_beam"), ("qc_shelves", "qc_frame"), ("test_pots", "qc_shelves"),
+    ("pin_sensor", "pin"), ("pin_sensor", "top_beam"), ("pump_shield", "guards"), ("opening_plates", "guards"),
+    ("beam_covers", "top_beam"), ("bracket_covers", "bracket"), ("pump_shield", "base_beam"), ("qc_shelves", "qc_frame"), ("test_pots", "qc_shelves"),
     ("buckets", "qc_shelves"), ("gauge", "test_pots"),
 ]
 
@@ -1186,6 +1241,100 @@ def check_states(comps=None, verbose=True):
     return fails
 
 
+CLOSURES = ("opening_plates", "beam_covers", "bracket_covers")
+
+
+def check_guard_fixes(comps=None, verbose=True, min_clear=1.0, n=6):
+    """The guard fixes of 2026-10-03 against everything that moves, through the full cycle: the platen and all it
+    carries over the whole pressing travel (stem pinned down), the male mold slide over its whole crank lift (platen
+    down), the demolding set-up (extension swung out, carriage out, gate open), the pump handle over its stroke, the
+    lock rod up and down and the load pin pulled to its park. No moving part may come within min_clear mm of a closure.
+    The front gate (now 6.35 mm mesh) is swung from shut to 105 degrees in 15 degree steps and may not touch anything.
+    Returns a list of failures."""
+    bd = _b()
+    P = PARAMS
+    L = levels(P)
+    comps = comps or components()
+    by = {c.key: c for c in comps}
+    fixed = {k: by[k].shape for k in CLOSURES}
+    plat = WITH_PLATEN + ("springs",)
+
+    def shifted(dz_platen=0.0, lift=0.0, pin_out=0.0, rod_down=0.0):
+        out = {}
+        for k in plat + WITH_SLIDE + ("pin", "lock_rod"):
+            sh = by[k].shape
+            if k in plat:
+                sh = bd.Pos(0, 0, -dz_platen) * sh
+            if k in WITH_SLIDE:
+                sh = bd.Pos(0, 0, lift) * sh
+            if k == "pin" and pin_out:
+                sh = bd.Pos(0, -pin_out, 0) * sh
+            if k == "lock_rod" and rod_down:
+                sh = bd.Pos(0, 0, -rod_down) * sh
+            out[k] = sh
+        return out
+
+    poses = []
+    for i in range(n):
+        dz = P["PRESS_TRAVEL"] * i / (n - 1)
+        poses.append((f"platen down {dz:.0f} mm, stem pinned", shifted(dz_platen=dz)))
+    for i in range(n):
+        lift = P["CRANK_LIFT"] * i / (n - 1)
+        poses.append((f"platen down, male mold cranked up {lift:.0f} mm, pin parked",
+                      shifted(dz_platen=P["PRESS_TRAVEL"], lift=lift, pin_out=PIN_PARK, rod_down=P["LOCK_LIFT"])))
+    dm = {c.key: c.shape for c in moved(comps, "demold") if c.key in plat + WITH_SLIDE + ("pin", "lock_rod")}
+    poses.append(("demold: extension swung out, carriage out, male mold up", dm))
+    for i in range(3):
+        z = P["HANDLE_STROKE"][0] + (P["HANDLE_STROKE"][1] - P["HANDLE_STROKE"][0]) * i / 2
+        poses.append((f"pump handle at {z:.0f} mm", {"pump_handle": pump_handle(P, z)}))
+    fails = []
+    worst = {k: (1e9, "", "") for k in fixed}
+    for label, mv in poses:
+        for kf, fs in fixed.items():
+            fb = fs.bounding_box()
+            for km, ms in mv.items():
+                if _bb_apart(fb, ms.bounding_box(), worst[kf][0]):
+                    continue
+                d = fs.distance_to(ms)
+                if d < worst[kf][0]:
+                    worst[kf] = (d, by[km].name if km in by else km, label)
+    for kf, (d, who, label) in worst.items():
+        if verbose:
+            print(f"  {by[kf].name}: nearest moving part {d:.1f} mm ({who}; {label})")
+        if d < min_clear:
+            fails.append(("closure", kf, d))
+    # the release shaft turns, and the pin cable slides, in the plates' holes: running clearance all round
+    for k in ("release", "pin_sensor"):
+        d = fixed["opening_plates"].distance_to(by[k].shape)
+        if verbose:
+            print(f"  {by[k].name} in its hole in the small-hole plate: {d:.1f} mm all round")
+        if d < min_clear:
+            fails.append(("closure", k, d))
+    # the gate swung through its travel against every other component, press closed and open
+    others = {st: [c for c in cs if c.key not in ("gate", "pot")] for st, cs in
+              (("closed", comps), ("open", moved(comps, "open")))}
+    g_min = (1e9, "", 0.0, "")
+    for deg in range(0, 106, 15):
+        gate = bd_comp(gate_geometry(P, open_deg=float(deg)))
+        gc = C("gate", "Front gate", gate, "", 20, "make", "guard")
+        for st, cs in others.items():
+            ov, _ = check_fits([gc] + cs, verbose=False, contacts=())
+            ov = [o for o in ov if "gate" in o[:2]]
+            fails += [("gate", deg, o) for o in ov]
+            for c in cs:
+                if c.key in ("guards", "sliders", "lock_post", "lock_rod") or _bb_apart(gate.bounding_box(), c.shape.bounding_box(), 30):
+                    continue
+                d = min(s_.distance_to(c.shape) for s_ in _solids(gate) if not _bb_apart(s_.bounding_box(), c.shape.bounding_box(), 30)) \
+                    if any(not _bb_apart(s_.bounding_box(), c.shape.bounding_box(), 30) for s_ in _solids(gate)) else 99.0
+                if d < g_min[0]:
+                    g_min = (d, c.name, float(deg), st)
+    if verbose:
+        print(f"  front gate swung 0 to 105 deg: {sum(1 for f in fails if f[0] == 'gate')} overlaps; nearest part other than "
+              f"the guards and interlock {g_min[0]:.1f} mm ({g_min[1]}, gate at {g_min[2]:.0f} deg, press {g_min[3]})")
+        print(f"guard fix checks: {len(fails)} failures")
+    return fails
+
+
 # ---------------------------------------------------------------------------
 # ISO 13857 desk check (decided by Amish 2026-10-02: done now, signed by a competent person, a hold point
 # before any force above hand pressure). Distances are straight lines from the outer face of each opening to
@@ -1209,23 +1358,72 @@ def iso_sr(e, kind):
     return None
 
 
+def _footprint(shape, normal):
+    """The outline of a cover plate projected along its normal axis ('x', 'y' or 'z'), as a tall box."""
+    bb = shape.bounding_box()
+    lo = [bb.min.X, bb.min.Y, bb.min.Z]; hi = [bb.max.X, bb.max.Y, bb.max.Z]
+    k = "xyz".index(normal)
+    lo[k], hi[k] = -5000.0, 5000.0
+    return box(lo[0], hi[0], lo[1], hi[1], lo[2], hi[2])
+
+
 def iso_openings(P=PARAMS):
-    """Every guard opening as (name, kind, e, slab), slab a thin box on the opening's outer face."""
+    """Every guard opening other than the mesh panels, as dicts: name, kind, e (mm), slab (a thin box on the opening's
+    outer face) and how it is closed. Openings closed by the guard fixes of 2026-10-03 are measured as they now stand:
+    e is the clear opening left after the closure (0 when the closure covers it completely) and the slab is the
+    closure's outer face, so the distance is from what can be touched to the nearest moving part."""
     L = levels(P)
     gx = P["GUARD_X"]; sw, sz0, sz1 = P["PUMP_SLOT"]; py = pump_slot_y(P)
     lx, ys, zr = P["LOCK_X"], P["STRIP_Y"], release_z(P)
     g2, top1 = P["BEAM_GAP"] / 2, L["top1"]
-    s2 = P["STEM"] / 2
-    xs, ub, bl = P["SPAN"] / 2, SECTIONS[P["UPRIGHT_SEC"]]["b"], P["BEAM_L"] / 2
-    out = [("Pump slot, right side guard", "slot", sw, box(gx - 0.5, gx, py - sw / 2, py + sw / 2, sz0, sz1)),
-           ("Release shaft opening, front right strip (16 mm round the 12 mm shaft)", "slot", 22 - 6,
-            box(lx - 22, lx + 22, ys - 0.5, ys, zr - 22, zr + 22)),
-           ("Pin cable opening, front right strip", "square", 40, box(lx + 50, lx + 90, ys - 0.5, ys, 731, 771))]
-    for sx in (-1, 1):                                        # top beam gap, open from above between the parts in it
+    xs, u, bl = P["SPAN"] / 2, SECTIONS[P["UPRIGHT_SEC"]], P["BEAM_L"] / 2
+    cl = guard_closures(P)
+    y0 = ys + 2 * P["FINE_WIRE"]                            # outer face of the small-hole plates
+    out = [dict(name="Pump slot, right side guard", kind="slot", e=sw, slab=box(gx - 0.5, gx, py - sw / 2, py + sw / 2, sz0, sz1),
+                closed="fixed inner shield")]
+    # (2) small-hole plates: the gap left round the shaft and the cable is the opening
+    out.append(dict(name="Release shaft opening, front right strip (20 mm hole round the 12 mm shaft)", kind="slot",
+                    e=(P["RELEASE_HOLE"] - 12.0) / 2, slab=cyl_y(P["RELEASE_HOLE"] / 2, y0, y0 + 0.5, lx, zr),
+                    closed="small-hole plate", was="44 mm square, slot-like gaps of 16 mm"))
+    out.append(dict(name="Pin cable opening, front right strip (10 mm hole round the 6 mm cable)", kind="slot",
+                    e=(P["CABLE_HOLE"] - 6.0) / 2, slab=cyl_y(P["CABLE_HOLE"] / 2, y0, y0 + 0.5, lx + 70, 751.0),
+                    closed="grommet plate", was="40 mm square"))
+    # (3) top beam: the gap open from above, and the open tops of the upright channels (found on 2026-10-03)
+    cov = cl["beam_covers"]; fp = _footprint(cov, "z"); tc = P["BEAM_COVER_T"]
+    for sx in (-1, 1):
         side = "right" if sx > 0 else "left"
-        for x0_, x1_ in ((100.0, xs - ub), (xs + ub, bl - P["END_BLOCK_L"])):
-            out.append((f"Top beam gap, {side}, {x0_:.0f} to {x1_:.0f} mm from the middle", "square", min(x1_ - x0_, 2 * g2),
-                        box(*sorted((sx * x0_, sx * x1_)), -g2, g2, top1 - 0.5, top1)))
+        spans = [("Top beam gap", 100.0, xs - u["b"], -g2, g2),
+                 ("Upright channel top, inner", xs - u["b"], xs - u["tw"], -u["h"] / 2 + u["tf"], u["h"] / 2 - u["tf"]),
+                 ("Upright channel top, outer", xs + u["tw"], xs + u["b"], -u["h"] / 2 + u["tf"], u["h"] / 2 - u["tf"]),
+                 ("Top beam gap", xs + u["b"], bl - P["END_BLOCK_L"], -g2, g2)]
+        for nm, x0_, x1_, ya, yb in spans:
+            xa, xb = sorted((sx * x0_, sx * x1_))
+            hole = box(xa, xb, ya, yb, top1 - 0.5, top1)
+            left = hole - fp
+            open_e = min(x1_ - x0_, yb - ya)
+            rem = 0.0 if (left is None or left.volume < 1e-3) else open_e
+            out.append(dict(name=f"{nm}, {side}, {x0_:.0f} to {x1_:.0f} mm from the middle", kind="square", e=rem,
+                            slab=box(xa, xb, ya, yb, top1 + tc - 0.5, top1 + tc) if rem == 0 else hole,
+                            closed="3 mm cover plate", was=f"{x1_ - x0_:.0f} x {yb - ya:.0f} mm, open from above"))
+    # (4) crank bracket: open front and back between the side plates, under the top plate
+    cov = cl["bracket_covers"]; fp = _footprint(cov, "y"); tb = P["BRK_COVER_T"]
+    for sy, side in ((-1, "front"), (1, "back")):
+        hole = box(-75, 75, *sorted((sy * 80, sy * 80.5)), top1 + 10, L["bracket0"])
+        left = hole - fp
+        rem = 0.0 if (left is None or left.volume < 1e-3) else 150.0
+        out.append(dict(name=f"Crank bracket, {side}", kind="square", e=rem,
+                        slab=box(-75, 75, *sorted((sy * (80 + tb), sy * (80 + tb - 0.5))), top1 + 10, L["bracket0"]) if rem == 0 else hole,
+                        closed="2 mm sheet cover", was=f"150 x {L['bracket0'] - top1 - 10:.0f} mm, open"))
+    # gaps round the panels (checked from 2026-10-03): the roof's cut-out round the top beam and the gate's edges
+    zr_ = top1 + 3.2 + P["GUARD_ANGLE"]
+    y_beam = g2 + SECTIONS[P["BEAM_SEC"]]["b"]
+    ring = box(-bl - 5, bl + 5, -y_beam - 5, y_beam + 5, zr_ - 0.5, zr_) - box(-bl, bl, -y_beam, y_beam, zr_ - 1, zr_ + 1)
+    out.append(dict(name="Roof cut-out round the top beam (5 mm all round)", kind="slot", e=5.0, slab=ring, closed=None))
+    gh, yf = P["GATE_HALF"], P["GUARD_Y_FRONT"]
+    gz0, gz1 = P["GATE_Z0"], top1
+    edges = (box(-gh, -gh + 4, yf, yf + 0.5, gz0, gz1) + box(gh - 4, gh, yf, yf + 0.5, gz0, gz1) +
+             box(-gh, gh, yf, yf + 0.5, gz0, gz0 + 4) + box(-gh, gh, yf, yf + 0.5, gz1 - 4, gz1))
+    out.append(dict(name="Gate edge gaps (4 mm at the sides, bottom and top)", kind="slot", e=4.0, slab=edges, closed=None))
     return out
 
 
@@ -1250,7 +1448,6 @@ def iso13857_check(comps=None, verbose=True):
                     best = (d, f"{c.name}, moved by the {HAZARD[c.key]}", st)
         return best
     rows = []
-    e_mesh = P["MESH_PITCH"] - P["MESH_WIRE"]
     for pnl in guard_layout(P):
         a0, a1, b0, b1, c = pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"]
         if pnl["plane"] == "yz":
@@ -1265,26 +1462,32 @@ def iso13857_check(comps=None, verbose=True):
         for h in holes:
             slab -= h
         d, who, st = nearest(slab)
-        rows.append((f"Mesh, {pnl['name'].lower()}", "square", e_mesh, iso_sr(e_mesh, "square"), d, who, st))
+        _, wire, e_mesh = mesh_spec(pnl["fine"], P)
+        rows.append(dict(item=f"Mesh, {pnl['name'].lower()}", kind="square", e=e_mesh, d=d, part=who, state=st,
+                         closed=f"{(P['FINE_PITCH'] if pnl['fine'] else P['MESH_PITCH']):.2f} mm mesh, {wire:.1f} mm wire"))
     gh, yf, z1 = P["GATE_HALF"], P["GUARD_Y_FRONT"], L["top1"]
     gate_slab = box(-gh + 4, gh - 4, yf, yf + 0.5, P["GATE_Z0"] + 4, z1 - 4)
     d, who, st = nearest(gate_slab)
-    rows.append(("Mesh, front gate", "square", e_mesh, iso_sr(e_mesh, "square"), d, who, st))
-    for name, kind, e, slab in iso_openings(P):
-        d, who, st = nearest(slab)
-        rows.append((name, kind, e, iso_sr(e, kind), d, who, st))
+    _, wire, e_gate = mesh_spec(True, P)
+    rows.append(dict(item="Mesh, front gate", kind="square", e=e_gate, d=d, part=who, state=st,
+                     closed=f"{P['FINE_PITCH']:.2f} mm mesh, {wire:.1f} mm wire"))
+    for op in iso_openings(P):
+        d, who, st = nearest(op["slab"])
+        rows.append(dict(item=op["name"], kind=op["kind"], e=op["e"], d=d, part=who, state=st, closed=op.get("closed"),
+                         was=op.get("was")))
     # the pump slot opens only into the shield: no moving part may enter the space inside it in any position
     space = pump_shield(P, interior=True)
     inside = [c.name for st, cs in haz.items() for c in cs
               if not _bb_apart(space.bounding_box(), c.shape.bounding_box()) and ((space & c.shape) is not None)
               and (space & c.shape).volume > 1.0]
     out = []
-    for name, kind, e, sr, d, who, st in rows:
-        ok = d >= sr
-        if name.startswith("Pump slot"):
-            ok = not inside
-            who = "none inside the shield" if ok else ", ".join(sorted(set(inside)))
-        out.append(dict(item=name, kind=kind, e=e, sr=sr, d=d, part=who, state=st, ok=ok))
+    for r in rows:
+        r["sr"] = iso_sr(r["e"], r["kind"])
+        r["ok"] = r["d"] >= r["sr"]
+        if r["item"].startswith("Pump slot"):
+            r["ok"] = not inside
+            r["part"] = "none inside the shield" if r["ok"] else ", ".join(sorted(set(inside)))
+        out.append(r)
     # the pump slot: what can be reached through it is inside the shield
     shield = next(c.shape for c in comps if c.key == "pump_shield")
     jack = next(c.shape for c in comps if c.key == "jack")
@@ -1308,13 +1511,17 @@ def iso13857_check(comps=None, verbose=True):
                       f"inner shield; moving parts inside it: {r['part']} (only the pump handle and the jack's pump socket): "
                       f"{'meets' if r['ok'] else 'DOES NOT MEET'}")
                 continue
-            print(f"  {r['item']}: {r['kind']} e {r['e']:.1f} mm, sr needed {r['sr']} mm; nearest moving part "
-                  f"{r['d']:.0f} mm ({r['part']}, press {r['state']}): {'meets' if r['ok'] else 'DOES NOT MEET'}")
+            how = f" [{r['closed']}{'; was ' + r['was'] if r.get('was') else ''}]" if r.get("closed") else ""
+            print(f"  {r['item']}: {r['kind']} e {r['e']:.2f} mm, sr needed {r['sr']} mm; nearest moving part "
+                  f"{r['d']:.0f} mm ({r['part']}, press {r['state']}): {'meets' if r['ok'] else 'DOES NOT MEET'}{how}")
         print(f"  pump slot shield: inner end {extra['shield_jack_gap']:.1f} mm off the jack body; nearest moving part outside "
               f"the shield {extra['shield_to_hazard']:.0f} mm from it")
         print(f"  pump handle passing the slot frame: {extra['handle_pass']:.1f} mm at the stroke ends")
-        print(f"  crank: stem cap plate {extra['cap_to_bracket']:.0f} mm under the bracket top at full lift; male flange "
-              f"{extra['flange_to_beam']:.0f} mm under the top beam at full lift")
+        print(f"  crank: stem cap plate {extra['cap_to_bracket']:.0f} mm under the bracket top at full lift, now inside the "
+              f"bracket closed by its covers; male flange {extra['flange_to_beam']:.0f} mm under the top beam at full lift, "
+              f"under the cover plates")
+        n_ok = sum(r["ok"] for r in out)
+        print(f"  openings: {len(out)}; meet {n_ok}; do not meet {len(out) - n_ok}")
     return out, extra
 
 
@@ -1328,6 +1535,13 @@ if __name__ == "__main__":
     if "--check" in sys.argv:
         ov, gp = check_fits(comps)
         fl = check_states(comps)
+        print("guard fixes of 2026-10-03 through the full stroke and gate travel")
+        fl += check_guard_fixes(comps)
+        iso, _ = iso13857_check(comps, verbose=False)
+        short = [r["item"] for r in iso if not r["ok"]]
+        print(f"ISO 13857 desk check on paper: {len(iso)} openings, {len(iso) - len(short)} meet, {len(short)} do not"
+              + ("" if not short else ": " + "; ".join(short)))
+        fl += [("iso", x) for x in short]
         print("constructability checks:", "PASS" if not (ov or gp or fl) else "FAIL")
         sys.exit(1 if (ov or gp or fl) else 0)
     root = Path(__file__).resolve().parents[1]

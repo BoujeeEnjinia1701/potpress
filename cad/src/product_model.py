@@ -5,8 +5,10 @@ cad/src/model.py components() is used as it is (frame, feet with studs and floor
 bolts, jack plate, the bottle jack turned 25 degrees with its pump handle, platen, rails with the folding
 extension and tipping pins, carriage with hooks and lift handles, female mold on its steel base plate with
 dowels, the open-topped male mold with bushes, stem, load pin, captive nut, crank bracket and handwheel,
-the mechanical interlock, the fixed inner shield behind the pump slot, and the QC rack). Only the look is
-added: the guard mesh drawn wire by wire at the specified 12.7 mm pitch (model.py draws every 8th wire),
+the mechanical interlock, the fixed inner shield behind the pump slot, the guard fixes of 2026-10-03 (small-hole
+plates at the release shaft and pin cable, cover plates on the top beam, covers on the crank bracket), and the QC
+rack). Only the look is added: the guard mesh drawn wire by wire at the specified pitch, 12.7 mm on the sides and
+rear and 6.35 mm on the front strips, lower front panel, gate and roof (model.py draws every 8th wire),
 coiled return springs in place of the model's spring envelopes, a polished jack ram, a nameplate and a load
 rating label on the top crossbeam, a hazard label on the front right strip, a workshop floor, an
 anti-fatigue mat and a 1.75 m mannequin for scale standing beside the press.
@@ -136,6 +138,9 @@ LOOK = {
     "lock_rod": ("Lock rod", C_ZINC, "metal", "guard"),
     "sliders": ("Interlock sliders", C_INTERLOCK, "painted", "guard"),
     "pin_sensor": ("Pin-presence plunger and cable", C_BLACK, "plastic", "guard"),
+    "opening_plates": ("Small-hole plates, release shaft and pin cable", C_GUARD, "painted", "guard"),
+    "beam_covers": ("Top beam cover plates", C_GUARD, "painted", "guard"),
+    "bracket_covers": ("Crank bracket covers (2 mm sheet)", C_GUARD, "painted", "guard"),
 }
 SKIP = {"anchors", "springs", "jack", "guards", "gate"}      # below the floor, or redrawn for the look below
 
@@ -216,21 +221,21 @@ def product_parts(P=PARAMS):
     add("Load rating label print", rink, C_INK, "paper", 3, "shell")
 
     # ------------------------------------------------------------ guards with every wire, and the gate shut and open
-    gs = guard_solids(P, pitch=P["MESH_PITCH"])
+    gs = guard_solids(P, every_wire=True)
     wire = P["MESH_WIRE"] + 0.01
     thin = lambda s_: min(s_.bounding_box().size.X, s_.bounding_box().size.Y, s_.bounding_box().size.Z) <= wire   # noqa: E731
     mesh = [s_ for s_ in gs if thin(s_) and max(s_.bounding_box().size.X, s_.bounding_box().size.Y,
                                                  s_.bounding_box().size.Z) > 30]
     frames = [s_ for s_ in gs if s_ not in mesh]
     add("Guard frames, standoffs and slot frame (powder-coated)", _comp(frames), C_GUARD, "painted", 16, "guard")
-    add("Guard mesh (12.7 mm welded, galvanized)", _comp(mesh), C_MESH, "metal", 16, "guard")
+    add("Guard mesh (12.7 mm sides and rear, 6.35 mm front and roof; galvanized)", _comp(mesh), C_MESH, "metal", 16, "guard")
     for state, deg in (("gate_closed", 0.0), ("gate_open", 105.0)):
-        gg = gate_geometry(P, pitch=P["MESH_PITCH"], open_deg=deg)
+        gg = gate_geometry(P, every_wire=True, open_deg=deg)
         gmesh = [s_ for s_ in gg if thin(s_)]
         grest = [s_ for s_ in gg if not thin(s_)]
         tag = "" if deg == 0 else ", open"
         add("Front gate frame, hinges, handle and tongue" + tag, _comp(grest), C_GUARD, "painted", 20, state)
-        add("Front gate mesh" + tag, _comp(gmesh), C_MESH, "metal", 20, state)
+        add("Front gate mesh (6.35 mm)" + tag, _comp(gmesh), C_MESH, "metal", 20, state)
 
     # hazard label on the front right strip (set back for the interlock), clear of the interlock post
     ys, gx = P["STRIP_Y"], P["GUARD_X"]

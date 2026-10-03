@@ -3,9 +3,9 @@ doc_id: PPR-DEC-001
 title: PotPress design decisions register
 project: PotPress
 doc_type: Design decisions register
-version: "0.4"
+version: "0.5"
 status: Draft
-date: '2026-10-02'
+date: '2026-10-03'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -25,6 +25,10 @@ revisions:
   date: '2026-10-02'
   author: Amish Chadha
   change: 'Approved follow-ups carried out: four guard changes found by the ISO 13857 desk check added as open decisions; handle stroke added to the items to confirm; value engineering at USD 1,149'
+- version: "0.5"
+  date: '2026-10-03'
+  author: Amish Chadha
+  change: 'Amish decided the four guard fixes (2026-10-03); moved to decisions made; value engineering at USD 1,169'
 ---
 
 # PotPress design decisions register
@@ -33,14 +37,7 @@ Every design decision still to be made, and every decision made, in one place. E
 
 ## Open decisions
 
-The five decisions of 2026-10-02 are in the table of decisions made. The ISO 13857 desk check that Amish decided should be done now (PPR-CAL-001, section 15, 2026-10-02) found openings that fall short of the standard; the changes that close them are proposed, awaiting Amish.
-
-| # | What is to be decided | Options | Recommendation | What it affects in the build | Source |
-| --- | --- | --- | --- | --- | --- |
-| 1 | Front and roof mesh: the 12.7 mm mesh on the front strips, lower front panel, front gate and roof is 39 to 77 mm from moving parts, against 80 mm needed | (a) 6.35 mm (1/4 in) welded mesh, 0.9 mm wire, on those panels (needs 5 mm); (b) move the front panels out by 41 mm (breaks the 0.7 m depth of R11) | (a); about USD 8 more mesh (estimate) | Guard panels, gate, BOM items 16 and 20 | PPR-CAL-001, section 15 |
-| 2 | Release shaft and pin cable openings in the front right strip (44 and 40 mm) are too large for their distance from the rail extension and carriage | (a) a bolted plate with a 20 mm hole round the 12 mm shaft and a grommet plate with a 10 mm hole for the cable, gaps of 4 mm or less; (b) move the openings | (a); about USD 2 (estimate) | Front right strip, BOM item 16 | PPR-CAL-001, section 15 |
-| 3 | Top beam gap: open from above between the stem guides, the uprights and the end blocks (104 x 150 and 104 x 60 mm), reaching the stem and the male flange | (a) 3 mm steel cover plates bolted to the top flanges over the four openings; (b) extend the roof mesh down into the gap | (a); about USD 3 (estimate) | Top crossbeam, BOM item 3 or 16 | PPR-CAL-001, section 15 |
-| 4 | Crank bracket open at the front and back: the stem's cap plate rises to 10 mm under the bracket's top plate | (a) mesh or sheet covers on the bracket's front and back; (b) accept it as worked only by the operator at the handwheel | (a); about USD 2 (estimate) | Crank bracket, BOM item 10 | PPR-CAL-001, section 15 |
+None. The four guard fixes found by the ISO 13857 desk check were decided by Amish on 2026-10-03 and are in the table of decisions made. The desk check, rerun with them in the model, finds every opening meets ISO 13857 Table 4 on paper (PPR-CAL-001 v0.10, section 15); it still needs a competent person's signature, which is a hold point already decided on 2026-10-02.
 
 ## To confirm when parts are bought
 
@@ -52,10 +49,10 @@ The five decisions of 2026-10-02 are in the table of decisions made. The ISO 138
 
 ## Value engineering
 
-Value-engineering target: USD 1,060 (a hypothetical control target, not a limit). Estimated cost of the constructable design: USD 1,149 (USD 89 over the target). Main cost drivers and savings worth trying:
+Value-engineering target: USD 1,060 (a hypothetical control target, not a limit). Estimated cost of the constructable design: USD 1,169 (USD 109 over the target). Main cost drivers and savings worth trying:
 
-- The press alone is USD 1,066 and the QC rack USD 83. The USD 1,060 target was set on 2026-09-27 to cover the whole BOM, QC rack included, so the like-for-like gap is USD 89.
-- The fixed inner shield behind the pump slot (decided 2026-10-02) added USD 6. The guard changes proposed above would add about USD 15 (estimate); they are a safety requirement, so savings are sought elsewhere.
+- The press alone is USD 1,086 and the QC rack USD 83. The USD 1,060 target was set on 2026-09-27 to cover the whole BOM, QC rack included, so the like-for-like gap is USD 109.
+- The fixed inner shield behind the pump slot (decided 2026-10-02) added USD 6. The four guard fixes (decided 2026-10-03, cost accepted by Amish) added USD 20 against the USD 15 estimated: finer mesh USD 8 (items 16 and 20), small-hole plates USD 2, top beam cover plates USD 7 (longer than estimated, to close the upright channel tops too), crank bracket covers USD 4. They are a safety requirement, so savings are sought elsewhere.
 - Making the design constructable added USD 92 (PPR-DDR-004): the steel base plate under the female mold, the thicker 450 mm mold flanges, dowels and bushes (items 8 and 9, USD 44), floor anchors, the bolted jack plate and heavier feet (item 1, USD 22), the adapter disc and nut box (item 10, USD 9) and interlock details (item 21, USD 7).
 - The fixed guards, front gate and interlock added USD 67 earlier (PPR-DDR-003); they are a safety requirement, so savings are sought elsewhere.
 - Savings worth trying: cheaper dowels and bushes, and plywood QC rack shelves cut from offcuts.
@@ -72,3 +69,7 @@ Value-engineering target: USD 1,060 (a hypothetical control target, not a limit)
 | 2026-10-02 | Demolding: keep the tipping pins for the prototype; the potters at the first partner factory confirm the method, and if they object the pot is lifted out in its liner instead | Amish: "i approve your recommendations for all 555 open decisions." | PPR-DDR-004, Q5 |
 | 2026-10-02 | Pressing force: every structural check stays at the full 20 t jack; the working force is a process setting found in pressing trials with a partner factory, starting near 2 t and stepping up | Amish: "i approve your recommendations for all 555 open decisions." | PPR-DDR-001, item 9 (as cited in the register); PPR-CAL-001, section 3 |
 | 2026-10-02 | Guard openings: the ISO 13857 desk check is done now rather than at TRL 4, signed by a competent person, and is a hold point before any force above hand pressure | Amish: "i approve your recommendations for all 555 open decisions." | PPR-DDR-003; PPR-DDR-004, Q2 |
+| 2026-10-03 | Front and roof mesh: 6.35 mm (1/4 in) welded mesh, 0.9 mm wire, on the front strips, lower front panel, front gate and roof (option (a)); the side and rear guards keep the 12.7 mm mesh | Amish: "PotPress - move forward with the four guard fixes. I accept the cost." | PPR-CAL-001, section 15; BOM items 16 and 20 |
+| 2026-10-03 | Release shaft and pin cable openings: bolted plates behind the front right strip with a 20 mm hole round the 12 mm shaft and a 10 mm grommeted hole round the 6 mm cable (option (a)) | Amish: "PotPress - move forward with the four guard fixes. I accept the cost." | PPR-CAL-001, section 15; BOM item 16 |
+| 2026-10-03 | Top beam gap: 3 mm steel cover plates bolted to the top flanges (option (a)); as modelled, one plate each side from the crank bracket to the beam end, which also closes the open tops of the upright channels | Amish: "PotPress - move forward with the four guard fixes. I accept the cost." | PPR-CAL-001, section 15; BOM item 16 |
+| 2026-10-03 | Crank bracket: 2 mm sheet covers on its open front and back (option (a)); costed with the guards, BOM item 16 | Amish: "PotPress - move forward with the four guard fixes. I accept the cost." | PPR-CAL-001, section 15; BOM item 16 |

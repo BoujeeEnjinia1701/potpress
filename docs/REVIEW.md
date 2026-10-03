@@ -1,5 +1,41 @@
 # Review note: PotPress
 
+## Session 2026-10-03: four guard fixes made
+
+Authority: Amish, 2026-10-03: "PotPress - move forward with the four guard fixes. I accept the cost." The four fixes were open decisions 1 to 4 in PPR-DEC-001 v0.4, proposed by the ISO 13857 desk check of 2026-10-02. `trl` and `trl_target` stay at 3. No commit or push.
+
+### What was done
+
+- **Model** (`cad/src/model.py`): (1) 6.35 mm (1/4 in) welded mesh, 0.9 mm wire, on the front strips, lower front panel, front gate and roof (`FINE_*` parameters, `mesh_spec()`; sides and rear keep 12.7 mm; frames sit directly behind each mesh); (2) small-hole plates behind the front right strip, a 20 mm hole round the 12 mm release shaft and a 10 mm grommeted hole round the 6 mm pin cable; (3) a 3 mm cover plate 320 x 180 mm each side of the top beam, from the crank bracket to the beam end; (4) 2 mm sheet covers on the front and back of the crank bracket (`guard_closures()`; components `opening_plates`, `beam_covers`, `bracket_covers`, all BOM 16). New checks in `--check`: `check_guard_fixes()` moves the platen over its full 110 mm travel, the male mold over its full 200 mm crank lift, the demold set-up and the pump handle stroke against the new parts, and swings the gate 0 to 105 degrees in 15 degree steps; and the ISO 13857 desk check must pass for every opening. STEP and STL re-exported. `guard_solids()` and `gate_geometry()` now take `every_wire=True` in place of `pitch=`.
+- **Found while modelling:** each upright is two channels back to back whose 44 x 83 mm insides were open from above, between the beam gap openings; the v0.9 desk check missed them. The cover plates were lengthened to run over the upright tops to close them (this is why fix 3 costs $7, not about $3). The desk check now also lists the crank bracket front and back, the roof's 5 mm cut-out round the beam and the gate's 4 mm edge gaps.
+- **BOM** (`bom/bom.csv`, `bom/bom-notes.md`): item 16 $73 to $90, item 20 $22 to $25, with the basis in each line (6.35 mm mesh at about $10.50/m² against $6/m², plates and covers by model mass at $1.30/kg plus bolts).
+- **Documents:** PPR-CAL-001 v0.10 (section 15 rerun, sections 10, 12, 13, 14; `sizing.py` prices the fixes and prints the guard mass change); PPR-REQ-001 v0.12; PPR-PRC-001 v0.11; PPR-BLD-001 v0.6 (sections 3.10 and 3.11, steps 14 to 16, checks table); PPR-DEC-001 v0.5; README cost and desk-check sentences.
+- **Drawings and pictures regenerated:** GA PPR-DWG-001 Rev P7 (isometric moved down 7 mm so the seventh revision row no longer clips it); PPR-DWG-110 Rev P3; PPR-DWG-111 Rev P2; build plan `overview.png`, `joint-06.png` (grommet plate added), `step-14.png` (plates and covers shown pulled out), `step-15.png`, `step-16.png`; concept `hero.png`, `exploded.png`, `concept-blueprint.*` (Rev P3), `model.glb` and `viewer.html`. Looked at: GA, DWG-110, DWG-111, overview, joint 6, step 14, hero and the blueprint. `cutaway.png` and `flow.png` are unchanged (guards are left out of the cutaway). The blueprint's last note line fell behind the title block on first draw (the text check did not catch it); the guard notes were merged into one line and the isometric moved below the third revision row. `step-15.png` and `step-16.png` were regenerated but not looked at. `python3 .kit/drawing.py --check-text` passes on every drawing and the blueprint; `python3 .kit/render.py` then `--check`: no FAIL.
+- **Appearance model** (`cad/src/product_model.py`): the plates and covers added to the guard group; mesh drawn every wire at 12.7 mm on the sides and rear and 6.35 mm on the front, gate and roof. Render scenes re-exported to `/home/claude/renders/potpress/` (hero, exploded, lineup, gate-open, jobs). `.kit/export_views.py` cannot carry a manual camera option, so the hero's `--focus` (on the guards, handwheel, mat and person, from the 2026-10-02 render session) is still not in `potpress__jobs.json` and must be passed by hand when the hero is re-rendered on the Mac. Photoreal renders and cards are stale until then.
+
+### Key results
+
+- **Desk check (ISO 13857:2019 Table 4, as read), rerun for every opening:** 23 openings, **all meet on paper**. Front strips, gate, lower front and roof: 5.45 mm clear mesh needs 5 mm, nearest moving part 39 to 77 mm. Release shaft: 4 mm gap needs 2 mm, 80 mm found. Pin cable: 2 mm gap, 176 mm. Top beam gap, upright channel tops and crank bracket: covered (0 mm opening), 36 to 217 mm from moving parts. Roof cut-out 5 mm slot needs 10 mm, 72 mm found. Gate edges 4 mm, 44 mm. Side and rear mesh and the shielded pump slot unchanged (meet).
+- **Motion checks:** nearest moving part 46 mm from the small-hole plates (lock rod), 55 mm from the beam covers and 35 mm from the bracket covers (stem); release shaft 4.0 mm and cable 2.0 mm all round in their holes; gate 0 overlaps over its swing, 23 mm from the folded rail extension. `model.py --check`: 55 components, 0 overlaps, 0 missing contacts, all state checks, guard fix checks and the desk check pass: **PASS**.
+- **R9: not met on paper to met on paper.** The desk check is still **not signed**; the competent-person signature block is left blank, and signing stays a hold point before any force above hand pressure (S8).
+- **Cost:** Value-engineering target: USD 1,060. Estimated cost of the constructable design: USD 1,169 (USD 109 over the target). The fixes add $20, against the "about USD 15" estimate Amish accepted; the $5 difference is the longer cover plates. `budget_usd` unchanged.
+- **Mass:** press 344 kg unchanged; guards about 51 kg (was about 48): plates and covers +4.4 kg from the model, finer mesh -1.6 kg. Heaviest part still the platen, 39.6 kg.
+- Summary: 1 over the value-engineering target (R10), 2 at risk (R2, R7), 9 met on paper.
+
+### Proposed, awaiting Amish
+
+None new. Note for Amish: the fixes came in $5 over the estimate he accepted (see Cost).
+
+### Safety concerns
+
+- The desk check is unsigned; nothing above hand pressure until a competent person signs it (S8).
+- 0.9 mm wire mesh is light. The competent person should confirm it keeps its shape when pushed (ISO 14120), since the front right strip stands only 39 mm from the folding rail extension; heavier wire of the same opening would be the fallback (not proposed here).
+- The top beam cover plates and crank bracket covers are removable guards held by bolts; the build plan says to remove them only with the press at rest and the release open.
+
+### Recommended next step
+
+A competent person reviews and signs the desk check; render the hero, lineup and gate-open views on the Mac (hero with `--focus`).
+
 ## Session 2026-10-02: Photoreal renders redone on the constructable design
 
 Amish, 2026-10-02: "Photoreal renders are out of date in most repos ... COMPLETE THESE". Rendered with Blender Cycles on Amish's Mac (batch F1) from the scenes exported from `cad/src/product_model.py`, captioned with `.kit/photo_caption.py`; `media/card.png` and `media/social-preview.png` regenerated with `.kit/cards.py`. Each raw render was looked at once. No commit or push; `trl` unchanged.
@@ -516,3 +552,7 @@ This is an appearance model only: no tolerances, no fabrication detail, CONCEPT,
 - Kit 1.5.0 synced: STANDARDS v1.5 (sections 12 to 15: product renders, storefront images and image quality, public release, authorship and signing), `.kit/cards.py`, `.kit/image_qc.py`, `.kit/release_gate.py`, issue templates, and the `/render-product` and `/release` commands. `CLAUDE.md` now matches `.kit/CLAUDE.md`.
 - Every `media/render-*.png` recaptioned from its original render with the new layout: the title, concept label and repository sit in a band above the render and the view note in a band below it, each line wrapped to the image width, so no text overlaps other text or the render or runs off the image. `media/card.png` and `media/social-preview.png` regenerated with the same rules.
 - `python .kit/image_qc.py` and `python .kit/release_gate.py` pass. trl stays 3.
+
+## 2026-10-02: photoreal renders redone on the constructable design
+
+Rendered with Blender Cycles on Amish's Mac from the updated appearance model; captioned with `.kit/photo_caption.py`; `media/card.png` and `media/social-preview.png` regenerated with `.kit/cards.py`. Views: hero, exploded, lineup, gate-open. image_qc passes. Appearance deviations are those logged above as proposed, awaiting Amish.
