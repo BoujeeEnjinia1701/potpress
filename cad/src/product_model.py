@@ -1,24 +1,24 @@
-"""PotPress product appearance model (build123d), TRL 3, constructable design (PPR-DDR-004).
+"""PotPress product appearance model for photoreal renders (STANDARDS sections 12 and 24), TRL 3.
 
-Finished-product look for photoreal renders, built from the constructable model: every component of
-cad/src/model.py components() is used as it is (frame, feet with studs and floor-anchor tubes, M16 joint
-bolts, jack plate, the bottle jack turned 25 degrees with its pump handle, platen, rails with the folding
-extension and tipping pins, carriage with hooks and lift handles, female mold on its steel base plate with
-dowels, the open-topped male mold with bushes, stem, load pin, captive nut, crank bracket and handwheel,
-the mechanical interlock, the fixed inner shield behind the pump slot, the guard fixes of 2026-10-03 (small-hole
-plates at the release shaft and pin cable, cover plates on the top beam, covers on the crank bracket), and the QC
-rack). Only the look is added: the guard mesh drawn wire by wire at the specified pitch, 12.7 mm on the sides and
-rear and 6.35 mm on the front strips, lower front panel, gate and roof (model.py draws every 8th wire),
-coiled return springs in place of the model's spring envelopes, a polished jack ram, a nameplate and a load
-rating label on the top crossbeam, a hazard label on the front right strip, a workshop floor, an
-anti-fatigue mat and a 1.75 m mannequin for scale standing beside the press.
+Every product part is components(CHOSEN) from cad/src/model.py as it is (kit 1.9, detail level D3): frame, feet
+with their M12 studs and floor anchors, every M16 10.9 joint bolt, washer and nut, jack plate and bolts, the bottle
+jack turned 25 degrees with its pump handle, platen, rails with the folding extension and tipping pins, carriage,
+female mold on its steel base plate with dowels and countersunk screws, the open-topped male mold with bushes,
+stem on its adapter disc, load pin, captive nut, crank bracket and handwheel, the mechanical interlock, the pump
+slot shield, small-hole plates, cover plates and their screws, every weld bead, and the QC rack. Only the look is
+added: the guard and gate mesh drawn wire by wire at the specified pitch (model.py draws every 8th wire, decided
+by Amish 2026-10-03), close-wound coils in place of the return spring envelopes, a polished jack ram, a nameplate
+and load rating label on the top crossbeam and a hazard label on the front right strip. The site is added as
+context parts: the concrete floor slab of a filter workshop, a blockwork back wall and two steel posts of the
+open-sided shed, a pallet of clay mix, an anti-fatigue mat and a 1.75 m mannequin standing on the floor.
+Ground level is model z = 0 (photoreal --ground-z=0); every site part reaches below it.
 APPEARANCE MODEL ONLY: no tolerances, no fabrication detail. CONCEPT, NOT FOR FABRICATION.
 
-Axes as model.py: X across the press, Y front (-Y, operator side) to back, Z up from the floor. The press
-is closed at the end of a pressing stroke with the rail extension folded. Groups: "shell" (the press),
-"internal" (the pressed pot), "guard" (fixed guards, pump slot shield, interlock, labels on the guards),
-"gate_closed" and "gate_open" (the front gate shut or swung open 105 degrees), "accessory" (QC rack) and
-"context" (floor, mat, mannequin).
+Axes as model.py: X across the press, Y front (-Y, operator side) to back, Z up from the floor. The press is
+closed at the end of a pressing stroke with the rail extension folded. Groups: "shell" (the press), "internal"
+(the pressed pot), "guard" (fixed guards, shield, plates, covers, interlock, labels on the guards), "gate_closed"
+and "gate_open" (the front gate shut or swung open 105 degrees), "accessory" (QC rack) and "context" (site and
+mannequin).
 
     from product_model import product_parts
     for p in product_parts(): print(p["name"], p["group"], p["material"])
@@ -29,127 +29,49 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parents[1] / ".kit")]
 
-from build123d import Axis, Compound, Cylinder, Pos, RegularPolygon, Rot, extrude, fillet  # noqa: E402
-from model import (BOM_NAMES, PARAMS, SECTIONS, box, components, cyl, gate_geometry, guard_solids,  # noqa: E402
-                   levels)
+from build123d import Axis, Compound, Pos, RegularPolygon, Rot, extrude, fillet  # noqa: E402
+import model as M  # noqa: E402
+from model import BOM_NAMES, PARAMS, SECTIONS, box, cyl, gate_geometry, guard_pieces, levels  # noqa: E402
+from cad_parts import part as kpart, break_edges  # noqa: E402
 
 TITLE = "PotPress: hand-pumped hydraulic press for ceramic pot water filters"
 
+_SITE = ["--scene=outdoor", "--ground=concrete", "--ground-z=0", "--sun=42,-20", "--lens=45"]
 RENDER_VIEWS = [
-    {"name": "hero", "groups": ["shell", "guard", "gate_closed", "internal", "context"], "explode": False,
-     "el": 30, "az": -40,
-     "note": "Product render from the front right and above (about 30 deg elevation); press closed at the end "
-             "of a stroke behind welded-mesh guards with the interlocked front gate closed; bottle jack under "
-             "the platen with its pump handle out through the shielded slot in the right guard; 1.75 m person "
-             "at the front left for scale"},
+    {"name": "hero", "groups": ["shell", "guard", "gate_closed", "internal", "accessory", "context"], "explode": False,
+     "el": 18, "az": -40, "args": _SITE,
+     "note": "Site render in a filter workshop, from the front right and a little above (about 18 deg elevation): "
+             "press closed at the end of a stroke behind welded-mesh guards with the interlocked front gate shut, "
+             "pump handle out through the shielded slot in the right guard, QC flow-test rack at the right, on the "
+             "concrete floor of an open-sided shed; 1.75 m person standing at the front left for scale"},
+    {"name": "studio", "groups": ["shell", "guard", "gate_closed", "internal"], "explode": False, "el": 26, "az": -38,
+     "note": "Studio render from the front right and above (about 26 deg elevation): bolted UPN channel frame with "
+             "its M16 joints, bottle jack under the platen, mesh guards and interlocked front gate"},
     {"name": "exploded", "groups": ["shell", "internal"], "explode": True, "el": 28, "az": -55,
      "note": "Exploded view from the front right and above (about 28 deg elevation): base beam and feet, "
              "uprights and joint bolts, bottle jack, springs, platen, rails and carriage, female mold on its "
              "steel base plate, pressed pot, male mold, top crossbeam, male mold slide and handwheel; guards "
              "and gate not shown"},
-    {"name": "lineup", "groups": ["shell", "guard", "gate_closed", "internal", "accessory", "context"],
+    {"name": "lineup", "groups": ["shell", "guard", "gate_closed", "internal", "accessory"],
      "explode": False, "el": 24, "az": -58,
      "note": "Lineup from the front right and above (about 24 deg elevation): the press at left and the "
              "2 x 2 QC flow-test rack at right with fired test pots, T-gauge and collection buckets"},
-    {"name": "gate-open", "groups": ["shell", "guard", "gate_open", "internal", "context"], "explode": False,
+    {"name": "gate-open", "groups": ["shell", "guard", "gate_open", "internal"], "explode": False,
      "el": 18, "az": -68,
      "note": "Front gate swung open (about 105 deg) on its left hinges, showing the molds and carriage; "
              "press parts drawn in the pressing position for comparison with the hero. In use the gate "
              "opens only after the jack release is open and the platen is down"},
 ]
 
-# Colours (restrained product palette; kit accent)
-C_FRAME = "#3A4048"      # painted steel channel
-C_FRAME2 = "#4A515A"     # base and feet
-C_PLATEN = "#7D858F"
-C_ACCENT = "#0F766E"
-C_JACK = "#A32020"
-C_CHROME = "#D5D9DE"
-C_ZINC = "#B8BEC6"
-C_BRONZE = "#B08D57"
-C_ALU = "#C9CED4"
-C_ALU2 = "#B4BAC1"
-C_RAIL = "#5B626B"
-C_SPRING = "#C9A227"
-C_BLACK = "#1C1F24"
-C_RUBBER = "#26292E"
-C_LABEL = "#F4F4F2"
-C_INK = "#1F2937"
-C_YELLOW = "#E8B517"
-C_GREEN_POT = "#8A5A3C"   # freshly pressed (green) clay
-C_FIRED_POT = "#C07A4F"   # fired terracotta
-C_PLY = "#CFAE84"
-C_BUCKET = "#E9EDF0"
-C_WATER = "#BFE3F2"
-C_FLOOR = "#D8D5CF"
-C_GUARD = "#E2A90F"       # safety-yellow powder-coated guard frames
-C_MESH = "#6F767F"        # galvanized welded mesh
-C_SHIELD = "#8A9099"      # galvanized sheet of the pump slot shield
-C_INTERLOCK = "#C62828"
-C_UHMW = "#F2F2EE"
-C_CLAY = "#B9B4AC"        # mannequin
-
-# Each model component: (display name, colour, material, group). Explode offsets come from BOM_NAMES in model.py.
-LOOK = {
-    "foot_left": ("Foot, left (UPN 100, web up)", C_FRAME2, "painted", "shell"),
-    "foot_right": ("Foot, right (UPN 100, web up)", C_FRAME2, "painted", "shell"),
-    "base_beam": ("Base beam (two UPN 160)", C_FRAME2, "painted", "shell"),
-    "jack_plate": ("Jack plate with locating blocks", C_FRAME2, "painted", "shell"),
-    "jack_plate_bolts": ("Jack plate bolts", C_ZINC, "metal", "shell"),
-    "upright_left": ("Upright pair, left", C_FRAME, "painted", "shell"),
-    "upright_right": ("Upright pair, right", C_FRAME, "painted", "shell"),
-    "tubes_left": ("Spacer tubes, left", C_ZINC, "metal", "shell"),
-    "tubes_right": ("Spacer tubes, right", C_ZINC, "metal", "shell"),
-    "shims_left": ("Shim packs, left", C_ZINC, "metal", "shell"),
-    "shims_right": ("Shim packs, right", C_ZINC, "metal", "shell"),
-    "bolts_left": ("Joint bolts M16 10.9, left", C_ZINC, "metal", "shell"),
-    "bolts_right": ("Joint bolts M16 10.9, right", C_ZINC, "metal", "shell"),
-    "top_beam": ("Top crossbeam with pin doublers", C_FRAME, "painted", "shell"),
-    "liners": ("Stem guide liners (UHMW-PE)", C_UHMW, "plastic", "shell"),
-    "pump_handle": ("Jack pump handle", C_BLACK, "painted", "shell"),
-    "platen": ("Moving platen with guide sleeves", C_PLATEN, "painted", "shell"),
-    "rails": ("Rails with end stop", C_RAIL, "metal", "shell"),
-    "extension": ("Folding rail extension with tipping pins", C_RAIL, "metal", "shell"),
-    "carriage": ("Mold carriage with hooks and lift handles", C_FRAME, "painted", "shell"),
-    "retaining_pins": ("Mold retaining pins", C_ZINC, "metal", "shell"),
-    "fm_plate": ("Female mold steel base plate", C_FRAME2, "painted", "shell"),
-    "fm_cup": ("Female mold (cast aluminum)", C_ALU, "metal", "shell"),
-    "loc_pins": ("Locating dowels", C_CHROME, "metal", "shell"),
-    "fm_screws": ("Base plate screws", C_ZINC, "metal", "shell"),
-    "mm": ("Male mold (cast aluminum, open topped)", C_ALU2, "metal", "shell"),
-    "bushes": ("Locating bushes", C_ZINC, "metal", "shell"),
-    "stem": ("Male mold stem with adapter disc", C_ACCENT, "painted", "shell"),
-    "adapter_bolts": ("Adapter disc bolts", C_ZINC, "metal", "shell"),
-    "pin": ("Load pin (42CrMo4)", C_CHROME, "metal", "shell"),
-    "nut": ("Lead screw nut (bronze)", C_BRONZE, "metal", "shell"),
-    "screw": ("Lead screw, collars and handwheel", C_ACCENT, "painted", "shell"),
-    "bracket": ("Crank bracket", C_FRAME, "painted", "shell"),
-    "bracket_bolts": ("Crank bracket bolts", C_ZINC, "metal", "shell"),
-    "pot": ("Pressed filter pot (green, unfired)", C_GREEN_POT, "clay", "internal"),
-    "qc_frame": ("QC rack frame (steel angle)", C_FRAME, "painted", "accessory"),
-    "qc_shelves": ("QC rack shelves (plywood)", C_PLY, "wood", "accessory"),
-    "test_pots": ("Fired test pots", C_FIRED_POT, "clay", "accessory"),
-    "gauge": ("Printed T-gauge (PETG)", C_ACCENT, "plastic", "accessory"),
-    "buckets": ("Collection buckets (20 L HDPE)", C_BUCKET, "plastic", "accessory"),
-    "water": ("Water in test pot", C_WATER, "clear", "accessory"),
-    "pump_shield": ("Pump slot inner shield (galvanized sheet)", C_SHIELD, "metal", "guard"),
-    "release": ("Release shaft, lock disc and knob", C_BLACK, "metal", "guard"),
-    "lock_post": ("Interlock post with guides", C_INTERLOCK, "painted", "guard"),
-    "lock_rod": ("Lock rod", C_ZINC, "metal", "guard"),
-    "sliders": ("Interlock sliders", C_INTERLOCK, "painted", "guard"),
-    "pin_sensor": ("Pin-presence plunger and cable", C_BLACK, "plastic", "guard"),
-    "opening_plates": ("Small-hole plates, release shaft and pin cable", C_GUARD, "painted", "guard"),
-    "beam_covers": ("Top beam cover plates", C_GUARD, "painted", "guard"),
-    "bracket_covers": ("Crank bracket covers (2 mm sheet)", C_GUARD, "painted", "guard"),
-}
-SKIP = {"anchors", "springs", "jack", "guards", "gate"}      # below the floor, or redrawn for the look below
+C_CHROME, C_SPRING, C_LABEL, C_INK, C_YELLOW, C_ACCENT = "#D5D9DE", "#C9A227", "#F4F4F2", "#1F2937", "#E8B517", "#0F766E"
+C_GUARD, C_MESH = "#E2A90F", "#6F767F"
+GUARD_KEYS = ("pump_shield", "opening_plates", "beam_covers", "bracket_covers", "cover_screws", "release", "lock_post",
+              "lock_rod", "sliders", "pin_sensor")
 
 
 def _fillet_try(shape, edges, radii):
     """Fillet `edges` with the first radius that gives a valid solid; else return the input."""
     edges = list(edges)
-    if not edges:
-        return shape
     for r in radii:
         try:
             out = fillet(edges, r)
@@ -168,28 +90,32 @@ def product_parts(P=PARAMS):
     L = levels(P)
     b = SECTIONS[P["BEAM_SEC"]]
     g2 = P["BEAM_GAP"] / 2
-    comps = {c.key: c for c in components(P)}
     out = []
 
-    def add(name, shape, color, material, bom, group, explode=None):
+    def add(name, shape, material, group, bom=None, kind="made", color=None, explode=None):
+        q = kpart(name, shape, material, kind=kind, bom=bom, group=group, color=color)
         if explode is None:
             explode = BOM_NAMES[bom][2] if bom in BOM_NAMES else (0, 0, 0)
-        out.append({"name": name, "shape": shape, "color": color, "material": material,
-                    "bom": bom, "group": group, "explode": tuple(float(v) for v in explode)})
+        q["explode"] = tuple(float(v) for v in explode)
+        out.append(q)
+        return q
 
-    # ------------------------------------------------------------ the constructable components as modelled
-    for key, c in comps.items():
-        if key in SKIP or key not in LOOK:
-            continue
-        name, col, mat, grp = LOOK[key]
-        exp = (0, 0, 300) if key in ("test_pots", "water") else None
-        add(name, c.shape, col, mat, c.bom, grp, exp)
+    # ------------------------------------------------------------ the chosen option as modelled (kit 1.9 parts)
+    for p in M.components(M.CHOSEN):
+        k = p.get("key_src")
+        if k in ("guards", "gate", "springs", "jack"):
+            continue                                            # redrawn for the look below
+        grp = ("internal" if k == "pot" else "accessory" if k in M.QC_KEYS else "guard" if k in GUARD_KEYS or p["bom"] == 16
+               else "shell")
+        exp = (0, 0, 300) if k in ("test_pots", "water") else None
+        add(p["name"], p["shape"], p["material_name"], grp, p["bom"], p["kind"], p["color"], exp)
 
     # ------------------------------------------------------------ jack: red body, polished ram
+    comps = {c.key: c for c in M.press_components(P, detail=True) if c.key in ("jack",)}
     jack = comps["jack"].shape
     ram_zone = cyl(P["RAM_D"] / 2 + 0.5, L["platen0_low"] - 20, L["platen0"] + 1)
-    add("20 t bottle jack body", jack - ram_zone, C_JACK, "painted", 4, "shell")
-    add("Jack ram (polished)", jack & ram_zone, C_CHROME, "metal", 4, "shell")
+    add("20 t bottle jack body", jack - ram_zone, "safety_red", "shell", 4, "bought")
+    add("Jack ram (polished)", jack & ram_zone, "stainless", "shell", 4, "bought")
 
     # ------------------------------------------------------------ return springs as close-wound coils with hooks
     coils = []
@@ -203,71 +129,87 @@ def product_parts(P=PARAMS):
             coils.append(Pos(x_, 0, z_a + k * pitch) * turn)
         coils.append(cyl(2.5, L["base1"] + P["SPRING_LUG_T"] / 2, z_a, x_ + 3.5))
         coils.append(cyl(2.5, z_b, L["platen0"] - P["SPRING_LUG_T"] / 2, x_ + 3.5))
-    add("Return springs", _comp(coils), C_SPRING, "metal", 6, "shell")
+    add("Return springs", _comp(coils), "zinc_plated", "shell", 6, "bought", C_SPRING)
 
     # ------------------------------------------------------------ nameplate and load rating label on the top beam
     yf = -g2 - b["tw"]
     zc = L["pin"]
     npl = box(-238, -110, yf - 1.2, yf, zc - 32, zc + 32)
     npl = _fillet_try(npl, npl.edges().filter_by(Axis.Y), [4.0, 2.0])
-    add("Nameplate", npl, C_ACCENT, "painted", 3, "shell")
+    add("Nameplate", npl, "painted_steel", "shell", 3, color=C_ACCENT)
     ink = box(-222, -150, yf - 1.5, yf - 1.2, zc + 6, zc + 20) + box(-222, -175, yf - 1.5, yf - 1.2, zc - 6, zc) \
         + box(-222, -130, yf - 1.5, yf - 1.2, zc - 20, zc - 15)
-    add("Nameplate print", ink, C_LABEL, "paper", 3, "shell")
+    add("Nameplate print", ink, "label", "shell", 3)
     rl = box(110, 238, yf - 0.6, yf, zc - 30, zc + 30)
-    add("Load rating label (20 t max)", rl, C_YELLOW, "paper", 3, "shell")
+    add("Load rating label (20 t max)", rl, "label", "shell", 3, color=C_YELLOW)
     rink = box(122, 170, yf - 0.9, yf - 0.6, zc + 4, zc + 20) + box(122, 226, yf - 0.9, yf - 0.6, zc - 8, zc - 3) \
         + box(122, 200, yf - 0.9, yf - 0.6, zc - 20, zc - 15)
-    add("Load rating label print", rink, C_INK, "paper", 3, "shell")
+    add("Load rating label print", rink, "label", "shell", 3, color=C_INK)
 
     # ------------------------------------------------------------ guards with every wire, and the gate shut and open
-    gs = guard_solids(P, every_wire=True)
-    wire = P["MESH_WIRE"] + 0.01
-    thin = lambda s_: min(s_.bounding_box().size.X, s_.bounding_box().size.Y, s_.bounding_box().size.Z) <= wire   # noqa: E731
-    mesh = [s_ for s_ in gs if thin(s_) and max(s_.bounding_box().size.X, s_.bounding_box().size.Y,
-                                                 s_.bounding_box().size.Z) > 30]
-    frames = [s_ for s_ in gs if s_ not in mesh]
-    add("Guard frames, standoffs and slot frame (powder-coated)", _comp(frames), C_GUARD, "painted", 16, "guard")
-    add("Guard mesh (12.7 mm sides and rear, 6.35 mm front and roof; galvanized)", _comp(mesh), C_MESH, "metal", 16, "guard")
+    for nm, kind, sols in guard_pieces(P, every_wire=True):
+        if kind == "mesh":
+            add(nm + " (every wire)", _comp(sols), "galvanised", "guard", 16, color=C_MESH)
+        else:
+            add(nm, sols[0] if len(sols) == 1 else _comp(sols), "safety_yellow", "guard", 16, color=C_GUARD)
     for state, deg in (("gate_closed", 0.0), ("gate_open", 105.0)):
-        gg = gate_geometry(P, every_wire=True, open_deg=deg)
-        gmesh = [s_ for s_ in gg if thin(s_)]
-        grest = [s_ for s_ in gg if not thin(s_)]
         tag = "" if deg == 0 else ", open"
-        add("Front gate frame, hinges, handle and tongue" + tag, _comp(grest), C_GUARD, "painted", 20, state)
-        add("Front gate mesh (6.35 mm)" + tag, _comp(gmesh), C_MESH, "metal", 20, state)
+        for nm, kind, sols in gate_geometry(P, every_wire=True, open_deg=deg, pieces=True):
+            sh = sols[0] if len(sols) == 1 else _comp(sols)
+            if kind == "mesh":
+                add(nm + tag, sh, "galvanised", state, 20, color=C_MESH)
+            else:
+                add(nm + tag, sh, "zinc_plated" if kind == "hinge" else "safety_yellow", state, 20,
+                    color=None if kind == "hinge" else C_GUARD)
 
     # hazard label on the front right strip (set back for the interlock), clear of the interlock post
     ys, gx = P["STRIP_Y"], P["GUARD_X"]
     xl0, xl1, zl0, zl1 = P["LOCK_X"] + 16, gx - 22, 1150.0, 1250.0
     lab = box(xl0, xl1, ys - 1.2, ys, zl0, zl1)
     lab = _fillet_try(lab, lab.edges().filter_by(Axis.Y), [4.0, 2.0])
-    add("Hazard label (crush, keep gate closed)", lab, C_YELLOW, "paper", 16, "guard")
+    add("Hazard label (crush, keep gate closed)", lab, "label", "guard", 16, color=C_YELLOW)
     xc_ = xl0 + 26; zc_ = (zl0 + zl1) / 2
     tri = Pos(xc_, ys - 1.35, zc_ - 4) * Rot(90, 0, 0) * extrude(RegularPolygon(22, 3, rotation=90), amount=0.3, both=True)
     tri -= Pos(xc_, ys - 1.35, zc_ - 4) * Rot(90, 0, 0) * extrude(RegularPolygon(14, 3, rotation=90), amount=1, both=True)
     tri += box(xc_ - 2.5, xc_ + 2.5, ys - 1.5, ys - 1.2, zc_ - 8, zc_ + 8)
     txt = box(xl0 + 56, xl1 - 8, ys - 1.5, ys - 1.2, zc_ + 14, zc_ + 24) + box(xl0 + 56, xl1 - 20, ys - 1.5, ys - 1.2, zc_ - 2, zc_ + 6) \
         + box(xl0 + 56, xl1 - 14, ys - 1.5, ys - 1.2, zc_ - 18, zc_ - 10) + box(xl0 + 8, xl1 - 8, ys - 1.5, ys - 1.2, zl0 + 6, zl0 + 12)
-    add("Hazard label print", tri + txt, C_INK, "paper", 16, "guard")
+    add("Hazard label print", tri + txt, "label", "guard", 16, color=C_INK)
+    return out + site()
 
-    # ------------------------------------------------------------ context: floor, mat, 1.75 m person for scale
-    slab = box(-1350, 1650, -1000, 500, -20, 0)
-    add("Workshop floor (concrete)", slab, C_FLOOR, "paper", None, "context", (0, 0, 0))
+
+def site():
+    """A filter workshop: the concrete floor slab of an open-sided shed (top at z = 0, 150 mm thick, so it reaches
+    below ground), a blockwork back wall 2.6 m behind the press, two steel shed posts on pad footings, a pallet with
+    bagged clay mix, an anti-fatigue mat at the press front and a 1.75 m mannequin standing on the floor."""
+    out = []
+    ctx = lambda n, sh, mat, color=None: out.append(kpart(f"{n} (site)", sh, mat, kind="context", group="context", color=color))  # noqa: E731
+    ctx("Workshop floor slab, concrete", box(-3500, 4000, -3500, 3200, -150, 0), "concrete")
+    wall = box(-3500, 4000, 2600, 2790, -150, 2400)
+    for k in range(1, 12):                                       # block coursing: shallow joints every 200 mm
+        wall -= box(-3600, 4100, 2595, 2602, 200 * k - 5, 200 * k + 5)
+    ctx("Blockwork back wall", wall, "concrete", "#A8A49C")
+    for x_ in (-2600, 3100):
+        ctx(f"Shed post at {x_:.0f} mm, SHS 100", Pos(x_, 2450, -400) * __import__("cad_parts").shs(100, 4, 3200), "painted_steel", "#3D4651")
+        ctx(f"Post footing at {x_:.0f} mm", box(x_ - 250, x_ + 250, 2200, 2700, -500, -150), "concrete")
+    ctx("Pallet, hardwood", break_edges(box(-2100, -1300, 1100, 2300, 0, 100) - box(-2090, -1310, 1110, 2290, 22, 101), 2.0), "hardwood")
+    for i in range(2):
+        for j in range(3):
+            bag = box(-2080 + 390 * i, -1700 + 380 * i - 10, 1130 + 380 * j, 1480 + 380 * j, 100, 260)
+            ctx(f"Bag of clay mix {i * 3 + j + 1}", break_edges(bag, 30.0), "canvas")
     mat = box(-300, 300, -560, -385, 0, 12)
     mat = _fillet_try(mat, mat.faces().sort_by(Axis.Z)[-1].edges(), [5.0, 3.0])
     for k in range(8):
         yk = -545 + 20 * k
         mat -= box(-280, 280, yk, yk + 6, 9, 13)
-    add("Anti-fatigue mat", mat, C_RUBBER, "rubber", None, "context", (0, 0, 0))
+    ctx("Anti-fatigue mat", Pos(0, 0, -5) * mat, "epdm")
     from context_parts import mannequin
-    # front left of the press, facing it, so the figure does not hide the press or the pump handle
-    person = Pos(-900, -600, 0) * Rot(0, 0, 90) * mannequin(1750, "stand")
-    add("Person, 1.75 m mannequin (scale)", person, C_CLAY, "clay", None, "context", (0, 0, 0))
+    person = Pos(-900, -600, 0) * Rot(0, 0, 90) * mannequin(1750, "stand")    # front left, facing the press
+    out.append(kpart("Person 1.75 m (scale)", person, "skin", kind="context", group="context"))
     return out
 
 
 if __name__ == "__main__":
-    for p in product_parts():
-        s = p["shape"]
-        print(f"{p['name']:52s} {p['group']:11s} {p['material']:8s} valid={s.is_valid} vol={s.volume / 1000:9.2f} cm3")
+    ps = product_parts()
+    from collections import Counter
+    print(len(ps), "parts;", dict(Counter(p["group"] for p in ps)))

@@ -1,8 +1,14 @@
 """PotPress parametric model (build123d), TRL 3, constructable design (PPR-DDR-004).
 
 Run from the repo root:  python cad/src/model.py
-Exports the assembly and the main parts to cad/step/*.step and cad/stl/*.stl, and runs the
-fit checks (parts that must not touch, faces that must touch) with --check.
+Exports the STL files to cad/stl/ (STEP files come from python .kit/cad_check.py --export), and runs the fit
+checks (parts that must not touch, faces that must touch, the press in every position, the ISO 13857 desk
+check) with --check; add --detail to run them on the kit 1.9 parts with every ISO fastener.
+
+Kit 1.9 (STANDARDS section 24): OPTIONS, PRINCIPLES, CHOSEN, OPTION_VIEWS, ALLOWED_CONTACTS and
+components(option) return every concept option as cad_parts.part() dicts at detail level D3. Option A is
+press_components(detail=True) part by part, with the guards panel by panel, cover screws and weld beads;
+options B and C are in cad/src/options_bc.py.
 
 Axes: X across the press between the uprights, Y front (-Y, operator side; the mold
 carriage slides out this way) to back (+Y), Z up from the floor. Units mm. The press
@@ -21,42 +27,57 @@ CONCEPT, NOT FOR FABRICATION.
 from __future__ import annotations
 
 import math
+import sys
 from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+for _p in (str(_HERE), str(_HERE.parents[1] / ".kit")):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
 # ---------------------------------------------------------------------------
 # Parameters (mm). Edit these, not the geometry below.
 # ---------------------------------------------------------------------------
 PARAMS = {
-    # Reference filter (R1): inner surface is the male mold, outer is the female cavity
-    "R_IN_BOT": 115.0,      # inner radius at the floor of the pot
-    "R_IN_RIM": 140.0,      # inner radius at the rim (280 mm inner rim diameter)
-    "D_IN": 240.0,          # inner depth
-    "WALL": 15.0,           # wall and floor thickness, measured normal to the surface
-    "RIM_OD": 345.0,        # flat rim outer diameter
-    "RIM_T": 15.0,          # flat rim thickness
+    # Reference filter (PR-001), FIRED sizes. The molds and the pressed (green) pot are these divided by
+    # (1 - CLAY_SHRINK): see green_filter() below. PPR-DDR-006, 2026-10-23 (STEM check M6).
+    "FIRED": {
+        "R_IN_BOT": 115.0,  # inner radius at the floor of the fired pot
+        "R_IN_RIM": 140.0,  # inner radius at the rim (280 mm inner rim diameter)
+        "D_IN": 240.0,      # inner depth
+        "WALL": 15.0,       # wall and floor thickness, measured normal to the surface
+        "RIM_OD": 345.0,    # flat rim outer diameter
+        "RIM_T": 15.0,      # flat rim thickness
+    },
+    "CLAY_SHRINK": 0.08,    # total linear shrinkage, pressed to fired (drying plus firing). ASSUMED until the
+                            # partner clay is measured with a test bar (ASTM C326 method); then set it here and
+                            # regenerate the patterns. Earthenware filter mixes are typically about 6 to 10 %.
     # Female mold (DDR-004): cast aluminum cup drawn from the flange side, bolted to a steel base plate
     "FM_SHELL": 20.0,       # shell thickness behind the cavity
     "FM_BASE": 30.0,        # everything under the cavity: steel base plate plus aluminum floor
     "FM_PLATE_T": 15.0,     # steel base plate (bears on the rails, sits in the carriage)
     "FM_PLATE_W": 350.0,    # base plate, square
     "FM_BASE_D": 350.0,     # kept for the appearance model (was the cast base disc)
-    "FM_FLANGE_D": 450.0,   # top flange (stop face ring 360 to 450 mm)
+    "FM_FLANGE_D": 480.0,   # top flange (stop face ring 390 to 480 mm); 450 until the clay shrink allowance (DDR-006)
     "FM_FLANGE_T": 40.0,
-    "FLASH_R": 180.0,       # flash groove outer radius (stop face is outside this)
+    "FLASH_R": 195.0,       # flash groove outer radius (stop face is outside this); 180 until DDR-006
     # Mold location (DDR-004): two hardened pins in the female flange, steel bushes in the male flange,
     # drilled and reamed with the molds clamped together; replaces the turned 390 mm lip
     "LOC_PIN_D": 16.0,
-    "LOC_PIN_R": 202.0,     # pin circle radius; pins on the X axis
+    "LOC_PIN_R": 216.0,     # pin circle radius; pins on the X axis; 202 until DDR-006
     "LOC_PIN_PROUD": 20.0,  # pin height above the female stop face
     "LOC_PIN_DEPTH": 30.0,  # pressed into the female flange
     "BUSH_OD": 22.0,
+    "EYE_R": 214.0,         # male mold: two M12 tapped holes (10.2 mm drill, 26 deep) for DIN 580 lifting eye bolts in
+    "EYE_DEPTH": 26.0,      # the flange top on the Y axis (90 deg from the bushes); DDR-006, D3 (STEM check B2)
+    "PLATE_EYE_R": 215.0,   # female mold: two M12 holes tapped through the steel base plate on one diagonal (DDR-006)
     "LOC_CLEAR": 0.05,      # pin in bush, diametral (reamed)
     "LOC_H": 0.0,           # no turned lip any more (kept for the appearance model)
     "LOC_TAPER": 0.0,
     # Male mold (DDR-004): cast aluminum plug, open at the back (drafted core space), 45 mm flange
     "MM_SHELL": 15.0,       # plug shell thickness
     "MM_TIP": 30.0,         # plug tip (floor-forming) plate thickness
-    "MM_FLANGE_D": 450.0,   # flange diameter; outer ring lands on the female stop face
+    "MM_FLANGE_D": 480.0,   # flange diameter; outer ring lands on the female stop face; 450 until DDR-006
     "MM_FLANGE_T": 45.0,
     "ADAPTER_T": 20.0,      # steel adapter disc at the stem foot, seated on the plug tip inside the core space
     "ADAPTER_D": 190.0,
@@ -178,6 +199,24 @@ PARAMS = {
     "LATCH_Z": 905.0,       # underside of the gate tongue
     "RELEASE_Y": -371.0,    # release knob, Y (front face at -375, the same depth as before)
 }
+
+
+def green_filter(P):
+    """Write the pressed (green) filter sizes, which set the mold cavities, into P from the fired sizes."""
+    k = 1.0 / (1.0 - P["CLAY_SHRINK"])
+    for key, v in P["FIRED"].items():
+        P[key] = round(v * k, 2)
+    return P
+
+
+def fired_params(P=None):
+    """A copy of P with the filter at its fired size (QC rack, product volumes)."""
+    Q = dict(PARAMS if P is None else P)
+    Q.update(Q["FIRED"])
+    return Q
+
+
+green_filter(PARAMS)
 
 # UPN channel properties (EN 10279 / DIN 1026 tables): h, b, tw, tf mm; A mm2; Ix mm4; Wx mm3; kg/m
 SECTIONS = {
@@ -369,9 +408,10 @@ def pump_slot_y(P=PARAMS):
     return (P["GUARD_X"] - 3.1) * math.tan(math.radians(P["JACK_TURN"]))   # centred on the guard's thickness
 
 
-def pump_handle(P=PARAMS, z_slot=None):
+def pump_handle(P=PARAMS, z_slot=None, beyond=170.0):
     """Jack pump handle from the end of the pump socket out through the guard slot, 170 mm beyond the guard.
-    z_slot: height of the handle's centre line where it passes the slot (default: the middle of the slot)."""
+    z_slot: height of the handle's centre line where it passes the slot (default: the middle of the slot).
+    beyond: length of handle outside the guard."""
     L = levels(P)
     a = math.radians(P["JACK_TURN"])
     sw, sz0, sz1 = P["PUMP_SLOT"]
@@ -379,7 +419,7 @@ def pump_handle(P=PARAMS, z_slot=None):
     bd = _b()
     r_s, r0, z0 = 150.0, 170.0, L["jack0"] + 72.0          # socket end face; handle straight in the socket to 170
     rs = P["GUARD_X"] / math.cos(a)                         # where the handle line crosses the side guard
-    r1 = rs + 170.0
+    r1 = rs + beyond
     z1 = z0 + (z_slot - z0) * (r1 - r0) / (rs - r0)
     pt = lambda r, z: (r * math.cos(a), r * math.sin(a), z)  # noqa: E731
     h = cyl_between(pt(r_s, z0), pt(r0, z0), P["HANDLE_D"] / 2) + bd.Pos(*pt(r0, z0)) * bd.Sphere(P["HANDLE_D"] / 2)
@@ -448,12 +488,15 @@ def guard_layout(P=PARAMS):
     py = pump_slot_y(P)
     zr = release_z(P)
     lx = P["LOCK_X"]
+    # Panels that meet a side guard at a corner stop at the side guard's frame (its 3 mm edge leg closes the corner):
+    # kit 1.9 interference check, 2026-10-24 (PPR-DEC-001)
+    ck = P["GUARD_ANGLE"] + 2 * P["MESH_WIRE"]
     out = [
-        dict(name="Right side guard", plane="yz", a0=P["STRIP_Y"], a1=yb, b0=z0, b1=z1, c_out=gx, inward=-1,
+        dict(name="Right side guard", plane="yz", a0=P["STRIP_Y"] + ck, a1=yb, b0=z0, b1=z1, c_out=gx, inward=-1,
              holes=[(py - sw / 2, py + sw / 2, sz0, sz1)]),
         dict(name="Left side guard", plane="yz", a0=yf, a1=yb, b0=z0, b1=z1, c_out=-gx, inward=+1, holes=[]),
-        dict(name="Rear guard", plane="xz", a0=-gx, a1=gx, b0=z0, b1=z1, c_out=yb, inward=-1, holes=[]),
-        dict(name="Front left strip", plane="xz", a0=-gx, a1=-gh, b0=z0, b1=z1, c_out=yf, inward=+1, holes=[]),
+        dict(name="Rear guard", plane="xz", a0=-gx + ck, a1=gx - ck, b0=z0, b1=z1, c_out=yb, inward=-1, holes=[]),
+        dict(name="Front left strip", plane="xz", a0=-gx + ck, a1=-gh, b0=z0, b1=z1, c_out=yf, inward=+1, holes=[]),
         dict(name="Front right strip", plane="xz", a0=gh, a1=gx, b0=z0, b1=z1, c_out=P["STRIP_Y"], inward=+1,
              holes=[(lx - 22, lx + 22, zr - 22, zr + 22), (lx + 50, lx + 90, 731, 771)]),
         dict(name="Lower front panel", plane="xz", a0=-gh, a1=gh, b0=z0, b1=P["GATE_Z0"], c_out=yf, inward=+1, holes=[]),
@@ -476,6 +519,11 @@ def guard_solids(P=PARAMS, every_wire=False):
     """Fixed guards as a list of solids: angle frames, mesh (every 8th wire by default; every_wire=True draws every
     wire, for the appearance model), pump slot frame, standoffs, fixed hinge leaves and the strip's return plate.
     The front strips, lower front panel and roof carry the 6.35 mm mesh (2026-10-03), the rest the 12.7 mm mesh."""
+    return [s_ for _, _, sols in guard_pieces(P, every_wire) for s_ in sols]
+
+
+def guard_pieces(P=PARAMS, every_wire=False):
+    """The fixed guards piece by piece: a list of (name, kind, [solids]) with kind "frame", "mesh" or "part"."""
     L = levels(P)
     b = SECTIONS[P["BEAM_SEC"]]
     yw = P["BEAM_GAP"] / 2 + b["tw"]; bl = P["BEAM_L"] / 2
@@ -483,22 +531,26 @@ def guard_solids(P=PARAMS, every_wire=False):
     g = []
     for pnl in guard_layout(P):
         pitch, wire, _ = mesh_spec(pnl["fine"], P, every_wire)
-        g.append(angle_frame(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
-                             P["GUARD_ANGLE"], P["GUARD_ANGLE_T"], back=2 * wire))
-        g += mesh_panel(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
-                        pitch, wire, pnl["holes"])
+        g.append((f"{pnl['name']}, angle frame 25 x 25 x 3", "frame",
+                  [angle_frame(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
+                               P["GUARD_ANGLE"], P["GUARD_ANGLE_T"], back=2 * wire)]))
+        g.append((f"{pnl['name']}, welded mesh {P['FINE_PITCH'] if pnl['fine'] else P['MESH_PITCH']} mm", "mesh",
+                  mesh_panel(pnl["plane"], pnl["a0"], pnl["a1"], pnl["b0"], pnl["b1"], pnl["c_out"], pnl["inward"],
+                             pitch, wire, pnl["holes"])))
     sw, sz0, sz1 = P["PUMP_SLOT"]; py = pump_slot_y(P)
     gx = P["GUARD_X"]
-    g.append(box(gx - 6.2, gx - 3.2, py - sw / 2 - 12, py + sw / 2 + 12, sz0 - 12, sz1 + 12) -
-             box(gx - 7, gx - 2, py - sw / 2, py + sw / 2, sz0, sz1))                          # pump slot frame
+    g.append(("Pump slot frame", "part", [box(gx - 6.2, gx - 3.2, py - sw / 2 - 12, py + sw / 2 + 12, sz0 - 12, sz1 + 12) -
+                                           box(gx - 7, gx - 2, py - sw / 2, py + sw / 2, sz0, sz1)]))
     for sx in (-1, 1):                                                                          # side standoffs on the beam webs
-        for zc in (zc_base, zc_top):
+        for zc, lv in ((zc_base, "base"), (zc_top, "top")):
             for sy in (-1, 1):
-                g.append(box(*sorted((sx * (bl - 40), sx * (gx - 3.2 - P["GUARD_ANGLE"]))), *sorted((sy * yw, sy * (yw + 6))), zc - 20, zc + 20))
+                g.append((f"Guard standoff, {'right' if sx > 0 else 'left'} {lv} {'back' if sy > 0 else 'front'}", "part",
+                          [box(*sorted((sx * (bl - 40), sx * (gx - 3.2 - P["GUARD_ANGLE"]))), *sorted((sy * yw, sy * (yw + 6))), zc - 20, zc + 20)]))
     hx, hy = -P["GATE_HALF"], P["GUARD_Y_FRONT"] - 12
-    for zh in (P["GATE_Z0"] + 124, L["top1"] - 124):                                           # fixed hinge leaves
-        g.append(box(hx - 30, hx - 8, hy - 3, P["GUARD_Y_FRONT"], zh - 25, zh + 25))
-    g.append(box(P["GATE_HALF"], P["GATE_HALF"] + 3, P["GUARD_Y_FRONT"], P["STRIP_Y"], P["GUARD_Z0"], L["top1"]))   # return plate of the set-back strip
+    for zh, lv in ((P["GATE_Z0"] + 124, "lower"), (L["top1"] - 124, "upper")):               # fixed hinge leaves
+        g.append((f"Gate hinge leaf on the guard, {lv}", "part", [box(hx - 30, hx - 8, hy - 3, P["GUARD_Y_FRONT"], zh - 25, zh + 25)]))
+    g.append(("Return plate of the set-back right strip", "part",
+              [box(P["GATE_HALF"], P["GATE_HALF"] + 3, P["GUARD_Y_FRONT"], P["STRIP_Y"], P["GUARD_Z0"], L["top1"])]))
     return g
 
 
@@ -525,7 +577,7 @@ def guard_closures(P=PARAMS):
     return {"opening_plates": rel + cab, "beam_covers": covers, "bracket_covers": brk}
 
 
-def gate_geometry(P=PARAMS, every_wire=False, open_deg=None):
+def gate_geometry(P=PARAMS, every_wire=False, open_deg=None, pieces=False):
     """Hinged front gate (closed or swung open) as a list of solids: tube frame, 6.35 mm mesh (2026-10-03), hinges,
     handle, tongue. every_wire=True draws every wire (appearance model); otherwise every 8th."""
     bd = _b()
@@ -539,23 +591,26 @@ def gate_geometry(P=PARAMS, every_wire=False, open_deg=None):
     fr = box(x0, x1, yin, yin + tb, z0, z1) - box(x0 + tb, x1 - tb, yin - 1, yin + tb + 1, z0 + tb, z1 - tb)
     zm = (z0 + z1) / 2
     fr += box(x0 + tb, x1 - tb, yin, yin + tb, zm - tb / 2, zm + tb / 2)            # mid rail
-    solids = [fr] + mesh_panel("xz", x0, x1, z0, z1, yf, +1, pitch, wire)
+    pcs = [("Gate frame, 20 x 20 x 2 tube with mid rail", "frame", [fr]),
+           ("Gate mesh, welded 6.35 mm", "mesh", mesh_panel("xz", x0, x1, z0, z1, yf, +1, pitch, wire))]
     hx, hy = -gh, yf - 12                                   # hinge axis, just ahead of the mesh
-    for zh in (z0 + 120, z1 - 120):
-        solids.append(cyl(8, zh - 40, zh + 40, x=hx, y=hy))                          # hinge knuckle
-        solids.append(box(hx + 8, x0 + tb, hy - 3, yf, zh - 25, zh + 25))            # hinge leaf on the gate
+    for zh, lv in ((z0 + 120, "lower"), (z1 - 120, "upper")):
+        pcs.append((f"Gate lift-off hinge knuckle, {lv}", "hinge", [cyl(8, zh - 40, zh + 40, x=hx, y=hy)]))
+        pcs.append((f"Gate hinge leaf, {lv}", "part", [box(hx + 8, x0 + tb, hy - 3, yf, zh - 25, zh + 25)]))
     zl = P["LATCH_Z"]
-    solids.append(box(x1 - 60, x1 - 45, yf - 25, yf - 13, zl - 70, zl + 70))        # pull handle, grip
-    solids.append(box(x1 - 60, x1 - 45, yf - 13, yf, zl - 70, zl - 58) + box(x1 - 60, x1 - 45, yf - 13, yf, zl + 58, zl + 70))
+    pcs.append(("Gate pull handle", "part", [box(x1 - 60, x1 - 45, yf - 25, yf - 13, zl - 70, zl + 70) +
+                                             box(x1 - 60, x1 - 45, yf - 13, yf, zl - 70, zl - 58) + box(x1 - 60, x1 - 45, yf - 13, yf, zl + 58, zl + 70)]))
     # Tongue: an arm off the right-hand gate post, then a plate with a 14 mm hole over the lock rod
     ly, lx = P["LOCK_Y"], P["LOCK_X"]
     tongue = box(x1 - 16, x1, ly - 10, yin, zl, zl + 6) + box(x1, lx + 15, ly - 10, yf, zl, zl + 6)
     tongue -= cyl(7, zl - 1, zl + 7, lx, ly)
-    solids.append(tongue)
+    pcs.append(("Gate tongue, 6 mm plate", "part", [tongue]))
     if open_deg:
         rot = bd.Pos(hx, hy, 0) * bd.Rot(0, 0, -open_deg) * bd.Pos(-hx, -hy, 0)
-        solids = [rot * s for s in solids]
-    return solids
+        pcs = [(n, k, [rot * s for s in sols]) for n, k, sols in pcs]
+    if pieces:
+        return pcs
+    return [s_ for _, _, sols in pcs for s_ in sols]
 
 
 def pot(z_floor, x=0.0, y=0.0, P=PARAMS):
@@ -576,24 +631,34 @@ def angle_ring(x0, x1, y0, y1, ztop, leg, t):
 
 
 class C:
-    """One component: what it is called, its shape, how it is made, and its BOM line."""
-    def __init__(self, key, name, shape, color, bom, how, group, explode=(0, 0, 0)):
+    """One component: what it is called, its shape, how it is made, and its BOM line. pieces: for a group of
+    fasteners or loose parts built with detail=True, the (name, shape) of each one (kit 1.9 parts)."""
+    def __init__(self, key, name, shape, color, bom, how, group, explode=(0, 0, 0), pieces=None):
         self.key, self.name, self.shape, self.color = key, name, shape, color
         self.bom, self.how, self.group, self.explode = bom, how, group, explode
+        self.pieces = pieces
 
 
 # ---------------------------------------------------------------------------
 # Components
 # ---------------------------------------------------------------------------
-def components(P=PARAMS):
-    """Every component on its own, press closed and guarded. how: make, cast, print or buy."""
+def press_components(P=PARAMS, detail=False):
+    """Every component of option A on its own, press closed and guarded. how: make, cast, print or buy.
+    detail=False keeps the simplified fastener solids the calculations (PPR-CAL-001 masses) were made with;
+    detail=True (kit 1.9, used by components("A"), the drawings and the build plan pictures) draws every bolt,
+    washer, nut, stud, dowel and screw as an ISO part in its hole, and the feet with holes for loose studs."""
     bd = _b()
     L = levels(P)
+    import ppr_parts as pp
     b = SECTIONS[P["BEAM_SEC"]]; u = SECTIONS[P["UPRIGHT_SEC"]]; pl = SECTIONS[P["PLATEN_SEC"]]; f = SECTIONS[P["FOOT_SEC"]]
     g2 = P["BEAM_GAP"] / 2; xs = P["SPAN"] / 2; bl = P["BEAM_L"] / 2
     yw = g2 + b["tw"]                                   # outer face of the beam webs
     out = []
     add = lambda *a, **k: out.append(C(*a, **k))
+
+    def addp(key, name, pieces, color, bom, how, group):
+        """A group of loose parts (fasteners, pins, springs), kept piece by piece for the kit 1.9 parts list."""
+        out.append(C(key, name, bd_comp([s_ for _, s_ in pieces]), color, bom, how, group, (0, 0, 0), pieces))
 
     # Joint bolt positions (both beams, both uprights)
     zc_base = (L["base0"] + L["base1"]) / 2; zc_top = (L["top0"] + L["top1"]) / 2
@@ -615,15 +680,30 @@ def components(P=PARAMS):
             foot += cyl(13.45, 0, f["b"] - f["tw"], xc, sy * P["ANCHOR_Y"]) - cyl(10.25, -1, f["b"], xc, sy * P["ANCHOR_Y"])
             foot -= cyl(7, f["b"] - f["tw"] - 1, f["b"] + 1, xc, sy * P["ANCHOR_Y"])
         for (x_, y_) in stud_pts(sx):                                     # M12 bolts, heads welded under the web
+            if detail:
+                foot -= cyl(6.5, f["b"] - f["tw"] - 1, f["b"] + 1, x_, y_)
+                continue
             foot += cyl(9, f["b"] - f["tw"] - 8, f["b"] - f["tw"], x_, y_) + cyl(6, f["b"] - f["tw"], L["base0"] + b["tf"] + 16, x_, y_)
             foot += cyl(10, L["base0"] + b["tf"], L["base0"] + b["tf"] + 10, x_, y_)       # nut and washer on the beam flange
         add(f"foot_{side}", f"Foot, {side}", foot, "#4B5563", 1, "make", "frame", (0, 0, -200))
-    anchors = None
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            a = cyl(6, -80, f["b"] + 12, sx * xf, sy * P["ANCHOR_Y"]) + cyl(10, f["b"], f["b"] + 10, sx * xf, sy * P["ANCHOR_Y"])
-            anchors = a if anchors is None else anchors + a
-    add("anchors", "Floor anchors, 4 x M12", anchors, "#111827", 1, "buy", "frame", (0, 0, -300))
+        if detail:                                                        # M12 x 40 studs up through the web and beam flange
+            pcs = []
+            for (x_, y_) in stud_pts(sx):
+                pcs += pp.bolt_set(12, f["tw"] + b["tf"], (x_, y_, f["b"] - f["tw"]), "+z")
+            addp(f"studs_{side}", f"Foot studs, {side}, 4 x M12", pcs, "#111827", 1, "buy", "frame")
+    if detail:
+        pcs = []
+        for sx in (-1, 1):
+            for sy in (-1, 1):
+                pcs += pp.stud_anchor(12, -80.0, f["b"], sx * xf, sy * P["ANCHOR_Y"])
+        addp("anchors", "Floor anchors, 4 x M12", pcs, "#111827", 1, "buy", "frame")
+    else:
+        anchors = None
+        for sx in (-1, 1):
+            for sy in (-1, 1):
+                a = cyl(6, -80, f["b"] + 12, sx * xf, sy * P["ANCHOR_Y"]) + cyl(10, f["b"], f["b"] + 10, sx * xf, sy * P["ANCHOR_Y"])
+                anchors = a if anchors is None else anchors + a
+        add("anchors", "Floor anchors, 4 x M12", anchors, "#111827", 1, "buy", "frame", (0, 0, -300))
 
     # ---- Base beam: two UPN 160 with end blocks, jack plate, jack locating blocks and spring anchor lugs
     base = channel_x(-bl, bl, g2, +1, L["base0"], P["BEAM_SEC"]) + channel_x(-bl, bl, -g2, -1, L["base0"], P["BEAM_SEC"])
@@ -653,7 +733,13 @@ def components(P=PARAMS):
             base -= cyl(7, L["base0"] - 1, L["base0"] + b["tf"] + 1, x_, y_)
     add("base_beam", "Base beam", base, "#4B5563", 1, "make", "frame", (0, 0, -120))
     add("jack_plate", "Jack plate", jplate, "#6B7280", 1, "make", "frame", (0, 0, 0))
-    add("jack_plate_bolts", "Jack plate bolts, 4 x M12", jbolts, "#111827", 1, "buy", "frame", (0, 0, 0))
+    if detail:
+        pcs = []
+        for (x_, y_) in jp_bolts:
+            pcs += pp.bolt_set(12, P["BEARING_T"] + b["tf"], (x_, y_, L["jack0"]), "-z")
+        addp("jack_plate_bolts", "Jack plate bolts, 4 x M12", pcs, "#111827", 1, "buy", "frame")
+    else:
+        add("jack_plate_bolts", "Jack plate bolts, 4 x M12", jbolts, "#111827", 1, "buy", "frame", (0, 0, 0))
 
     # ---- Upright pairs: two UPN 100 back to back, with spacer tubes, shims and M16 bolts at each joint
     ys = u["h"] / 2
@@ -680,7 +766,13 @@ def components(P=PARAMS):
                 shims = sh if shims is None else shims + sh
         add(f"tubes_{side}", f"Spacer tubes, {side} upright", tubes, "#9CA3AF", 2, "make", "frame", (0, 0, 0))
         add(f"shims_{side}", f"Shim packs, {side} upright", shims, "#D97706", 2, "make", "frame", (0, 0, 0))
-        add(f"bolts_{side}", f"Joint bolts M16, {side} upright", bolts, "#111827", 2, "buy", "frame", (0, 0, 0))
+        if detail:
+            pcs = []
+            for (x_, z_) in pts:
+                pcs += pp.bolt_set(16, 2 * yw, (x_, -yw, z_), "+y", grade="10.9")
+            addp(f"bolts_{side}", f"Joint bolts M16, {side} upright", pcs, "#111827", 2, "buy", "frame")
+        else:
+            add(f"bolts_{side}", f"Joint bolts M16, {side} upright", bolts, "#111827", 2, "buy", "frame", (0, 0, 0))
 
     # ---- Top crossbeam: two UPN 160 with end blocks, pin doublers, 62 mm pin bore, stem guide liners
     top = channel_x(-bl, bl, g2, +1, L["top0"], P["BEAM_SEC"]) + channel_x(-bl, bl, -g2, -1, L["top0"], P["BEAM_SEC"])
@@ -737,7 +829,12 @@ def components(P=PARAMS):
         s_ = cyl(12, z_lo + 12, z_hi - 12, x_) + cyl(2.5, z_lo - P["SPRING_LUG_T"] / 2, z_lo + 12, x_ + 3.5) + \
             cyl(2.5, z_hi - 12, z_hi + P["SPRING_LUG_T"] / 2, x_ + 3.5)                  # hooks bear on the hole edge
         springs = s_ if springs is None else springs + s_
-    add("springs", "Return springs", springs, "#D4A017", 6, "buy", "press", (0, 0, 0))
+    if detail:
+        pcs = [(f"Return spring, {'left' if sx < 0 else 'right'}, about 300 N", s_) for sx, s_ in zip((-1, 1), list(springs.solids()))] \
+            if len(list(springs.solids())) == 2 else [("Return springs", springs)]
+        addp("springs", "Return springs", pcs, "#D4A017", 6, "buy", "press")
+    else:
+        add("springs", "Return springs", springs, "#D4A017", 6, "buy", "press", (0, 0, 0))
 
     # ---- Rails with the folding extension and its tipping pins
     rw = P["RAIL_W"] / 2
@@ -786,7 +883,11 @@ def components(P=PARAMS):
         rp = cyl_between((sx * (fr - 18), 0, zc0 + 6), (sx * (fr + 40), 0, zc0 + 6), 5) + \
             cyl_between((sx * (fr + 40), 0, zc0 + 6 - 12), (sx * (fr + 40), 0, zc0 + 6 + 12), 3)
         rpins = rp if rpins is None else rpins + rp
-    add("retaining_pins", "Mold retaining pins", rpins, "#111827", 7, "make", "press", (0, 0, 0))
+    if detail:
+        addp("retaining_pins", "Mold retaining pins", [(f"Mold retaining pin, 10 mm, {n}", s_) for n, s_ in
+             zip(("left", "right"), sorted(rpins.solids(), key=lambda q: q.center().X))], "#111827", 7, "make", "press")
+    else:
+        add("retaining_pins", "Mold retaining pins", rpins, "#111827", 7, "make", "press", (0, 0, 0))
 
     # ---- Female mold: steel base plate, cast aluminum cup, two locating pins
     rb, rt, h = pot_outer(P)
@@ -799,6 +900,8 @@ def components(P=PARAMS):
     cup_bolts = [(137 * math.cos(math.radians(a)), 137 * math.sin(math.radians(a))) for a in (45, 135, 225, 315)]
     for (x_, y_) in cup_bolts:
         plate -= cyl(4.5, L["fm0"] - 1, zp1 + 1, x_, y_) + cone(8.5, 4.5, L["fm0"] - 0.01, L["fm0"] + 4, x_, y_)
+    for a_ in (45, 225):                                   # M12 lifting eye bolt holes, tapped through (DDR-006)
+        plate -= cyl(5.1, L["fm0"] - 1, zp1 + 1, P["PLATE_EYE_R"] * math.cos(math.radians(a_)), P["PLATE_EYE_R"] * math.sin(math.radians(a_)))
     add("fm_plate", "Female mold base plate", plate, "#6B7280", 8, "make", "mold", (0, 0, 0))
     r_out0 = rb + sh - slope * (L["pot0"] - zp1)
     z_fl0 = L["fm1"] - P["FM_FLANGE_T"]
@@ -820,8 +923,16 @@ def components(P=PARAMS):
         p_ = cyl(P["LOC_PIN_D"] / 2, L["fm1"] - P["LOC_PIN_DEPTH"], L["fm1"] + P["LOC_PIN_PROUD"] - 3, sx * P["LOC_PIN_R"]) + \
             cone(P["LOC_PIN_D"] / 2, P["LOC_PIN_D"] / 2 - 3, L["fm1"] + P["LOC_PIN_PROUD"] - 3, L["fm1"] + P["LOC_PIN_PROUD"], sx * P["LOC_PIN_R"])
         locp = p_ if locp is None else locp + p_
-    add("loc_pins", "Locating pins, 2 x 16 mm", locp, "#111827", 8, "buy", "mold", (0, 0, 0))
-    add("fm_screws", "Base plate screws, 4 x M8", screws, "#111827", 8, "buy", "mold", (0, 0, 0))
+    if detail:
+        addp("loc_pins", "Locating pins, 2 x 16 mm", [(f"Dowel pin 16 mm, hardened (ISO 8734), {n}", s_) for n, s_ in
+             zip(("left", "right"), sorted(locp.solids(), key=lambda q: q.center().X))], "#111827", 8, "buy", "mold")
+        pcs = []
+        for (x_, y_) in cup_bolts:
+            pcs += pp.countersunk(8, zp1 + 14 - L["fm0"], (x_, y_, L["fm0"]), "+z")
+        addp("fm_screws", "Base plate screws, 4 x M8", pcs, "#111827", 8, "buy", "mold")
+    else:
+        add("loc_pins", "Locating pins, 2 x 16 mm", locp, "#111827", 8, "buy", "mold", (0, 0, 0))
+        add("fm_screws", "Base plate screws, 4 x M8", screws, "#111827", 8, "buy", "mold", (0, 0, 0))
 
     # ---- Male mold: plug open at the back (drafted core space), 45 mm flange with two steel bushes
     sl = (P["R_IN_RIM"] - P["R_IN_BOT"]) / P["D_IN"]
@@ -833,9 +944,10 @@ def components(P=PARAMS):
     male -= cone(r_c0, r_c1, L["adapter0"], L["mm1"] + 0.01)
     for sx in (-1, 1):
         male -= cyl(P["BUSH_OD"] / 2, L["fm1"] - 1, L["mm1"] + 1, sx * P["LOC_PIN_R"])
+        male -= cyl(5.1, L["mm1"] - P["EYE_DEPTH"], L["mm1"] + 1, 0.0, sx * P["EYE_R"])     # M12 eye bolt hole (DDR-006)
     ad_bolts = [(75.0, 0.0), (-75.0, 0.0), (0.0, 75.0), (0.0, -75.0)]
-    for (x_, y_) in ad_bolts:
-        male -= cyl(5, L["adapter0"] - 20, L["adapter0"] + 1, x_, y_)
+    for (x_, y_) in ad_bolts:                           # M12 tapped holes (drawn at the major diameter in detail)
+        male -= cyl(6 if detail else 5, L["adapter0"] - 20, L["adapter0"] + 1, x_, y_)
     add("mm", "Male mold (cast aluminum)", male, "#94A3B8", 9, "cast", "mold", (0, 0, 0))
     bushes = None
     for sx in (-1, 1):
@@ -843,7 +955,11 @@ def components(P=PARAMS):
             cone(P["LOC_PIN_D"] / 2 + P["LOC_CLEAR"] / 2 + 2, P["LOC_PIN_D"] / 2 + P["LOC_CLEAR"] / 2, L["fm1"] - 0.1, L["fm1"] + 2, sx * P["LOC_PIN_R"]) - \
             cyl(P["LOC_PIN_D"] / 2 + P["LOC_CLEAR"] / 2, L["fm1"] - 1, L["mm1"] + 1, sx * P["LOC_PIN_R"])
         bushes = b_ if bushes is None else bushes + b_
-    add("bushes", "Locating bushes, 2 x 16 mm", bushes, "#111827", 9, "buy", "mold", (0, 0, 0))
+    if detail:
+        addp("bushes", "Locating bushes, 2 x 16 mm", [(f"Locating bush 22 x 16 mm, hardened steel, {n}", s_) for n, s_ in
+             zip(("left", "right"), sorted(bushes.solids(), key=lambda q: q.center().X))], "#111827", 9, "buy", "mold")
+    else:
+        add("bushes", "Locating bushes, 2 x 16 mm", bushes, "#111827", 9, "buy", "mold", (0, 0, 0))
 
     # ---- Stem: SHS 90 x 8 on a steel adapter disc, pin block, lead screw nut box with free space under the nut
     t = P["STEM_T"]
@@ -864,7 +980,13 @@ def components(P=PARAMS):
         a_ = cyl(6, L["adapter0"] - 18, L["stem0"] + 12, x_, y_) - cyl(6.1, L["adapter0"] - 20, L["adapter0"], x_, y_) + \
             cyl(5, L["adapter0"] - 18, L["adapter0"], x_, y_) + cyl(9, L["stem0"], L["stem0"] + 12, x_, y_)
         abolts = a_ if abolts is None else abolts + a_
-    add("adapter_bolts", "Adapter bolts, 4 x M12", abolts, "#111827", 10, "buy", "slide", (0, 0, 0))
+    if detail:
+        pcs = []
+        for (x_, y_) in ad_bolts:
+            pcs += pp.tapped(12, 40, (x_, y_, L["stem0"]), "-z")
+        addp("adapter_bolts", "Adapter bolts, 4 x M12", pcs, "#111827", 10, "buy", "slide")
+    else:
+        add("adapter_bolts", "Adapter bolts, 4 x M12", abolts, "#111827", 10, "buy", "slide", (0, 0, 0))
     ph = P["PIN_HEAD_T"]; y_face = -(yw + P["DOUBLER_T"])
     pin = cyl_y(P["PIN_D"] / 2, y_face, y_face + P["PIN_L"], 0, L["pin"]) + cyl_y(P["PIN_D"] / 2 + 10, y_face - ph, y_face, 0, L["pin"])
     pin -= cyl(3, L["pin"] - 40, L["pin"] + 40, 0, -y_face + 20)
@@ -896,12 +1018,21 @@ def components(P=PARAMS):
             q = cyl(6, L["top1"] - b["tf"] - 12, L["top1"] + 18, x_, sy * 100) + cyl(10, L["top1"] + 10, L["top1"] + 18, x_, sy * 100) + \
                 cyl(10, L["top1"] - b["tf"] - 10, L["top1"] - b["tf"], x_, sy * 100)
             bb_ = q if bb_ is None else bb_ + q
-    add("bracket_bolts", "Bracket bolts, 4 x M12", bb_, "#111827", 10, "buy", "slide", (0, 0, 0))
+    if detail:
+        pcs = []
+        for x_ in (-40, 40):
+            for sy in (-1, 1):
+                pcs += pp.bolt_set(12, 10 + b["tf"], (x_, sy * 100, L["top1"] + 10), "-z")
+        addp("bracket_bolts", "Bracket bolts, 4 x M12", pcs, "#111827", 10, "buy", "slide")
+    else:
+        add("bracket_bolts", "Bracket bolts, 4 x M12", bb_, "#111827", 10, "buy", "slide", (0, 0, 0))
 
     # ---- Pressed filter pot
     add("pot", "Pressed filter pot", pot(L["pot0"], P=P), "#C8875A", 11, "product", "mold", (0, 0, 0))
 
-    # ---- QC rack, 2 x 2 stations: angle legs and shelf frames, plywood shelves
+    # ---- QC rack, 2 x 2 stations: angle legs and shelf frames, plywood shelves. Holds FIRED pots (DDR-006)
+    F = fired_params(P)
+    rb, rt, h = pot_outer(F)
     x0 = P["QC_X0"]; pch = P["QC_PITCH"]; W = 2 * pch; y0 = -pch
     lg, at = P["QC_LEG"], P["QC_ANGLE_T"]
     zs, zbk, st = P["QC_SHELF_Z"], P["QC_BUCKET_Z"], P["QC_SHELF_T"]
@@ -920,14 +1051,14 @@ def components(P=PARAMS):
         for yy in (y0, y0 + W - lg - 1):
             shelves -= box(xx, xx + lg + 1, yy, yy + lg + 1, zbk - st - 1, zbk + 1)
     add("qc_shelves", "QC rack shelves (plywood)", shelves, "#D6B98C", 12, "make", "qc", (0, 0, 0))
-    z_tp = zs + P["RIM_T"] - h
+    z_tp = zs + F["RIM_T"] - h
     tp = None
     for (sx_, sy_) in stations:
-        p_ = pot(z_tp, sx_, sy_, P)
+        p_ = pot(z_tp, sx_, sy_, F)
         tp = p_ if tp is None else tp + p_
     add("test_pots", "Test pots in the QC rack", tp, "#C8875A", None, "product", "qc", (0, 0, 0))
     gx_, gy_ = stations[0]
-    zrim = zs + P["RIM_T"]
+    zrim = zs + F["RIM_T"]
     gauge = box(gx_ - 6, gx_ + 6, gy_ - 170, gy_ + 170, zrim, zrim + 12) + \
         box(gx_ - 4, gx_ + 4, gy_ - 4, gy_ + 4, zrim - P["GAUGE_SCALE"], zrim)
     add("gauge", "Printed T-gauge", gauge, "#F59E0B", 13, "print", "qc", (0, 0, 0))
@@ -936,10 +1067,10 @@ def components(P=PARAMS):
         b_ = cyl(P["BUCKET_D"] / 2, zbk, zbk + P["BUCKET_H"], sx_, sy_) - cyl(P["BUCKET_D"] / 2 - 3, zbk + 3, zbk + P["BUCKET_H"] + 1, sx_, sy_)
         bk = b_ if bk is None else bk + b_
     add("buckets", "Collection buckets", bk, "#2563EB", 14, "buy", "qc", (0, 0, 0))
-    wz0 = z_tp + P["WALL"] + 0.5
+    wz0 = z_tp + F["WALL"] + 0.5
     wz1 = zrim - 10
-    rw1 = P["R_IN_BOT"] + (P["R_IN_RIM"] - P["R_IN_BOT"]) * (wz1 - wz0) / P["D_IN"]
-    add("water", "Water in test pot", cone(P["R_IN_BOT"] - 0.5, rw1 - 0.5, wz0, wz1, gx_, gy_), "#7DD3FC", None, "product", "qc", (0, 0, 0))
+    rw1 = F["R_IN_BOT"] + (F["R_IN_RIM"] - F["R_IN_BOT"]) * (wz1 - wz0) / F["D_IN"]
+    add("water", "Water in test pot", cone(F["R_IN_BOT"] - 0.5, rw1 - 0.5, wz0, wz1, gx_, gy_), "#7DD3FC", None, "product", "qc", (0, 0, 0))
 
     # ---- Fixed guards: welded mesh on 25 x 25 x 3 angle frames; standoffs bolted to the beam webs
     g = guard_solids(P)
@@ -1002,6 +1133,188 @@ def bd_comp(shapes):
     return bd.Compound(children=list(shapes))
 
 
+# ---------------------------------------------------------------------------
+# Kit 1.9 interface (STANDARDS section 24): every concept option as cad_parts.part() dicts at detail level D3
+# ---------------------------------------------------------------------------
+TITLE = "PotPress"
+OPTIONS = {"A": "Hydraulic bottle-jack press", "B": "Toggle (scissor) lever press", "C": "Power-screw press"}
+PRINCIPLES = {
+    "A": "A 20 t hand-pumped bottle jack lifts the platen and female mold onto a pinned male mold in a bolted "
+         "UPN channel frame; the operator sets the force by pumping (current design).",
+    "B": "A 1.1 m hand lever turns the upper link of a toggle; as the links straighten the knee drives a guided "
+         "crosshead and the male mold down, force rising steeply at the bottom of the stroke.",
+    "C": "A four-bar capstan turns a Tr40 x 7 screw through a bronze nut in the crown, driving the crosshead and "
+         "male mold down; the screw self-locks at any height.",
+}
+CHOSEN = "A"
+OPTION_VIEWS = {k: {"el": 20, "az": -50, "scale": "person", "ground_z": 0} for k in OPTIONS}
+# Pairs that share volume on purpose (substring pairs, as cad_check.py reads them): the pressed pot fills the
+# mold cavities; the gauge stem stands in the test water, which fills the test pot
+ALLOWED_CONTACTS = [("Pressed filter pot", "Female mold (cast"), ("Pressed filter pot", "Male mold (cast"),
+                    ("Printed T-gauge", "Water in test pot"), ("Water in test pot", "Test pots")]
+
+# option A component keys -> (cad_parts material, kind); fastener groups give kind "fastener" per piece
+A_MAT = {
+    "foot_left": ("painted_steel", "made"), "foot_right": ("painted_steel", "made"), "anchors": ("zinc_plated", "fastener"),
+    "studs_left": ("zinc_plated", "fastener"), "studs_right": ("zinc_plated", "fastener"),
+    "base_beam": ("painted_steel", "made"), "jack_plate": ("mild_steel", "made"), "jack_plate_bolts": ("zinc_plated", "fastener"),
+    "upright_left": ("painted_steel", "made"), "upright_right": ("painted_steel", "made"),
+    "tubes_left": ("mild_steel", "made"), "tubes_right": ("mild_steel", "made"),
+    "shims_left": ("galvanised", "made"), "shims_right": ("galvanised", "made"),
+    "bolts_left": ("zinc_plated", "fastener"), "bolts_right": ("zinc_plated", "fastener"),
+    "top_beam": ("painted_steel", "made"), "liners": ("hdpe_natural", "made"),
+    "jack": ("safety_red", "bought"), "pump_handle": ("mild_steel", "bought"),
+    "platen": ("painted_steel", "made"), "springs": ("zinc_plated", "bought"),
+    "rails": ("mild_steel", "made"), "extension": ("mild_steel", "made"), "carriage": ("painted_steel", "made"),
+    "retaining_pins": ("zinc_plated", "made"),
+    "fm_plate": ("mild_steel", "made"), "fm_cup": ("cast_aluminium", "made"), "loc_pins": ("stainless", "fastener"),
+    "fm_screws": ("zinc_plated", "fastener"), "mm": ("cast_aluminium", "made"), "bushes": ("mild_steel", "bought"),
+    "stem": ("painted_steel", "made"), "adapter_bolts": ("zinc_plated", "fastener"), "pin": ("mild_steel", "made"),
+    "nut": ("brass", "bought"), "screw": ("mild_steel", "bought"), "bracket": ("painted_steel", "made"),
+    "bracket_bolts": ("zinc_plated", "fastener"), "pot": ("mud", "made"),
+    "qc_frame": ("painted_steel", "made"), "qc_shelves": ("plywood", "made"), "test_pots": ("mud", "context"),
+    "gauge": ("hdpe_natural", "made"), "buckets": ("hdpe_natural", "bought"), "water": ("water", "context"),
+    "pump_shield": ("galvanised", "made"), "opening_plates": ("painted_steel", "made"),
+    "beam_covers": ("painted_steel", "made"), "bracket_covers": ("painted_steel", "made"),
+    "release": ("mild_steel", "made"), "lock_post": ("painted_steel", "made"), "lock_rod": ("zinc_plated", "made"),
+    "sliders": ("safety_red", "made"), "pin_sensor": ("safety_red", "made"),
+}
+A_COLOR = {"buckets": "#2563EB", "gauge": "#F59E0B", "pot": "#B5734A", "test_pots": "#B5734A"}
+MOLD_KEYS = ("rails", "carriage", "retaining_pins", "fm_plate", "fm_cup", "loc_pins", "fm_screws", "mm", "bushes", "pot")
+QC_KEYS = ("qc_frame", "qc_shelves", "test_pots", "gauge", "buckets", "water")
+WELD_LEG = 5.0
+_CACHE = {}
+
+
+def _is_bare(shape):
+    """As .kit/cad_check.py: an untouched box or a plain cylinder."""
+    try:
+        f = shape.faces()
+        return len(f) == 3 or (len(f) == 6 and all(str(x.geom_type).endswith("PLANE") for x in f))
+    except Exception:
+        return False
+
+
+def _kpart(name, shape, mat, kind, bom, group, key=None, color=None):
+    import cad_parts as cp
+    if kind in ("made", "bought") and _is_bare(shape):
+        shape = cp.break_edges(shape, 1.0)                    # the edge break a cut or bought part has
+    import build123d as bd
+    if isinstance(shape, bd.Solid):                           # a solid taken out of a compound with .solids() will not
+        shape = bd.Solid(shape.wrapped)                       # write to STEP on its own (build123d 0.13); a fresh wrapper does
+    q = cp.part(name, shape, mat, kind=kind, bom=bom, group=group, color=color)
+    q["key_src"] = key
+    return q
+
+
+def _a_welds(P=PARAMS):
+    """Fillet weld beads of option A, each a part with its parent's BOM line (5 mm leg)."""
+    import ppr_parts as pp
+    L = levels(P)
+    b = SECTIONS[P["BEAM_SEC"]]; pl = SECTIONS[P["PLATEN_SEC"]]
+    g2, bl, lg = P["BEAM_GAP"] / 2, P["BEAM_L"] / 2, WELD_LEG
+    yw = g2 + b["tw"]
+    out = []
+    W = lambda name, sh, bom, grp: out.append((name, sh, bom, grp))   # noqa: E731
+    for z0, nm, bom in ((L["base0"], "base beam", 1), (L["top0"], "top crossbeam", 3)):
+        for sx in (-1, 1):
+            for sy in (-1, 1):
+                W(f"Weld, {nm} end block {'right' if sx > 0 else 'left'} {'back' if sy > 0 else 'front'}",
+                  pp.weld((sx * (bl - P["END_BLOCK_L"]), sy * g2, z0 + b["tf"]), (0, 0, 1), b["h"] - 2 * b["tf"], lg, (-sx, 0, 0), (0, -sy, 0)),
+                  bom, "frame")
+    for sx in (-1, 1):                                          # spring anchor lugs on the base beam's top flanges
+        for side in (-1, 1):
+            xf = sx * P["SPRING_X"] + side * 15
+            for sy in (-1, 1):
+                W(f"Weld, spring lug {'right' if sx > 0 else 'left'} {'outer' if side * sx > 0 else 'inner'} edge {'back' if sy > 0 else 'front'}",
+                  pp.weld((xf, min(sy * g2, sy * 75), L["base1"]), (0, 1, 0), 75 - g2, lg, (side, 0, 0), (0, 0, 1)), 1, "frame")
+    for sy in (-1, 1):                                          # pin doublers on the top crossbeam webs
+        y = sy * (yw + P["DOUBLER_T"])
+        for zz, v, lv in ((L["top1"] - b["tf"], -1, "top"), (L["top0"] + b["tf"], 1, "bottom")):
+            spans = [(-95, -30), (30, 95)] if (sy < 0 and v < 0) else [(-95, 95)]   # the pin plunger and cable pass at the front top
+            for x0, x1 in spans:
+                W(f"Weld, pin doubler {'back' if sy > 0 else 'front'} {lv} {x0:+.0f}",
+                  pp.weld((x0, y, zz), (1, 0, 0), x1 - x0, lg, (0, sy, 0), (0, 0, v)), 3, "frame")
+    for sy in (-1, 1):                                          # jack pad between the platen channel webs
+        W(f"Weld, platen jack pad {'back' if sy > 0 else 'front'}",
+          pp.weld((-95, sy * g2, L["platen0"] + P["PLATEN_PAD_T"]), (1, 0, 0), 190, lg, (0, 0, 1), (0, -sy, 0)), 5, "press")
+    s2 = P["STEM"] / 2                                          # stem SHS on its adapter disc
+    for k, (o, along, u) in enumerate((((s2, -s2 + lg), (0, 1, 0), (1, 0, 0)), ((-s2, -s2 + lg), (0, 1, 0), (-1, 0, 0)),
+                                       ((-s2 + lg, s2), (1, 0, 0), (0, 1, 0)), ((-s2 + lg, -s2), (1, 0, 0), (0, -1, 0)))):
+        W(f"Weld, stem to adapter disc {('right', 'left', 'back', 'front')[k]}",
+          pp.weld((o[0], o[1], L["stem0"]), along, P["STEM"] - 2 * lg, lg, u, (0, 0, 1)), 10, "slide")
+    for sx in (-1, 1):                                          # crank bracket side plates to base and top plates
+        for face in (-1, 1):
+            x = sx * 80 + face * 5
+            for zz, v, lv in ((L["top1"] + 10, 1, "base"), (L["bracket0"], -1, "top")):
+                W(f"Weld, crank bracket {'right' if sx > 0 else 'left'} side plate {'outer' if face * sx > 0 else 'inner'} to {lv} plate",
+                  pp.weld((x, -75, zz), (0, 1, 0), 150, lg, (face, 0, 0), (0, 0, v)), 10, "slide")
+    return out
+
+
+def option_a_parts(P=PARAMS):
+    """Option A (the current design, PPR-DDR-004 and DDR-006) as kit 1.9 parts: every press_components(detail=True)
+    component, the fasteners piece by piece, the guards panel by panel, the gate in its parts, the cover plate screws
+    and the weld beads. BOM line numbers from bom/bom.csv."""
+    if "A" in _CACHE:
+        return list(_CACHE["A"])
+    import ppr_parts as pp
+    L = levels(P)
+    b = SECTIONS[P["BEAM_SEC"]]
+    comps = press_components(P, detail=True)
+    by = {c.key: c for c in comps}
+    # cover plate screws (BOM 16): 8 x M8 into the top beam flanges, 8 x M6 into the crank bracket side plate edges
+    tc = P["BEAM_COVER_T"]
+    cov_pts = [(sx * x, sy * 85.0) for sx in (-1, 1) for x in (130.0, 390.0) for sy in (-1, 1)]
+    brk_pts = [(sx * 80.0, sy, z) for sx in (-1, 1) for sy in (-1, 1) for z in (L["top1"] + 60, L["top1"] + 240)]
+    for x_, y_ in cov_pts:
+        by["beam_covers"].shape = by["beam_covers"].shape - cyl(4.5, L["top1"] - 1, L["top1"] + tc + 1, x_, y_)
+        by["top_beam"].shape = by["top_beam"].shape - cyl(4, L["top1"] - b["tf"] - 1, L["top1"] + 1, x_, y_)
+    for x_, sy, z_ in brk_pts:
+        y_in = sy * 80.0
+        by["bracket_covers"].shape = by["bracket_covers"].shape - cyl_y(3.25, *sorted((sy * 79.0, sy * 83.0)), x_, z_)
+        by["bracket"].shape = by["bracket"].shape - cyl_y(3, *sorted((y_in - sy * 13.0, y_in + sy * 1.0)), x_, z_)
+    out = []
+    for c in comps:
+        if c.key in ("guards", "gate"):
+            continue
+        mat, kind = A_MAT[c.key]
+        col = A_COLOR.get(c.key)
+        if c.pieces:
+            for nm, sh in c.pieces:
+                k = kind if kind != "fastener" or not ("spring" in nm.lower()) else "bought"
+                out.append(_kpart(nm, sh, mat, k, c.bom, c.group, c.key, col))
+        else:
+            name = {"pot": "Pressed filter pot", "fm_cup": "Female mold (cast aluminium)", "mm": "Male mold (cast aluminium)",
+                    "gauge": "Printed T-gauge", "water": "Water in test pot", "test_pots": "Test pots in the QC rack (fired)"}.get(c.key, c.name)
+            out.append(_kpart(name, c.shape, mat, kind, c.bom if kind != "context" else None, c.group, c.key, col))
+    for nm, sh in [q for x_, y_ in cov_pts for q in pp.tapped(8, 16, (x_, y_, L["top1"] + tc), "-z")]:
+        out.append(_kpart(nm, sh, "zinc_plated", "fastener", 16, "guard", "cover_screws"))
+    for x_, sy, z_ in brk_pts:
+        for nm, sh in pp.tapped(6, 12, (x_, sy * (80.0 + P["BRK_COVER_T"]), z_), "-y" if sy > 0 else "+y"):
+            out.append(_kpart(nm, sh, "zinc_plated", "fastener", 16, "guard", "cover_screws"))
+    for nm, kind, sols in guard_pieces(P):
+        sh = sols[0] if len(sols) == 1 else bd_comp(sols)
+        mat = "galvanised" if kind in ("mesh", "frame") else "painted_steel"
+        out.append(_kpart(nm, sh, mat, "made", 16, "guard", "guards"))
+    for nm, kind, sols in gate_geometry(P, pieces=True):
+        sh = sols[0] if len(sols) == 1 else bd_comp(sols)
+        mat = "galvanised" if kind == "mesh" else ("zinc_plated" if kind == "hinge" else "safety_yellow")
+        out.append(_kpart(nm, sh, mat, "bought" if kind == "hinge" else "made", 20, "guard", "gate"))
+    for nm, sh, bom, grp in _a_welds(P):
+        out.append(_kpart(nm, sh, "mild_steel", "weld", bom, grp, "weld"))
+    _CACHE["A"] = out
+    return list(out)
+
+
+def components(option=CHOSEN):
+    """Kit 1.9: the parts of one concept option (A, B or C) as cad_parts.part() dicts, press closed."""
+    if option == "A":
+        return option_a_parts()
+    import options_bc
+    return {"B": options_bc.option_b, "C": options_bc.option_c}[option]()
+
+
 BOM_NAMES = {
     1: ("Base beam, feet and jack plate", "#4B5563", (0, 0, -260)),
     2: ("Uprights with bolted joints", "#6B7280", (0, 0, 0)),
@@ -1027,7 +1340,7 @@ LOOSE = {"test_pots": ("Test pots in the QC rack", (0, 0, 300)), "water": ("Wate
 def build_parts(P=PARAMS, comps=None):
     """Components grouped by BOM line: a list of (name, shape, color, bom_no, explode_offset). Press closed."""
     bd = _b()
-    comps = comps or components(P)
+    comps = comps or press_components(P)
     parts = []
     for bom, (name, color, exp) in BOM_NAMES.items():
         kids = [c.shape for c in comps if c.bom == bom]
@@ -1090,7 +1403,7 @@ def _bb_apart(A, B, pad=0.0):
 def check_fits(comps=None, tol=1.0, verbose=True, contacts=None):
     """No two components may overlap (intersection volume under tol mm3), and every CONTACTS pair must touch.
     Compounds are split into solids so the mesh guards check quickly. Returns (overlaps, gaps)."""
-    comps = comps or components()
+    comps = comps or press_components()
     by = {c.key: c for c in comps}
     sol = {c.key: [(s_, s_.bounding_box()) for s_ in _solids(c.shape)] for c in comps}
     bbs = {c.key: c.shape.bounding_box() for c in comps}
@@ -1179,7 +1492,7 @@ def check_states(comps=None, verbose=True):
     bd = _b()
     P = PARAMS
     L = levels(P)
-    comps = comps or components()
+    comps = comps or press_components()
     fails = []
     skip = {frozenset(("lock_rod", "release"))}             # checked on their own below
     for state in ("open", "demold"):
@@ -1254,7 +1567,7 @@ def check_guard_fixes(comps=None, verbose=True, min_clear=1.0, n=6):
     bd = _b()
     P = PARAMS
     L = levels(P)
-    comps = comps or components()
+    comps = comps or press_components()
     by = {c.key: c for c in comps}
     fixed = {k: by[k].shape for k in CLOSURES}
     plat = WITH_PLATEN + ("springs",)
@@ -1433,7 +1746,7 @@ def iso13857_check(comps=None, verbose=True):
     bd = _b()
     P = PARAMS
     L = levels(P)
-    comps = comps or components()
+    comps = comps or press_components()
     states = {"closed": comps, "open": moved(comps, "open")}
     haz = {k: [c for c in v if c.key in HAZARD] for k, v in states.items()}
 
@@ -1528,7 +1841,7 @@ def iso13857_check(comps=None, verbose=True):
 if __name__ == "__main__":
     import sys
     from build123d import Compound, export_step, export_stl
-    comps = components()
+    comps = press_components(detail="--detail" in sys.argv)
     if "--iso" in sys.argv:
         iso13857_check(comps)
         sys.exit(0)
@@ -1544,16 +1857,18 @@ if __name__ == "__main__":
         fl += [("iso", x) for x in short]
         print("constructability checks:", "PASS" if not (ov or gp or fl) else "FAIL")
         sys.exit(1 if (ov or gp or fl) else 0)
+    # STEP files (per part of option A in cad/step/A/, an assembly per option) are written by
+    # python .kit/cad_check.py --export (kit 1.9). This writes the STL files for printing and viewing, at a 0.15 mm
+    # chord tolerance (STANDARDS section 24), from the detailed parts.
     root = Path(__file__).resolve().parents[1]
-    (root / "step").mkdir(exist_ok=True); (root / "stl").mkdir(exist_ok=True)
+    (root / "stl").mkdir(exist_ok=True)
+    comps = press_components(detail=True)
     parts = build_parts(comps=comps)
     by = {c.key: c.shape for c in comps}
-    export_step(assembly(parts), str(root / "step" / "potpress-assembly.step"))
-    export_step(press_only(parts), str(root / "step" / "potpress-press.step"))
+    tol = dict(tolerance=0.15, angular_tolerance=0.3)
     for key, stem in [("fm_cup", "female-mold"), ("mm", "male-mold"), ("pot", "filter-pot"), ("gauge", "t-gauge")]:
-        export_step(Compound(children=[by[key]]), str(root / "step" / f"{stem}.step"))
-        export_stl(by[key], str(root / "stl" / f"{stem}.stl"))
-    export_stl(press_only(parts), str(root / "stl" / "potpress-press.stl"))
+        export_stl(by[key], str(root / "stl" / f"{stem}.stl"), **tol)
+    export_stl(press_only(parts), str(root / "stl" / "potpress-press.stl"), **tol)
     L = levels()
     P_ = PARAMS
     bb = press_only(parts).bounding_box()
@@ -1563,4 +1878,4 @@ if __name__ == "__main__":
     print(f"without the pump handle {nh.size.X:.0f} x {nh.size.Y:.0f} mm; the handle stands {bb.max.X - nh.max.X:.0f} mm outside the right guard while pumping")
     print(f"guard mesh planes {2 * P_['GUARD_X']:.0f} x {P_['GUARD_Y_BACK'] - P_['GUARD_Y_FRONT']:.0f} mm; y from {bb.min.Y:.0f} to {bb.max.Y:.0f}")
     print(f"overall height {L['overall']:.0f} mm; male tip above female rim when open {L['open_gap']:.0f} mm")
-    print("wrote cad/step/*.step and cad/stl/*.stl")
+    print("wrote cad/stl/*.stl")

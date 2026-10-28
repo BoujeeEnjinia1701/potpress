@@ -1,4 +1,204 @@
-# Review note: PotPress
+# PotPress review notes
+
+## Session 2026-10-25: decisions
+
+Amish, 2026-10-25 10:19 CT, after a report listing each repo's proposed decisions and recommendations: "i concur with your recommendations". Every decision that carried a recommendation is recorded as decided with the option recommended; every decision without a pick stays open.
+
+### Decided by Amish, 2026-10-25
+
+- **D1 concept:** option A, the hydraulic bottle-jack press (125 of 160, 10.4 % ahead of B). `project.yaml` `concept_chosen: A`; PPR-DDR-005 v0.3 decided; PPR-OPT-001 v0.4; PPR-PLN-001 v0.3; README. No design change.
+- **D7 guard panel corners:** option (a), as modelled on 2026-10-24 (rear guard 884 mm, front left strip 152 mm, right side guard 607 mm). No further change; already in `cad/src/model.py`, PPR-DWG-110 Rev P5 and the build plan.
+- **D8 PR-013 local spares:** option (a), text as drafted. PPR-PRS-001 v0.16 and PPR-URS-001 v0.3 record it; status met on paper, regional availability to confirm at TRL 4.
+- **D9 working force:** option (a). What changed:
+  - `docs/04-calcs/sizing.py`: `PUMP_EFF = 0.85` counted in the handle force; working force limit 6.4 to **5.4 t**; handle force at the limit about 148 N (was 150 N frictionless at 6.4 t); 274 N at 10 t and 547 N at 20 t (were 233 and 465 N); mean pressure at the limit 0.57 to 0.48 MPa. No dimension, mass or cost changed.
+  - PPR-PRS-001 v0.16: PR-003 states 10 t as a structural check case; PR-004 at 5.4 t. Statuses unchanged (met on paper).
+  - PPR-CAL-001 v0.13 (Table 3, section 5, R4 row, changes list); PPR-STM-001 v0.4 and `stem_check.py` (S4, S5, S8 restated; S8 now 148 N against the 150 N screen, still Plausible, to confirm by EN 1005-3, so `stem_check` stays open); PPR-RSK-001 v0.3 (P2, H10); PPR-FEA-001 v0.3; PPR-PRC-001 v0.13; PPR-OPT-001 v0.4; PPR-BLD-001 v0.9 (safety stop S8); README safety note and summary; concept sheet PPR-DWG-010 Rev P6 (key figures, `cad/src/concept_media.py`).
+- PPR-DEC-001 v0.9: D1, D7, D8 and D9 moved to decisions made.
+
+### Still open (no recommendation to concur with)
+
+- **D6** two-speed pump if trials need more than the working force limit (now 5.4 t): the recommendation was "decide after trials".
+- Product render appearance deviations of 2026-10-24 (mesh wire by wire, coiled springs, polished ram, nameplate and labels): listed as proposed with no option recommended.
+- PPR-PRB-001 open question: which partner factory first (no recommended answer; partners are picked per area later).
+
+### Checks
+
+Run in this order on 2026-10-25 after the last edit to `cad/src/` (`concept_media.py`) and with `bom/bom.csv` unchanged:
+
+- `python3 docs/04-calcs/sizing.py`: runs; working force limit 5.4 t, 148 N at the handle with 85 % efficiency; every other figure unchanged (BOM USD 1,279).
+- `python3 docs/04-calcs/stem_check.py`: 36 within, 1 plausible (S8), 0 fail; `stem_check` stays open on S8.
+- `python3 .kit/trace.py`: RTM regenerated, 0 gaps.
+- `python3 .kit/cad_check.py --export`: PASS at D3 (309.8 s).
+- `python3 .kit/render.py` and `python3 .kit/render.py --check`: pass, no FAIL.
+- `python3 -m reuse lint`: compliant.
+- Em and en dash scan outside `.kit/` and `LICENSES/`: none.
+- Concept sheet PPR-DWG-010 regenerated (`python3 cad/src/concept_media.py blueprint`).
+
+## Session 2026-10-24: kit 1.9.1 upgrade
+
+Amish, 2026-10-24: "I want detailed TRL3 CAD - and in fact want to ensure the CAD is detailed across all TRLs", "Detail every option" and "Kit 1.9.1 rollout - proceed to rollout across the other repos". PotPress already had the kit 1.8 pipeline (pilot, 2026-10-23); this session reviewed those documents against kit 1.9.1, filled the gaps and rebuilt the CAD to the kit 1.9 interface at detail level D3 for every option.
+
+### What was added
+
+- `cad/src/model.py` (kit 1.9 interface): `PARAMS` (unchanged design numbers), `OPTIONS`, `PRINCIPLES`, `CHOSEN = "A"`, `OPTION_VIEWS`, `ALLOWED_CONTACTS`, `TITLE` and `components(option)` returning `cad_parts.part()` dicts with material, kind and BOM line. Option A is the constructable design part by part: the old `components()` is now `press_components(P, detail)`, where `detail=True` draws every bolt, nut, washer, stud, anchor, dowel and screw as an ISO part in its hole (ISO 4017, 4032, 7089, 10642, 8734), the feet with holes for loose studs, the guards panel by panel (frame and mesh), the gate in its parts, 16 cover plate screws in tapped holes, and 35 fillet weld beads. `detail=False` keeps the simplified fastener solids the PPR-CAL-001 masses were set with, so `sizing.py` numbers do not move.
+- `cad/src/options_bc.py`: option B (toggle lever press) and option C (power-screw press) modelled from scratch at D3: feet, base beam, bed plate, bolted UPN 100 upright pairs with M16 10.9 joints, shims and spacer tubes, head beam or crown, guided crosshead with sleeves, stem and adapter disc; B with an 80 mm link toggle on 40 mm clevis pins in bronze bushes, 1.1 m lever in a welded socket, return springs; C with a Tr40 x 7 screw, flanged bronze crown nut, thrust swivel and four-bar capstan. Both share A's molds, rails, carriage, pressed pot and QC rack. The guard of A applies to all three but is drawn on A only.
+- `cad/src/ppr_parts.py`: repo helpers (bolt sets, tapped screws, stud anchors, countersunk screws and weld beads on any axis).
+- `cad/src/product_model.py` rebuilt from `components(CHOSEN)` plus site context: a filter workshop's concrete slab, blockwork back wall, shed posts, a pallet of clay mix, an anti-fatigue mat and a 1.75 m mannequin on the floor. Ground at z = 0; every site part reaches below it. `RENDER_VIEWS`: **hero** (`--scene=outdoor --ground=concrete --ground-z=0 --sun=42,-20 --lens=45`, camera azimuth -40 deg), **studio**, **exploded**, **lineup**, **gate-open**. Appearance deviations, as before and proposed, awaiting Amish: mesh drawn wire by wire, coiled springs, polished ram, nameplate and labels.
+- `cad/fidelity.json`: D3 pass for all three options; STEP per made or bought part of option A in `cad/step/A/` (80 files) and `cad/step/A-assembly.step`, `B-assembly.step`, `C-assembly.step`. The old STEP files (`potpress-assembly.step`, `potpress-press.step` and four part files) are removed; their content is in `cad/step/A/`.
+- Regenerated: STL at 0.15 mm chord tolerance (`cad/stl/`, largest 6.5 MB), PPR-DWG-001 Rev P9, the 14 making sketches (PPR-DWG-110 to Rev P5), the build plan overview, 11 joints and 18 steps from the detailed parts, and the concept media (hero, cutaway, exploded, flow, blueprint P5, `media/model.glb` and viewer).
+- Documents: PPR-STM-001 v0.3, PPR-OPT-001 v0.3, PPR-URS-001 v0.2, PPR-PRS-001 v0.15 (PR-013), PPR-RTM-001 regenerated (0 gaps), PPR-CAL-001 v0.12, PPR-BLD-001 v0.8, PPR-DEC-001 v0.8, `bom/bom.csv` (notes only; no price changed), `bom/bom-notes.md` (stale totals brought to $1,279), README, `project.yaml`.
+
+### Review of the kit 1.8 pipeline against kit 1.9.1
+
+- UR-013 (local spares) had no product requirement: PR-013 added (proposed, D8); the matrix now has no gaps.
+- Options B and C had no STEM rows of their own: eight added (OB1 to OB4, OC1 to OC4), checked on the detailed models. The kit 1.8 toggle estimate (2 t at 0.35 mm) was about 40 % high; the model gives 1.4 t. Option C with the model's thrust ball bearing gives about 6.7 t for two people (3.6 t with a plain collar).
+- `bom/bom-notes.md` still totalled $1,169; corrected to $1,279.
+
+### STEM verdicts and fixes
+
+37 claims: 36 Within known science, 1 Plausible, to confirm (S8), 0 Fails. `stem_check: open` until S8 closes. The independent reviewer (a separate Claude Code agent started headless with `claude -p` and read-only access to the STEM check, CAL, PRS and `sizing.py` only, because this session had no subagent tool) raised nine findings, recorded in PPR-STM-001 "Independent review, 2026-10-24":
+
+- Fixed under the fix rule: joint bolt preload specified (about 300 N·m; new row S11, 36.8 kN per bolt against 44 kN slip resistance); option B pins 30 to 40 mm (OB4, 199 MPa in bending); option C buckling checked (OC4); stale numbers (pressed pot 8.72 kg in the tipping sum, push 850 N, 39.6 kg, PRS introduction); S5 restated (2 t forms a filter, inside the 6.4 t limit; force for this pot found in trials); S7 with jack efficiency (28 W).
+- Sent to Amish: S8 and the 10 t wording (D9).
+- Not resolved this session: frame and mold cases beyond first order (joint moment, channel torsion, bolt-hole net section, doubler welds, stress concentration at the male mold's plug root, about 1.5 to 2 times the 60 MPa nominal at 294 kN against 80 MPa); the melt-check fee is not in the BOM; the 54 kg demold tilt is manual (tipping pins decided by Amish on 2026-10-02).
+- Not accepted: the reviewer's longer pin arm in S2 (the screw hole moves the load toward the webs and shortens the arm).
+
+### CAD changes found by the D3 check (recorded in PPR-DEC-001)
+
+- **D7, guard panel corners:** the rear guard's and front left strip's angle frames overlapped the side guards' frames (about 16,000 mm3, hidden while all the guards were one solid), and the right side guard overlapped the front right strip's frame. Corrected in the model: rear 940 to 884 mm, front left strip 180 to 152 mm, right side 635 to 607 mm; the next frame's 3 mm edge leg closes each corner. ISO 13857 desk check rerun: 23 of 23 openings meet; all fit, motion and gate-swing checks pass (`python cad/src/model.py --check --detail`). Proposed, awaiting Amish to confirm.
+- The male mold's tapped M12 holes are drawn at the major diameter (cosmetic thread), as is usual in assembly CAD.
+
+### Option scores and parts (from `cad/fidelity.json`)
+
+| Option | Score (of 160) | Parts | Fasteners | Welds | Model mass (kg) |
+| --- | --- | --- | --- | --- | --- |
+| A, hydraulic bottle-jack press (current design) | 125 | 301 | 186 | 35 | 466.4 |
+| B, toggle lever press | 112 | 267 | 164 | 26 | 466.2 |
+| C, power-screw press | 104 | 261 | 171 | 22 | 420.7 |
+
+Model masses include the QC rack and pressed pot and take the jack as a solid steel envelope (PPR-CAL-001 uses 13 kg). Scores unchanged; A recommended, 10.4 % ahead of B (D1, proposed, awaiting Amish).
+
+### Requirements not met
+
+- PR-010: estimated cost USD 1,279 against the USD 1,060 value-engineering target (USD 219 over).
+- At risk: PR-002 (wall evenness, template print error) and PR-007 (patterns need a true 250 x 250 mm bed).
+- PR-004: met on paper, but the 6.4 t working force limit has no handle-force margin once jack efficiency is counted (S8, D9).
+- PR-009: met on paper; the ISO 13857 desk check is not yet signed (hold point).
+
+### Decisions awaiting Amish
+
+D1 concept (keep A); D6 two-speed pump if trials need more force; D7 guard corner correction (confirm); D8 PR-013 text; D9 working force limit 5.4 t or the two-speed pump as baseline, and 10 t restated as a structural check case.
+
+### Safety
+
+Unchanged hazards: stored hydraulic energy, crush at the molds, heavy lifts, silica dust, zinc fume. New this session: joint bolts must be tightened to preload before load (build plan step 8); handle effort at the working force limit is not yet assessed to EN 1005-3.
+
+### Kit issues met
+
+1. build123d 0.13: a solid taken out of a compound with `.solids()` does not write to STEP on its own ("Failed to write STEP file" in `cad_check.py --export`); wrapping it as `Solid(shape.wrapped)` works. Worked around in `model.py`; `cad_check.export_step` could do the same.
+2. `cad_parts.clevis_pin()` runs `break_edges()` over every edge, which adds a concave fillet at the head-to-shank junction that intrudes into the bore of the part under the head (about 40 mm3); the pins sit 2.5 mm off the face in option B as a workaround.
+3. `cad_check.py` checks interference between parts only, so a clash inside one compound part (the guards before this session) is not found; splitting assemblies into parts found D7.
+4. `.kit/options.py` docstring still describes `cad/src/options.py` as the source; kit 1.9 reads `model.py`. `cad/src/options.py` (kit 1.8 massing) is kept for `--massing`.
+
+### Not done here (coordinator)
+
+`media/options.png` and the photoreal renders (`render-*.png`, the frame is 22 mm taller since the kit 1.8 fixes and the model is now detailed) are re-rendered by the coordinator; then `cards.py`.
+
+### Recommended next step
+
+A calculation session for the frame and mold cases the reviewer listed (male mold root, top beam joint, channel torsion) and the EN 1005-3 handle assessment, after Amish decides D9.
+
+## Session 2026-10-23: STEM check fixes made (pilot approved)
+
+Amish, 2026-10-23: "i approve the pilot, and whenever a STEM check fails propose and implement the best fix to the design and constructability. Fix this for PotPress but do not roll kitv1.8 out yet across the rest of the repos."
+
+### What was done
+
+- Kit 1.8.1: the fix rule is written into `.kit/STANDARDS.md` section 20, `.kit/CLAUDE.md` 5c and `/stem-check`. A failed detail is fixed in the design the same session and recorded as made under the standing instruction; a fix that changes the working principle, pitch or scope still goes to Amish. Not rolled out to other repos.
+- The four fixes, in `cad/src/model.py`, `docs/04-calcs/sizing.py`, `docs/04-calcs/stem_check.py` and `bom/bom.csv`:
+  - D2: molds sized for 8 % clay shrinkage.
+  - D3: lifting set and lift points.
+  - D4: working force limited to 6.4 t.
+  - D5: sorted A356 scrap with a melt check.
+- An independent agent tried to refute the fixes. It refuted the first handle fix (a 400 mm extension) and found the first lift points and the alloy control weak. All three were corrected (PPR-DDR-006, Independent review).
+- Documents updated:
+  - PPR-STM-001 v0.2 (pass), PPR-CAL-001 v0.11, PPR-PRS-001 v0.14, PPR-PRC-001 v0.12 and PPR-BLD-001 v0.7.
+  - PPR-PRC-001 v0.12 also has its key numbers brought up to the constructable design; the 0.61 mm, M20 and tilt-pivot figures are gone.
+  - PPR-DEC-001 v0.7, new PPR-DDR-006, PPR-DDR-005 v0.2 and PPR-OPT-001 v0.2.
+  - REG, FEA, RSK, MKT and PLN at v0.2; RTM regenerated; README; `project.yaml` (`stem_check: pass`).
+- Regenerated:
+  - STEP and STL files.
+  - Drawings: PPR-DWG-001 (P8), concept sheet PPR-DWG-010 (P4), making sketches 103, 107, 108, 109, 110, 111 and 112.
+  - Build plan pictures: the overview, steps 4 to 16 and joints 1 to 4, 6, 10 and 11.
+  - Concept media: hero, cutaway, exploded, flow, the 3D viewer and the blueprint.
+
+### Key results
+
+- STEM check pass: 28 of 28 claims within known science.
+- `model.py --check` passes: no overlaps in any state, and all 23 guard openings meet ISO 13857 Table 4. The rear guard is now the closest opening, at 85 mm against 80 needed.
+- The molds are 1.087 times the fired filter: 480 mm flanges, cavity rim 304 mm. The frame is 22 mm taller (1,828 mm).
+- Masses: charge 9.6 kg (factories report 8 to 9.5 kg); fired pot 4.9 kg; press 352 kg; heaviest parts 39.6 kg (female mold, platen).
+- Opening clearance falls from 70 to 49 mm (30 mm needed). Mean pressure is 0.57 MPa at the 6.4 t limit; the earlier 1.05 MPa at 10 t would now need 11.8 t.
+- PR-001 and PR-012 are met on paper again. PR-002 and PR-007 are at risk. PR-010 is **$219 (20.7 %) over the value-engineering target** at $1,279: the fixes add $110, and the $66 lifting set can be hired.
+
+### Proposed, awaiting Amish
+
+- D1: keep option A (hydraulic press). Unchanged by the fixes.
+- D6: a separate two-speed hand pump at waist height if pressing trials need more than 6.4 t. It would remove the pump slot that Amish approved on 2026-10-02, so it goes to him.
+- Suggestions:
+  - A product requirement for local spares (UR-013).
+  - A way to see the working force at the press: the bottle jack has no gauge, so the 6.4 t limit is only felt at the handle.
+
+### Safety concerns
+
+- Signature of the ISO 13857 desk check is still a hold point. Table 7 and the floor gap are still unchecked.
+- Eye bolts must be out and the holes plugged before the press moves (new hazard H11). The 150 N handle limit is a screening value; an EN 1005-3 assessment is still to do.
+- EN 601 limit values and foundry OES or XRF access are to confirm.
+
+### Not done here
+
+- Photoreal renders, `media/card.png` and `media/social-preview.png` still show the frame 22 mm lower and the 450 mm molds. They are rendered with Blender on Amish's Mac. The new scenes export cleanly (`python .kit/export_views.py`), ready for the next render batch.
+- The PDFs of the changed documents and the bundle for push are prepared at the end of the session.
+
+### Recommended next step
+
+Amish decides D1, then renders the PotPress product views on the Mac. Kit 1.8.1 roll-out to the other repos waits for Amish's go.
+
+## Session 2026-10-23: kit 1.8 upgrade (pilot)
+
+Kit 1.8 (the pipeline) applied to PotPress as the pilot, under Amish's 2026-10-23 decisions on the kit ("i have made the decisions", all as recommended). No design change was made.
+
+### What was done
+
+- Kit 1.8 copied into `.kit/` and `.claude/commands/`; root `CLAUDE.md` synced.
+- STEM check: `docs/04-calcs/stem_check.py`, `docs/04-calcs/stem_results.csv`, `docs/01b-stem-check.md` (PPR-STM-001), with an independent reviewer pass.
+- Concept options: `cad/src/options.py`, `media/options.png`, `docs/02a-concept-options.md` (PPR-OPT-001), `docs/decisions/0005-concept-selection.md` (PPR-DDR-005).
+- Requirements: users-and-needs and stakeholders tables in PPR-PRB-001 v0.7; `docs/03a-user-requirements.md` (PPR-URS-001, 13 URs); `docs/03-requirements.md` migrated from PPR-REQ-001 to PPR-PRS-001 v0.13 (R1 to R12 are PR-001 to PR-012, text unchanged); `docs/03b-traceability.md` (PPR-RTM-001, generated).
+- Pipeline documents: `docs/07-regulatory.md`, `docs/08-feasibility.md`, `docs/09-risk.md` (with a design FMEA), `docs/10-market.md`, `docs/11-plan.md`.
+- PPR-DEC-001 v0.6: open decisions D1 to D5. `project.yaml`: `stage: P3`, `stem_check: open`, `concept_options: [A, B, C]`, `concept_chosen: A`, evidence list extended. README: STEM check, concept options and documents table.
+
+### Key results
+
+- STEM check open: 24 of 28 claims within known science, 4 fail with a fix proposed, none fails.
+- Concept scores: A 125, B 112, C 104 of 160. A leads by 10.4 %, just over the 10 % line.
+- Requirement status: PR-010 over the value-engineering target by $109; PR-001, PR-002, PR-007 and PR-012 at risk (PR-001 and PR-012 newly, from the STEM check); the rest met on paper.
+- Traceability: every High user requirement has a product requirement; one gap, UR-013 (local spares, Medium) has none.
+- Corrections found: fired pot mass about 3.8 kg, not 3.61 kg (PPR-CAL-001 section 2 still to correct); the PRC key-numbers table is stale (0.61 mm and M20 bolts against 0.66 mm and M16 in PPR-CAL-001).
+- `render.py --check` passes. The release gate will fail while the STEM check is open, by design.
+
+### Proposed, awaiting Amish
+
+- D1 keep option A; D2 clay shrinkage test bar and cavity scaling; D3 lifting aid for parts over 25 kg; D4 longer handle or two-speed pump above about 6 t; D5 melt check of the scrap alloy (PPR-DEC-001).
+- Suggestion: a PR for local spares (UR-013), for example "every wear part available from regional hardware markets or made from the drawings".
+
+### Safety concerns
+
+- The ISO 13857 desk check is still unsigned (hold point). Table 7 and the floor gap were not part of it.
+- New FMEA items: charge mass against the stop (RPN 48), jack side load (36) and floor anchors (30) need actions before TRL 4.
+
+### Recommended next step
+
+Amish decides D1 to D5; then carry the fixes into PPR-PRS-001, the model and PPR-CAL-001, close the STEM check, and update the PRC key numbers.
 
 ## Session 2026-10-03: four guard fixes made
 

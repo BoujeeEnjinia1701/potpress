@@ -1,0 +1,47 @@
+{
+ "level": "D3",
+ "stage": "P3",
+ "hash": "f089f9b8daade9f4",
+ "options": {
+  "A": {
+   "title": "Hydraulic bottle-jack press",
+   "parts": 301,
+   "made_or_bought": 80,
+   "fasteners": 186,
+   "welds": 35,
+   "bare": [],
+   "bare_share": 0.0,
+   "interference": [],
+   "mass_kg": 466.4,
+   "step_files": 80
+  },
+  "B": {
+   "title": "Toggle (scissor) lever press",
+   "parts": 267,
+   "made_or_bought": 77,
+   "fasteners": 164,
+   "welds": 26,
+   "bare": [],
+   "bare_share": 0.0,
+   "interference": [],
+   "mass_kg": 466.2,
+   "step_files": 0
+  },
+  "C": {
+   "title": "Power-screw press",
+   "parts": 261,
+   "made_or_bought": 68,
+   "fasteners": 171,
+   "welds": 22,
+   "bare": [],
+   "bare_share": 0.0,
+   "interference": [],
+   "mass_kg": 420.7,
+   "step_files": 0
+  }
+ },
+ "failures": [],
+ "warnings": [],
+ "passed": true,
+ "seconds": 309.8
+}

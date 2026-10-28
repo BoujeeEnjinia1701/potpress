@@ -5,11 +5,19 @@ repo: BoujeeEnjinia1701/potpress         # GitHub repository, shown on every dra
 area: Water Security
 trl: 3                   # Technology Readiness Level, see .kit/STANDARDS.md section 9
 trl_target: 3
+stage: P3                # pipeline stage, STANDARDS section 19; set at the kit 1.8 upgrade 2026-10-23
+stem_check: open         # S8 handle force to confirm by EN 1005-3 at the 5.4 t limit decided by Amish 2026-10-25 (D9, PPR-STM-001 v0.4); four fixes of 2026-10-23 in PPR-DDR-006
+concept_options: [A, B, C]   # PPR-OPT-001
+concept_chosen: A   # decided by Amish, 2026-10-25: "i concur with your recommendations" (D1, PPR-DDR-005)
 design_state: constructable   # STANDARDS section 18; made constructable 2026-09-30 (PPR-DDR-004)
 trl_evidence:
   - docs/01-problem.md
   - docs/02-concept.md
+  - docs/01b-stem-check.md
+  - docs/02a-concept-options.md
+  - docs/03a-user-requirements.md
   - docs/03-requirements.md
+  - docs/03b-traceability.md
   - docs/decisions/0001-trl2-review-decisions.md
   - docs/decisions/0002-recommendations-accepted.md
   - docs/decisions/0003-guarded-version.md
@@ -17,12 +25,29 @@ trl_evidence:
   - docs/04-calcs/01-sizing.md
   - docs/04-calcs/sizing.py
   - cad/src/model.py
-  - cad/step/potpress-assembly.step
+  - cad/step/A-assembly.step
+  - cad/step/B-assembly.step
+  - cad/step/C-assembly.step
+  - cad/fidelity.json
   - cad/drawings/PPR-DWG-001.svg
   - cad/drawings/PPR-DWG-001.pdf
   - bom/bom.csv
   - docs/05-build-plan.md
   - docs/06-design-decisions.md
+  - docs/07-regulatory.md
+  - docs/08-feasibility.md
+  - docs/09-risk.md
+  - docs/10-market.md
+  - docs/11-plan.md
+  - docs/decisions/0005-concept-selection.md
+  - docs/decisions/0006-stem-check-fixes.md
+  - docs/04-calcs/stem_check.py
+  - media/options.png
+  - cad/src/options_bc.py
+  - cad/src/ppr_parts.py
+  - cad/src/product_model.py
+  - docs/04-calcs/stem_results.csv
+  - cad/drawings/PPR-DWG-110.pdf
 shortlisted: false
 pitch: >-
   Hydraulic press with printable mold geometry for silver-treated ceramic pot filters, plus a QC flow-rate test jig.

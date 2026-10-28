@@ -3,36 +3,51 @@ doc_id: PPR-BLD-001
 title: PotPress prototype build plan
 project: PotPress
 doc_type: Build plan
-version: "0.6"
+version: '0.9'
 status: Draft
-date: '2026-10-03'
+date: '2026-10-25'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
-- version: "0.1"
+- version: '0.1'
   date: '2026-09-30'
   author: Amish Chadha
   change: First build plan at TRL 3, text only (withdrawn)
-- version: "0.2"
+- version: '0.2'
   date: '2026-09-30'
   author: Amish Chadha
   change: Rewritten from the template with pictures by component and step; design made constructable (PPR-DDR-004)
-- version: "0.3"
+- version: '0.3'
   date: '2026-09-30'
   author: Amish Chadha
   change: Open decisions moved to the design decisions register
-- version: "0.4"
+- version: '0.4'
   date: '2026-10-01'
   author: Amish Chadha
   change: Budget treated as a value-engineering target
-- version: "0.5"
+- version: '0.5'
   date: '2026-10-02'
   author: Amish Chadha
-  change: Decisions of 2026-10-02 carried in; fixed inner shield behind a longer pump slot (section 3.10, steps 14 and 16, new pictures); handle operating space on the floor; first checks and safety stops for the ISO 13857 desk check
-- version: "0.6"
+  change: Decisions of 2026-10-02 carried in; fixed inner shield behind a longer pump slot (section 3.10, steps 14 and 16, new pictures); handle operating space on the floor; first checks and safety stops
+    for the ISO 13857 desk check
+- version: '0.6'
   date: '2026-10-03'
   author: Amish Chadha
-  change: 'Four guard fixes decided by Amish (2026-10-03): 6.35 mm mesh on the front strips, lower front panel, gate and roof; small-hole plates; top beam cover plates; crank bracket covers (sections 3.10 and 3.11, steps 14 and 15, new pictures); cost $1,169'
+  change: 'Four guard fixes decided by Amish (2026-10-03): 6.35 mm mesh on the front strips, lower front panel, gate and roof; small-hole plates; top beam cover plates; crank bracket covers (sections 3.10
+    and 3.11, steps 14 and 15, new pictures); cost $1,169'
+- version: '0.7'
+  date: '2026-10-23'
+  author: Amish Chadha
+  change: 'STEM check fixes (PPR-DDR-006): molds scaled for clay shrinkage with 480 mm flanges, frame 22 mm taller, lifting set and lift points, working force limit, scrap sorting and melt check; first
+    checks and safety stops updated; pictures and sketches regenerated'
+- version: '0.8'
+  date: '2026-10-24'
+  author: Amish Chadha
+  change: 'Kit 1.9.1: pictures redrawn from the detailed model (every ISO bolt, nut, washer and stud); guard panels at the corners stop at the next frame (rear 884 mm, front left strip 152 mm, right side 607 mm; PPR-DEC-001 D7)'
+- version: '0.9'
+  date: '2026-10-25'
+  author: Amish Chadha
+  change: 'Safety stop S8: working force limit 5.4 t (D9, decided by Amish 2026-10-25); no part or step changed'
 ---
 
 # PotPress prototype build plan
@@ -47,7 +62,7 @@ revisions:
 
 The prototype is a 20 t bottle-jack press that squeezes a clay charge between two cast aluminium molds to form a ceramic water filter pot, inside welded mesh guards with an interlocked front gate, plus a separate four-station rack for flow-testing finished pots. Figure 1 shows the 19 groups of parts in the order you make or fit them. The steel frame is a base beam and a top crossbeam, each two channels side by side, joined by two upright pairs with bolts; the jack pushes a moving platen up the uprights, and the platen carries rails on which a carriage slides the lower (female) mold in and out. The upper (male) mold hangs from a square stem that is pinned to the top crossbeam for pressing and wound up and down by a hand crank. The work is sawing, drilling and stick welding steel channel, plate and bar; 3D printing two casting patterns; having a local foundry sand-cast the two molds; hand finishing and lapping the molds; printing a gauge; and fitting bought parts (jack, springs, bolts, lead screw, mesh, buckets). The parts cost about $1,169 from the bill of materials, which is $109 over the $1,060 value-engineering target.
 
-> **Safety:** PotPress is a 20 t hydraulic press. A crushing hazard exists wherever the platen, molds or stem move. Its build involves stick welding, grinding galvanised mesh (zinc fume), lifts of up to 40 kg to 1.5 m, and a foundry pour done by others. Never pump the jack with anyone's hands inside the guard, never pump with the load pin out or half in, and do not go past hand pressure before the safety stops in section 6 allow it. Nothing in this plan authorises a pressing test; that is TRL 4 work and on hold.
+> **Safety:** PotPress is a 20 t hydraulic press. A crushing hazard exists wherever the platen, molds or stem move. Its build involves stick welding, grinding galvanised mesh (zinc fume), lifts of up to 40 kg (on a chain block over 25 kg), and a foundry pour done by others. Never pump the jack with anyone's hands inside the guard, never pump with the load pin out or half in, and do not go past hand pressure before the safety stops in section 6 allow it. Nothing in this plan authorises a pressing test; that is TRL 4 work and on hold.
 
 ## 2. What changed to make it buildable
 
@@ -58,7 +73,7 @@ The concept showed what the press does; some of its parts could not be made or f
 | Component | The concept had | The buildable design has | Why |
 | --- | --- | --- | --- |
 | Male mold | A closed hollow shell a foundry could not core | A plug open at the top; its inside forms its own sand core (Figure 15) | A one-piece flat-back pattern, no core box |
-| Male mold flange | 25 mm thick; about 487 MPa at full load on the stop | 45 mm thick, 450 mm across; the stem's disc bears on the plug floor; 62 MPa (Figure 16) | Cast aluminium yields at about 90 MPa |
+| Male mold flange | 25 mm thick; about 487 MPa at full load on the stop | 45 mm thick, 480 mm across (450 until PPR-DDR-006); the stem's disc bears on the plug floor; 60 MPa (Figure 16) | Remelted cast aluminium yields at about 80 MPa |
 | Mold location | A 390 mm lip turned to 0.1 mm, needing a 420 mm lathe | Two 16 mm dowels and two steel bushes, drilled with the molds clamped together; stop faces lapped flat (Figure 14) | A pillar drill and a bench do it |
 | Female mold | One casting with a thick base | A cast cup bedded and screwed on a 15 mm steel base plate (Figure 13) | The plate takes the rails and the retaining pins |
 | Jack and pump slot | Pump socket in a return spring; handle path through an upright | Jack turned 25 degrees to the right front; slot moved onto the handle's line and widened to 30 mm (Figure 20) | The handle clears everything over its stroke |
@@ -73,6 +88,9 @@ The concept showed what the press does; some of its parts could not be made or f
 | Feet | Channels lying on their flange tips; no fixings | Channels web up with welded studs and anchor tubes; four floor anchors (Figure 4) | A flat face to bolt through |
 | Interlock | Outline shapes | A lock disc, lock rod, gate slider and pin slider round the jack's release screw (Figures 23 and 24) | Purely mechanical, detailed enough to make |
 | QC rack | Buckets overlapping the hanging pots | Pot shelf raised to 720 mm; 35 mm between pot and bucket (Figure 25) | Room for the water to drip |
+| Molds (STEM check, PPR-DDR-006) | Cavities at the fired pot size | Cavities 1.087 times the fired size for 8 % clay shrinkage, to be measured on the partner clay; 480 mm flanges; frame 22 mm taller (Figures 13 and 15) | The fired pot comes out at 280 mm |
+| Lifting (PPR-DDR-006) | Two people for every part up to 40 kg | A chain block for every part over 25 kg; eye bolt holes in the female base plate and the male flange (step 10, S4) | Two people manage about 31 kg together |
+| Scrap alloy (PPR-DDR-006) | Declared lead-free | A356 wheel scrap sorted before melting; each melt checked by OES or XRF (S2) | Lead is checked, not assumed |
 | Assembly order | Not worked out | The order of section 4, set by what fits past what | The stem and molds only go in this way |
 
 ## 3. Making the components
@@ -140,9 +158,9 @@ Make and check each component before the assembly step that needs it. Sizes are 
 
 **How to make it.**
 
-1. Saw four channels to 1,401 mm with square ends; the ends set the top beam height.
+1. Saw four channels to 1,423 mm with square ends; the ends set the top beam height.
 2. Clamp two channels web to web, flanges pointing sideways, ends flush. Stitch weld both seams: 50 mm welds every 300 mm. The pair is 100 x 100 mm.
-3. Holes, 18 mm, through all four flanges, 28 mm each side of the web seam, at 50, 110, 1,291 and 1,351 mm up from the bottom end. Drill the two flanges of each channel as a pair so they line up.
+3. Holes, 18 mm, through all four flanges, 28 mm each side of the web seam, at 50, 110, 1,313 and 1,373 mm up from the bottom end. Drill the two flanges of each channel as a pair so they line up.
 4. Cut eight spacer tubes 83 mm long from 25 x 3 mm tube per pair (the distance between the flanges inside the channel).
 5. Cut eight shims per pair from 2 mm sheet, 100 x 120 mm, each with two 18 mm holes 56 mm apart, matching the flange holes.
 
@@ -154,7 +172,7 @@ Make and check each component before the assembly step that needs it. Sizes are 
 
 The bottom end stands on the foot's web. The pair sits between the beam webs with a shim each side; the spacer tubes slide into the open side of each channel and line up with the holes, so tightening the bolts cannot fold the flanges. The top joint into the top crossbeam is the same. If a joint is loose, add shim; if tight, thin it.
 
-**Check before moving on.** Straight within 1 mm over its length; about 29 kg, so two people carry it.
+**Check before moving on.** Straight within 1 mm over its length; about 30 kg, so lift it on the chain block.
 
 ### 3.4 Top crossbeam with doublers and guides
 
@@ -242,15 +260,15 @@ The ring lies on the rails round the female mold's base plate; the retaining pin
 
 *Figure 13. Female mold making sketch (PPR-DWG-107).*
 
-**What it is and what it is made from.** The lower mold, which forms the outside of the pot. A sand-cast aluminium cup made by a local foundry from a 3D-printed pattern, from lead-free scrap (cast wheels or pistons, never free-machining bar), bedded and screwed on a steel base plate. About 36.5 kg with its plate.
+**What it is and what it is made from.** The lower mold, which forms the outside of the pot. A sand-cast aluminium cup made by a local foundry from a 3D-printed pattern, from A356 cast alloy wheel scrap (sorted, see step 2), bedded and screwed on a steel base plate. Its cavity is the pressed pot, 1.087 times the fired pot for 8 % clay shrinkage (PPR-DDR-006). About 39.6 kg with its plate.
 
 **How to make it.**
 
-1. **Pattern.** Print the cup in PLA, scaled up 1.3 % for shrinkage, with 3 mm extra on the flange face (for lapping) and 2 degrees of draft on the flange rim. It is 456 mm across and 274 mm tall, so print it as four quarters in two layers (8 pieces) on a 250 mm printer. Glue with epoxy, fill the seams, sand to 240 grit, seal and wax.
-2. **Casting.** The pattern is flat-backed: it sits flange face down on the moulding board, and the cavity stands up as a sand core of its own, so no core box is needed. Ask the foundry to record the scrap it melts.
-3. **Stop face.** Lap the flange face (the ring from 360 to 450 mm across, outside the flash groove) flat: glue 80, then 120 grit wet-and-dry paper to a sheet of 6 mm float glass at least 500 mm square, lay the cup face down on it and rub in figure-eights until marking blue shows even contact all round.
-4. **Cavity.** Finish the cavity to printed contour templates within 0.3 mm (radius 128.5 at the floor, 155.1 at the rim, 255 deep), with a die grinder, files and abrasive paper. Rim counterbore 345 mm across and 15 deep; flash groove to 360 mm across, 3 deep.
-5. **Base plate.** Cut 350 x 350 x 15 mm steel plate. Drill four 9 mm holes on the diagonals, 137 mm from the middle, countersunk from below for M8. Drill a 14 mm hole 20 deep into the middle of the left and right edges for the retaining pins.
+1. **Pattern.** First fire a test bar of the partner's production mix in its own kiln and measure its total shrinkage (ASTM C326 method); set `CLAY_SHRINK` in `cad/src/model.py` to it and regenerate the pattern files. The files as drawn assume 8 %. Print the cup in PLA, scaled up a further 1.3 % for the aluminium's shrinkage, with 3 mm extra on the flange face (for lapping) and 2 degrees of draft on the flange rim. It is 486 mm across and 296 mm tall, so print it as four quarters in two layers (8 pieces) on a printer with a true 250 x 250 mm bed (each quarter is 243 mm). Glue with epoxy, fill the seams, sand to 240 grit, seal and wax.
+2. **Casting.** The pattern is flat-backed: it sits flange face down on the moulding board, and the cavity stands up as a sand core of its own, so no core box is needed. The scrap is A356 cast alloy wheels only, sorted before melting: lead balance weights, brass valve stems, steel inserts and paint removed. The foundry checks a chill sample of each melt by spark OES, or handheld XRF for lead, against the EN 601 limits for lead and cadmium, and records it per heat.
+3. **Stop face.** Lap the flange face (the ring from 390 to 480 mm across, outside the flash groove) flat: glue 80, then 120 grit wet-and-dry paper to a sheet of 6 mm float glass at least 500 mm square, lay the cup face down on it and rub in figure-eights until marking blue shows even contact all round.
+4. **Cavity.** Finish the cavity to printed contour templates within 0.3 mm (radius 139.7 at the floor, 168.6 at the rim, 277 deep), with a die grinder, files and abrasive paper. Rim counterbore 375 mm across and 16.3 deep; flash groove to 390 mm across, 3 deep.
+5. **Base plate.** Cut 350 x 350 x 15 mm steel plate. Drill four 9 mm holes on the diagonals, 137 mm from the middle, countersunk from below for M8. Drill a 14 mm hole 20 deep into the middle of the left and right edges for the retaining pins. Drill and tap two M12 holes right through on one diagonal, 215 mm from the middle, for the lifting eye bolts; keep them plugged except when lifting.
 6. **Bedding.** Drill and tap the cup's underside M8, 16 deep, through the plate's holes. Spread steel-filled epoxy putty on the plate, press the cup down on it, fit the four screws, wipe off the excess and let it cure.
 7. **Dowels.** Drilled with the male mold (section 3.8, step 5).
 
@@ -262,7 +280,7 @@ The ring lies on the rails round the female mold's base plate; the retaining pin
 
 The base plate sits on the rails inside the carriage ring. The male mold closes onto the stop ring; the pot's rim fills the counterbore.
 
-**Check before moving on.** Templates touch the cavity within 0.3 mm at eight places round each of four heights; no porosity on the cavity or stop face; the foundry's lead-free note on file. **Hold point:** measure before assembly.
+**Check before moving on.** Templates touch the cavity within 0.3 mm at eight places round each of four heights; no porosity on the cavity or stop face; the foundry's melt record (OES or XRF) on file. **Hold point:** measure before assembly.
 
 ### 3.8 Male mold
 
@@ -270,16 +288,17 @@ The base plate sits on the rails inside the carriage ring. The male mold closes 
 
 *Figure 15. Male mold making sketch (PPR-DWG-108).*
 
-**What it is and what it is made from.** The upper mold, a plug that forms the inside of the pot. Sand-cast aluminium from lead-free scrap, from a printed pattern; two steel bushes. About 23 kg.
+**What it is and what it is made from.** The upper mold, a plug that forms the inside of the pot. Sand-cast from the same sorted A356 scrap, from a printed pattern; two steel bushes. About 26.3 kg.
 
 **How to make it.**
 
-1. **Pattern.** Print the plug in PLA, scaled up 1.3 %, with 3 mm extra on the flange underside and 2 degrees of draft on the flange rim. It is 456 mm across and 289 mm tall: 8 pieces on a 250 mm printer. The plug is open at the top: its inside is a cone 206 mm across at the floor and 259 mm at the top, which already has 6 degrees of draft.
+1. **Pattern.** Print the plug in PLA from the same shrinkage-scaled files, scaled up a further 1.3 %, with 3 mm extra on the flange underside and 2 degrees of draft on the flange rim. It is 486 mm across and 310 mm tall: 8 pieces on a true 250 x 250 mm bed. The plug is open at the top: its inside is a cone 226 mm across at the floor and 284 mm at the top, which already has 6 degrees of draft.
 2. **Casting.** Flat-backed like the female: flange top face down on the board, plug pointing up; the sand fills the inside as its own core. No core box.
-3. **Plug.** Finish to printed templates within 0.3 mm (radius 115 at the tip, 140 at the flange, 240 long).
+3. **Plug.** Finish to printed templates within 0.3 mm (radius 125 at the tip, 152.2 at the flange, 260.9 long).
 4. **Stop face.** Lap the flange underside onto the female mold's lapped face: a little valve grinding paste between them, the plug in the cavity, turn the male back and forth a quarter turn at a time until marking blue shows even contact all round.
-5. **Dowels and bushes.** Print eight spacer pads exactly 15.0 mm thick, shaped to the wall. Set them round the plug at two heights, lower the male into the female until the flanges meet, and clamp the flanges together. On a pillar drill, drill an 8 mm pilot through the male flange and 30 mm into the female flange at 202 mm each side of the middle on the left-right line. Separate them. Open the male holes to 22 mm right through and set 22 x 16 x 45 mm steel bushes in them with retaining compound. Open the female holes to 15.8 mm, ream 16 mm, and press in 16 x 50 mm hardened dowels, 30 deep, 20 standing proud.
+5. **Dowels and bushes.** Print eight spacer pads exactly 16.3 mm thick (the pressed wall), shaped to the wall. Set them round the plug at two heights, lower the male into the female until the flanges meet, and clamp the flanges together. On a pillar drill, drill an 8 mm pilot through the male flange and 30 mm into the female flange at 216 mm each side of the middle on the left-right line. Separate them. Open the male holes to 22 mm right through and set 22 x 16 x 45 mm steel bushes in them with retaining compound. Open the female holes to 15.8 mm, ream 16 mm, and press in 16 x 50 mm hardened dowels, 30 deep, 20 standing proud.
 6. **Stem holes.** Four M12 holes in the plug floor (drill 10.2, tap 20 deep) at 75 mm from the middle, on the left-right and front-back lines.
+7. **Lift holes.** Two M12 holes in the flange top (drill 10.2, tap 26 deep) at 214 mm from the middle on the front-back line, for the lifting eye bolts; keep them plugged except when lifting.
 
 **How it fits the parts next to it.**
 
@@ -289,7 +308,7 @@ The base plate sits on the rails inside the carriage ring. The male mold closes 
 
 The bushes slide over the dowels (Figure 14); the flange lands on the female's stop ring. The stem bolts in from above (step 13).
 
-**Check before moving on.** The plug is within 0.3 mm of the templates; the male drops onto the dowels and lifts off without force; with the spacer pads in, the wall gap is 15 mm, give or take 0.5, all round.
+**Check before moving on.** The plug is within 0.3 mm of the templates; the male drops onto the dowels and lifts off without force; with the spacer pads in, the wall gap is 16.3 mm, give or take 0.5, all round.
 
 ### 3.9 Male mold slide: stem, load pin and crank
 
@@ -301,8 +320,8 @@ The bushes slide over the dowels (Figure 14); the flange lands on the female's s
 
 **How to make it.**
 
-1. **Stem.** Saw the tube to 670 mm, square ends. Weld it square in the middle of a 190 x 20 mm disc; drill four 13 mm holes in the disc at 75 mm from the middle, lined up with the tube's faces.
-2. **Pin block.** A 74 x 74 x 120 mm steel block that slides inside the tube. Drill a 28 mm hole down its middle (the lead screw passes through it when the stem is cranked up). Weld it inside the tube with its centre 530 mm above the disc.
+1. **Stem.** Saw the tube to 691 mm, square ends. Weld it square in the middle of a 190 x 20 mm disc; drill four 13 mm holes in the disc at 75 mm from the middle, lined up with the tube's faces.
+2. **Pin block.** A 74 x 74 x 120 mm steel block that slides inside the tube. Drill a 28 mm hole down its middle (the lead screw passes through it when the stem is cranked up). Weld it inside the tube with its centre 551 mm above the disc.
 3. **Pin bore.** Bore 62 mm across the tube walls and the block at the block's centre, square to two faces (a machine shop, or the magnetic drill used for the top beam).
 4. **Nut box.** Weld a 10 mm floor plate, with a 28 mm hole in the middle, inside the tube 58 mm below the top. Drop the Tr24 nut (60 x 60 x 40 mm) in on top of it, then weld a 90 x 90 x 10 mm cap plate with a 26 mm hole on the top of the tube. The nut is now captive with 8 mm of free travel below it.
 5. **Load pin.** Turn the 60 mm pin with a 173 mm shank and an 80 x 12 mm head from one piece (do not weld quenched and tempered alloy steel), a pull knob on the head, and a 6 mm cross hole for the R-clip 20 mm from the tail.
@@ -321,13 +340,13 @@ The bushes slide over the dowels (Figure 14); the flange lands on the female's s
 
 ![Figure 19. Making sketch of the fixed guards](../cad/drawings/PPR-DWG-110.png)
 
-*Figure 19. Fixed guards making sketch (PPR-DWG-110, Rev P3), with the right side guard drawn.*
+*Figure 19. Fixed guards making sketch (PPR-DWG-110, Rev P5), with the right side guard drawn.*
 
 **What it is and what it is made from.** Seven welded-mesh panels that fence the press on all sides and the top, a fixed steel shield behind the pump slot, and the plates and covers that close the remaining openings (the guard fixes Amish decided on 2026-10-03). Galvanised welded mesh in two sizes: 12.7 x 12.7 x 1.6 mm (half-inch, about 11 mm clear) on the sides and back, which stand 100 mm or more from anything that moves, and 6.35 x 6.35 x 0.9 mm (quarter-inch, about 5.5 mm clear) on the front strips, lower front panel and roof, which stand as close as 39 mm; 25 x 25 x 3 mm steel angle; 40 x 6 mm flat bar; 2 mm and 3 mm steel sheet; 30 x 6 mm flat bar; a rubber grommet.
 
 **How to make it.**
 
-1. Weld a frame of angle for each panel, one leg flat behind the mesh and one pointing inward: right side 635 x 1,391 mm; left side 675 x 1,391; rear 940 x 1,391; two front strips 180 x 1,391; lower front 580 x 320; roof 940 x 675 with a cut-out round the top beam.
+1. Weld a frame of angle for each panel, one leg flat behind the mesh and one pointing inward: right side 607 x 1,413 mm; left side 675 x 1,413; rear 884 x 1,413; front left strip 152 x 1,413; front right strip 180 x 1,413; lower front 580 x 320; roof 940 x 675 with a cut-out round the top beam. At each corner the rear panel, the front left strip and the right side panel stop against the neighbouring panel's frame, whose 3 mm edge leg closes the corner.
 2. Fix the mesh to each frame: the 12.7 mm mesh on the two sides and the rear, the 6.35 mm mesh on the two front strips, the lower front panel and the roof. Do not swap them; the finer mesh is what lets the front and roof stand so close to the moving parts. Clamping it under bolted flat strips avoids zinc fume; if you weld it, grind the zinc off at each weld first (safety stop S3).
 3. Pump slot in the right side guard: 30 mm wide from 174 to 446 mm up, centred 218 mm in front of the middle. Frame it with 3 mm strip. No brush strip: the shield is the guard.
 4. In the right front strip: a 44 mm square opening for the release shaft and a 40 mm square for the pin cable. Close each from behind with a 3 mm steel plate bolted through the mesh with three M5 bolts: for the shaft a 55 x 60 mm plate with a 20 mm hole, butted against the strip's frame, leaving 4 mm round the 12 mm shaft; for the cable a 50 x 50 mm plate with a 10 mm hole and a rubber grommet, leaving 2 mm round the 6 mm cable.
@@ -356,13 +375,13 @@ The side panels bolt to the standoffs; the panels bolt to each other at every co
 
 **How to make it.**
 
-1. Weld a 572 x 1,063 mm frame of tube with a mid rail; diagonals equal within 2 mm.
+1. Weld a 572 x 1,085 mm frame of tube with a mid rail; diagonals equal within 2 mm.
 2. Fix the 6.35 mm mesh on the front face.
 3. Weld the gate leaves of two lift-off hinges to the left post, 120 mm in from the top and bottom.
 4. Weld the pull handle near the right edge, 905 mm up.
 5. Tongue: an arm off the right-hand post and a 6 mm plate that reaches over the lock rod, with a 14 mm hole centred on the rod.
 
-**How it fits the parts next to it.** The gate closes the opening from 380 to 1,451 mm up between the front strips and opens outward to the left, about 105 degrees. With the gate shut and the valve closed, the lock rod stands through the tongue's hole (Figure 24).
+**How it fits the parts next to it.** The gate closes the opening from 380 to 1,473 mm up between the front strips and opens outward to the left, about 105 degrees. With the gate shut and the valve closed, the lock rod stands through the tongue's hole (Figure 24).
 
 **Check before moving on.** It swings without touching the folded rail extension; the tongue hole drops over the rod without forcing.
 
@@ -379,7 +398,7 @@ The side panels bolt to the standoffs; the panels bolt to each other at every co
 1. **Coupling.** Buy the jack first. Make a coupling that fits over its release screw (most take the slotted end of the pump handle; a tube with a cross pin or a tongue that fits the slot will do).
 2. **Release shaft.** 12 mm bar from the coupling out to the right front, two universal joints, then straight forward through the front right strip to a 60 mm knob just outside the guard.
 3. **Lock disc.** 80 mm across and 6 mm thick, fixed on the shaft just behind the knob, with one notch 12.5 mm wide and 15.5 mm deep. Set the notch so it comes to the top when the valve has been opened about a third of a turn (check this on the jack you have).
-4. **Post.** 20 x 8 mm flat bar from 60 to 1,451 mm up, 330 mm right of the middle, bolted to the right front strip's frame, with guide tabs at 330, 600, 742 and 899 mm up.
+4. **Post.** 20 x 8 mm flat bar from 60 to 1,473 mm up, 330 mm right of the middle, bolted to the right front strip's frame, with guide tabs at 330, 600, 742 and 899 mm up.
 5. **Lock rod.** 12 mm bar from the disc rim up through the tabs to 920 mm, with a lift handle at 680 mm and a 24 mm collar at 757 mm.
 6. **Gate slider.** A small plate that a spring pushes over the top of the rod when the gate opens; the closing gate's tongue pushes it back.
 7. **Pin slider.** A notched plate under the collar that a spring pushes into the rod's path. A plunger on the top beam rests on the load pin's head; when the pin is fully home, the plunger lifts and pulls the slider aside through the push-pull cable.
@@ -447,7 +466,7 @@ Buy to specification, not brand. Line numbers are those of the bill of materials
 
 ## 4. Putting it together
 
-In each picture the parts already fitted are grey and the part being fitted is in colour, with an arrow showing the way it goes in. Two people throughout; a hoist for the platen and the top crossbeam.
+In each picture the parts already fitted are grey and the part being fitted is in colour, with an arrow showing the way it goes in. Two people throughout; a 0.5 t chain block (BOM item 22) for every part over 25 kg: the base beam, upright pairs, platen, top crossbeam and both molds.
 
 ### Step 1: set out and anchor the feet
 
@@ -495,25 +514,25 @@ With the platen fully down, stand the stem upright on its disc in the middle of 
 
 ![Step 8](05-build-plan/step-08.png)
 
-Hoist the top beam level and lower it over the upright tops, letting the stem's top slide up between its guides. Fit shims, spacer tubes and four M16 bolts each side. Check the uprights plumb within 1 mm per metre and the frame's diagonals equal within 2 mm, then tighten all 16 joint bolts to the bolt maker's torque for M16 grade 10.9. **Hold point:** safety stop S5.
+Hoist the top beam level and lower it over the upright tops, letting the stem's top slide up between its guides. Fit shims, spacer tubes and four M16 bolts each side. Check the uprights plumb within 1 mm per metre and the frame's diagonals equal within 2 mm, then tighten all 16 joint bolts to the preload torque for M16 grade 10.9 (about 300 N·m with lightly oiled threads, about 110 kN of preload each), so the joints carry the load by friction and do not slip in their 18 mm holes. **Hold point:** safety stop S5.
 
 ### Step 9: lift the stem, pin it, fit the crank
 
 ![Step 9](05-build-plan/step-09.png)
 
-Lift the stem 185 mm until its bore lines up with the top beam's, and push the load pin through with its R-clip. Bolt the crank bracket to the top beam with four M12 bolts and wind the lead screw down into the nut. Then pull the R-clip, draw the pin out 150 mm to its parked position (it stays in the front bores), and crank the stem to the top: 40 turns.
+Lift the stem 186 mm until its bore lines up with the top beam's, and push the load pin through with its R-clip. Bolt the crank bracket to the top beam with four M12 bolts and wind the lead screw down into the nut. Then pull the R-clip, draw the pin out 150 mm to its parked position (it stays in the front bores), and crank the stem to the top: 40 turns.
 
 ### Step 10: carriage and female mold, out on the extension
 
 ![Step 10](05-build-plan/step-10.png)
 
-Swing the extension out. Slide the carriage onto the rails and out until its hooks meet the tipping pins. Two people lift the female mold (36.5 kg) into the carriage; fit both retaining pins.
+Swing the extension out. Slide the carriage onto the rails and out until its hooks meet the tipping pins. Lower the female mold (39.6 kg) into the carriage on the chain block, by two eye bolts in its base plate and the two-leg sling; take the eye bolts out, plug the holes and fit both retaining pins.
 
 ### Step 11: male mold onto the female mold
 
 ![Step 11](05-build-plan/step-11.png)
 
-Two people lower the male mold (23 kg) onto the dowels until the flanges meet. No pot, no clay. Then spread a 3 mm layer of slow-setting steel-filled epoxy putty (at least 30 minutes working time) on the plug floor inside, and go straight on to steps 12 and 13.
+Lower the male mold (26.3 kg) on the chain block, by two eye bolts in its flange top, onto the dowels until the flanges meet; take the eye bolts out and plug the holes. No pot, no clay. Then spread a 3 mm layer of slow-setting steel-filled epoxy putty (at least 30 minutes working time) on the plug floor inside, and go straight on to steps 12 and 13.
 
 ### Step 12: slide the molds in, crank down, pin
 
@@ -559,25 +578,26 @@ A bucket on the lower shelf under each hole; the pots hang by their rims; the ga
 
 ## 5. First checks
 
-These are the checks a TRL 4 test report would record; this plan only lists them. Requirement numbers are those of PPR-REQ-001. None involves pressing clay or more than hand pressure.
+These are the checks a TRL 4 test report would record; this plan only lists them. Requirement numbers are those used before kit 1.8 (R1 is PR-001 in PPR-PRS-001, and so on). None involves pressing clay or more than hand pressure.
 
 *Table 2. First checks.*
 
 | Check | Requirement | How | Pass when |
 | --- | --- | --- | --- |
+| Clay shrinkage | R1 | Test bar of the partner's production mix, fired in its kiln (ASTM C326 method), before the patterns are printed | Measured value set in `CLAY_SHRINK` and the patterns regenerated |
 | Mold shape | R1 | Printed templates and callipers on both molds | Within 0.3 mm of the template radii |
-| Mold closure and wall | R2 | Close the molds on the stop by hand with soft modelling-clay pads at eight places in the wall gap; open and measure the pads | Wall 15 mm, give or take 1; the molds line up within 0.5 mm |
+| Mold closure and wall | R2 | Close the molds on the stop by hand with soft modelling-clay pads at eight places in the wall gap; open and measure the pads | Wall 16.3 mm pressed, give or take 1; the molds line up within 0.5 mm |
 | Stop contact | R3 | Marking blue on the female stop ring; close by hand | Even contact all round the ring |
-| Opening | R5 | Jack down, crank up; measure the male tip above the female rim | At least 30 mm (70 mm designed) |
+| Opening | R5 | Jack down, crank up; measure the male tip above the female rim | At least 30 mm (49 mm designed) |
 | Stroke used | R5 | Measure ram travel from first mold contact to closed | Within the jack's 150 mm stroke (110 mm designed) |
-| Heaviest part | R8 | Weigh each part as lifted | 40 kg or less (platen 39.6 kg designed) |
+| Heaviest part | R8 | Weigh each part as lifted | 40 kg or less (female mold and platen 39.6 kg designed); every part over 25 kg went up on the chain block |
 | Gate interlock | R9 | Release open, no pressure: try to close the release with the gate open; close it with the gate shut, then try to open the gate | Neither is possible |
 | Pin interlock | R9 | Gate shut, pin drawn back 10 mm: try to close the release | Not possible |
 | Pump handle | R9 | Pump the handle over its full stroke by hand, release open | Never touches the slot frame or the shield; at each end of the stroke it stops at least 25 mm short of the slot ends |
-| Guard openings | R9 | A competent person reviews the ISO 13857 desk check (all 23 openings meet on paper, PPR-CAL-001 v0.10) against the guards as built and signs it; push on the 6.35 mm mesh by hand to see it keeps its shape | Every opening meets the standard |
+| Guard openings | R9 | A competent person reviews the ISO 13857 desk check (all 23 openings meet on paper, PPR-CAL-001 v0.11) against the guards as built and signs it; push on the 6.35 mm mesh by hand to see it keeps its shape | Every opening meets the standard |
 | Footprint | R11 | Measure the guarded press, extension folded, and the rack | Within 1.0 x 0.7 x 2.0 m and 0.8 x 0.8 m |
 | Gauge scale | R6 | Draw off 1.0 L and 2.5 L measured volumes | 16.7 mm and 42.6 mm within 1 mm |
-| Mold materials | R12 | Foundry scrap note; look at the mold faces | Lead-free; no paint or oil on the faces |
+| Mold materials | R12 | Foundry melt record (OES or XRF) for each heat; look at the mold faces | Lead and cadmium within EN 601; no paint or oil on the faces |
 | Parts cost | R10 | Sum the receipts | Recorded against the value-engineering target |
 
 ## 6. Safety stops
@@ -585,18 +605,18 @@ These are the checks a TRL 4 test report would record; this plan only lists them
 Stop at each point. Carry on only when everything listed is true.
 
 - **S1. Before any work.** Welding area ventilated, fire extinguisher at hand, welding helmet, leather gloves and apron, safety glasses and hearing protection in use; safety boots for all lifting.
-- **S2. Before the foundry pour (done by the foundry).** The pattern is sealed and dry; the scrap is declared lead-free. Nobody from the build team stands near molten metal.
+- **S2. Before the foundry pour (done by the foundry).** The pattern is sealed and dry; the scrap is sorted A356 wheels, and the melt check is booked. Nobody from the build team stands near molten metal.
 - **S3. Before welding or grinding galvanised mesh.** The zinc is ground off where you weld, extraction is running, and a P2 or N95 respirator is worn; or clamp the mesh instead of welding it.
-- **S4. Before any lift over 25 kg** (platen 39.6 kg, top beam 38 kg, female mold 36.5 kg, base beam 34 kg, uprights 29 kg, male mold 23 kg). Two people or the hoist; clear floor; nobody under a load.
+- **S4. Before any lift over 25 kg** (female mold 39.6 kg, platen 39.6 kg, top beam 38 kg, base beam 34 kg, uprights 30 kg, male mold 26.3 kg). Chain block only, eye bolts shimmed into the sling plane; two people steer; clear floor; nobody under a load. Eye bolts out and holes plugged before the press moves.
 - **S5. Before letting go of the top beam.** Both top joints have all four bolts in; the frame is anchored to the floor.
 - **S6. Before the first pump of the jack, even without clay.** All 16 joint bolts tightened; the load pin fully home with its R-clip; nobody's hands between the molds or on the stem; pump slowly and stop at the first contact. The guards are not yet on, so this is the only time the jack moves without them, and only by hand to contact.
 - **S7. Before the jack is used again after step 16.** Every guard panel, the pump slot shield and the gate fitted; the gate and pin interlock checks of section 5 passed with the release open; the pump handle clears the slot and the shield; nobody inside the guard.
-- **S8. Before any force above hand pressure.** TRL 4 authorisation by Amish, a competent person present, an exclusion zone round the press, and the ISO 13857 desk check signed by a competent person with every guard opening meeting it. Never defeat an interlock or remove a guard.
+- **S8. Before any force above hand pressure.** TRL 4 authorisation by Amish, a competent person present, an exclusion zone round the press, and the ISO 13857 desk check signed by a competent person with every guard opening meeting it. Never defeat an interlock or remove a guard. Never press above the 5.4 t working force limit (PR-004; D9, decided by Amish 2026-10-25), and never fit an extension to the pump handle.
 - **S9. Clay work at the press.** Mix and trim wet; wear a P2 or N95 respirator for any dry clay work (silica).
 
 ## 7. Tools, skills and workspace
 
-**Tools.** Metal bandsaw or 355 mm abrasive chop saw for channel up to UPN 160; 125 mm angle grinder with cut-off and flap discs; pillar drill to 22 mm with drills 6 to 22 mm; hired magnetic drill with 18 and 62 mm annular cutters; 16 mm reamer; M6, M8 and M12 taps; stick welder of about 160 to 200 A for 3.2 mm E6013; welding table, clamps and magnetic squares; torque wrench covering the M16 10.9 bolt torque (about 300 N·m, check the bolt maker's table); ring spanners 18, 19 and 24 mm; hoist or engine crane rated at least 250 kg (hire); two stepladders or a work platform; 3 m tape, 1 m steel rule, callipers to 300 mm, engineer's square, 600 mm spirit level, feeler gauges, marking blue; 3D printer with at least a 250 x 250 mm bed; die grinder with carbide burrs, files, abrasive paper to 240 grit, a sheet of 6 mm float glass at least 500 mm square; jigsaw or router with a trammel for the 316 mm shelf holes.
+**Tools.** Metal bandsaw or 355 mm abrasive chop saw for channel up to UPN 160; 125 mm angle grinder with cut-off and flap discs; pillar drill to 22 mm with drills 6 to 22 mm; hired magnetic drill with 18 and 62 mm annular cutters; 16 mm reamer; M6, M8 and M12 taps; stick welder of about 160 to 200 A for 3.2 mm E6013; welding table, clamps and magnetic squares; torque wrench covering the M16 10.9 bolt torque (about 300 N·m, check the bolt maker's table); ring spanners 18, 19 and 24 mm; 0.5 t chain block with a two-leg sling, shackles and a round sling (BOM item 22; or hire), hung from a beam or tripod rated for it; two stepladders or a work platform; 3 m tape, 1 m steel rule, callipers to 300 mm, engineer's square, 600 mm spirit level, feeler gauges, marking blue; 3D printer with at least a 250 x 250 mm bed; die grinder with carbide burrs, files, abrasive paper to 240 grit, a sheet of 6 mm float glass at least 500 mm square; jigsaw or router with a trammel for the 316 mm shelf holes.
 
 **Skills.** A competent stick welder for the load-path welds (doublers, jack pad, sleeves, pin block, stem to disc); ordinary shop skill for the rest. Care with a magnetic drill. Basic 3D printing and pattern finishing. A local aluminium foundry for the two castings, able to declare lead-free charge material. A machine shop only if you would rather have the pin turned and the stem bored than do it yourself. No electrical work: the press has no power.
 
@@ -606,9 +626,9 @@ Stop at each point. Carry on only when everything listed is true.
 
 ## 8. Where the numbers come from
 
-- Model and constructability checks: `cad/src/model.py` (`python cad/src/model.py --check`, closed, open and demolding positions); STEP and STL exports in `cad/step/` and `cad/stl/`.
+- Model and constructability checks: `cad/src/model.py` (`python cad/src/model.py --check`, closed, open and demolding positions); STEP files per part and per option assembly in `cad/step/` (`python .kit/cad_check.py --export`) and STL exports in `cad/stl/`.
 - Pictures: `cad/src/build_plan_media.py`, using `.kit/build_views.py`; written to `docs/05-build-plan/` and `cad/drawings/PPR-DWG-101` to `PPR-DWG-114`.
-- General arrangement: `cad/drawings/PPR-DWG-001.pdf`, Rev P6, with the pump handle's operating space on the floor.
+- General arrangement: `cad/drawings/PPR-DWG-001.pdf`, Rev P9, with the pump handle's operating space on the floor.
 - Calculations: `docs/04-calcs/01-sizing.md` (PPR-CAL-001 v0.10) and `docs/04-calcs/sizing.py`; frame and joints section 4, travel and crank section 5, alignment section 7, patterns section 8, masses section 10, tipping section 11, ISO 13857 desk check section 15.
 - Bill of materials: `bom/bom.csv`.
 - Decisions: `docs/decisions/0004-design-for-construction.md` (PPR-DDR-004), with PPR-DDR-001 to PPR-DDR-003.

@@ -15,13 +15,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "cad/src"))
-from model import CLOSURES, PARAMS as P, SECTIONS as S, levels, pot_outer  # noqa: E402
+from model import CLOSURES, PARAMS as P, SECTIONS as S, fired_params, levels, pot_outer  # noqa: E402
+FP = fired_params(P)                    # the filter at its fired size (PR-001); P holds the pressed (green) size
 
 G = 9.81
 E_STEEL, G_STEEL = 200e3, 80e3          # MPa
 FY_S275, ALLOW = 275.0, 165.0           # MPa; allowable at the jack rating = FY / about 1.67
 FY_PIN = 650.0                          # 42CrMo4 quenched and tempered, 40 to 100 mm bar
-FY_AL = 90.0                            # as-cast aluminum-silicon scrap alloy, conservative
+FY_AL = 80.0                            # remelted A356 wheel scrap, as cast (no T6); was 90 until 2026-10-23 (review of DDR-006)
 WELD_ALLOW = 0.3 * 430.0                # E6013 fillet weld, allowable shear on the throat
 RHO_ST, RHO_AL, RHO_PLY, RHO_UHMW = 7850.0, 2680.0, 600.0, 940.0   # kg/m3
 
@@ -40,6 +41,7 @@ TRIM = 0.10                             # trim allowance, fraction of pressed ma
 LOOSE_RHO = 1.5                         # kg/L, loose charge as placed
 RESID_WATER = 0.02                      # dried pot, water left as fraction of dry solids
 CLAY_LOI = 0.10                         # clay loss on ignition (bound water, organics)
+HUSK_ASH = 0.18                         # rice husk leaves 15 to 20 % of its mass as silica ash (STEM C1, 2026-10-23)
 REJECT = 0.10                           # QC reject rate (estimate)
 
 # Costs (USD, 2026, indicative, regional small-town suppliers)
@@ -60,6 +62,8 @@ HINGE_USD = 10.0                        # two weld-on barrel hinges and stop lug
 MESH_USD_M2 = 6.0                       # 12.7 x 12.7 x 1.6 mm (1/2 in), as priced since PPR-DDR-003
 FINE_MESH_USD_M2 = 10.5                 # 6.35 x 6.35 x 0.9 mm (1/4 in, 23 gauge) hardware cloth, estimate
 SMALL_BOLT_USD = 0.25                   # M5 to M8 bolt, nut and washer, regional retail
+HANDLE_LIMIT_N = 150.0                  # screening limit for repeated pump-handle pushing (STEM S8); EN 1005-3 assessment to do
+PUMP_EFF = 0.85                         # pump and seal efficiency counted in the handle force (D9, decided by Amish 2026-10-25)
 GROMMET_USD = 0.5                       # rubber grommet for the pin cable hole
 
 
@@ -67,7 +71,7 @@ def frustum(r0, r1, h):
     return math.pi * h / 3 * (r0 * r0 + r0 * r1 + r1 * r1)
 
 
-def geometry():
+def geometry(P=P):
     g = {}
     rb, rt, h_out = pot_outer(P)
     g["r_out_bot"], g["r_out_top"], g["h_out"] = rb, rt, h_out
@@ -96,7 +100,7 @@ def mix(g):
     m["dried"] = solids * (1 + RESID_WATER)
     m["drying_loss"] = m["pressed"] - m["dried"]
     clay = m["pressed"] * MIX["clay"]
-    m["fired"] = clay * (1 - CLAY_LOI)
+    m["fired"] = clay * (1 - CLAY_LOI) + m["pressed"] * MIX["husk"] * HUSK_ASH
     m["firing_loss"] = m["dried"] - m["fired"]
     m["passed"] = m["fired"] * (1 - REJECT)
     m["reject"] = m["fired"] - m["passed"]
@@ -234,12 +238,15 @@ def kinematics(g, m):
     k["wheel_height"] = L["wheel"]
     # Jack pumping (typical 20 t bottle jack; assumed, not from a data sheet)
     ram_A = math.pi * P["RAM_D"] ** 2 / 4
-    pump_d, pump_s, lever = 16.0, 22.0, 30.0
+    pump_d, pump_s, lever = 16.0, 22.0, 30.0                       # lever: handle ratio with the 700 mm handle
     k["jack_p_rated"] = F_RATED / ram_A
     k["lift_per_stroke"] = math.pi * pump_d ** 2 / 4 * pump_s / ram_A
     k["pump_strokes"] = P["PRESS_TRAVEL"] / k["lift_per_stroke"]
     for tag, F in (("work", F_WORK[1]), ("rated", F_RATED)):
-        k[f"handle_N_{tag}"] = F / ram_A * math.pi * pump_d ** 2 / 4 / lever
+        k[f"handle_N_{tag}"] = F / ram_A * math.pi * pump_d ** 2 / 4 / lever / PUMP_EFF
+    per_t = T / ram_A * math.pi * pump_d ** 2 / 4 / PUMP_EFF        # handle force x lever per tonne, with pump and seal losses
+    k["t_at_limit"] = math.floor(HANDLE_LIMIT_N * lever / per_t * 10) / 10      # rounded down: the working force limit (D9: 5.4 t)
+    k["handle_N_at_limit"] = k["t_at_limit"] * per_t / lever
     # Lead screw: Tr24 x 5, lifts the male mold and slide only
     return k
 
@@ -279,6 +286,7 @@ def patterns():
 
 
 def qc(g):
+    P = FP                              # fired pots in the QC rack (DDR-006)
     q = {}
     slope = (P["R_IN_RIM"] - P["R_IN_BOT"]) / P["D_IN"]
     h0 = P["D_IN"] - 10.0
@@ -335,8 +343,8 @@ def mesh_kg_m2(pitch, wire):
 
 def masses():
     """Per-item masses from the model components (steel unless listed in DENSITY); guards priced from the BOM."""
-    from model import components
-    comps = components()
+    from model import press_components
+    comps = press_components()   # simplified fastener solids, as the masses were set (kit 1.9 parts: components('A'))
     ms, ctr, per = {}, {}, {}
     mom = {}
     for c in comps:
@@ -374,7 +382,7 @@ def tipping(ms, ctr):
     cy = sum(ms[i] * ctr[i].Y for i in press) / M
     cz = sum(ms[i] * ctr[i].Z for i in press) / M
     t["mass"], t["cg_y"], t["cg_z"] = M, cy, cz
-    moving = ms[8] + 7.4 + ms["per"]["carriage"]                 # female mold with base plate, charge, carriage
+    moving = ms[8] + 8.72 + ms["per"]["carriage"]                # female mold with base plate, pressed pot (PPR-CAL-001 s2), carriage
     t["moving"] = moving
     t["hinge_Nm"] = moving * G * (P["CARRIAGE_OUT"] - P["RAIL_HINGE"]) / 1000     # on the hinged extension
     t["hinge_lug_N"] = t["hinge_Nm"] / 0.012 / 2                  # two stop lugs, 12 mm below the hinge line
@@ -444,7 +452,7 @@ def bom_total():
     rows = list(csv.DictReader((ROOT / "bom/bom.csv").open()))
     tot = sum(float(r["qty"]) * float(r["unit_cost_usd"]) for r in rows)
     press = sum(float(r["qty"]) * float(r["unit_cost_usd"]) for r in rows
-                if int(r["item"].split()[0]) in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 17, 18, 20, 21))
+                if int(r["item"].split()[0]) in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 17, 18, 20, 21, 22))
     return tot, press, len(rows)
 
 
@@ -456,7 +464,7 @@ def budget():
 
 
 def main():
-    g = geometry(); m = mix(g); f = frame(); k = kinematics(g, m); c = cycle(k)
+    g = geometry(); gf = geometry(FP); m = mix(g); f = frame(); k = kinematics(g, m); c = cycle(k)
     a = alignment(); pat = patterns(); q = qc(g)
     ms, ctr = masses(); t = tipping(ms, ctr); cost = costs(ms, pat)
     L = levels()
@@ -464,8 +472,10 @@ def main():
 
     print("PPR-CAL-001 PotPress sizing (all values estimates)\n")
     print("1 Filter geometry")
-    print(f"  outer floor radius {g['r_out_bot']:.1f} mm, outer rim radius {g['r_out_top']:.1f} mm, outer depth {g['h_out']:.0f} mm, wall slope {g['slope_deg']:.1f} deg")
-    print(f"  volume to brim {g['v_brim']:.2f} L; working volume (40 mm below rim) {g['v_work']:.2f} L")
+    print(f"  fired pot (PR-001): inner rim {2*FP['R_IN_RIM']:.0f} mm, inner depth {FP['D_IN']:.0f} mm, wall {FP['WALL']:.0f} mm; volume to brim {gf['v_brim']:.2f} L; working volume (40 mm below rim) {gf['v_work']:.2f} L")
+    print(f"  pressed (green) pot and mold cavity at {P['CLAY_SHRINK']*100:.0f} % total clay shrinkage (scale {1/(1-P['CLAY_SHRINK']):.4f}): inner rim {2*P['R_IN_RIM']:.1f} mm, inner depth {P['D_IN']:.1f} mm, wall {P['WALL']:.1f} mm, rim {P['RIM_OD']:.0f} mm")
+    print(f"  green: outer floor radius {g['r_out_bot']:.1f} mm, outer rim radius {g['r_out_top']:.1f} mm, outer depth {g['h_out']:.0f} mm, wall slope {g['slope_deg']:.1f} deg")
+    print(f"  green volume to brim {g['v_brim']:.2f} L")
     print(f"  wall and rim volume {g['v_wall']:.2f} L; projected area {g['a_proj']:.4f} m2")
     print("2 Mix and masses")
     print(f"  mix density, no air {m['rho_solid']:.2f} kg/L; pressed at {AIR*100:.0f} % air {m['rho_pressed']:.2f} kg/L; husk {m['husk_vol_frac']*100:.0f} % by volume")
@@ -512,7 +522,8 @@ def main():
     dm = P["LEAD_D"] - P["LEAD_P"] / 2
     print(f"  lead screw Tr{P['LEAD_D']:.0f} x {P['LEAD_P']:.0f}: lead angle {math.degrees(math.atan(P['LEAD_P'] / (math.pi * dm))):.1f} deg, friction angle {math.degrees(math.atan(0.15)):.1f} deg at mu 0.15")
     print(f"  jack pressure at 20 t {k['jack_p_rated']:.0f} MPa; lift per pump stroke {k['lift_per_stroke']:.2f} mm; {k['pump_strokes']:.0f} strokes to close")
-    print(f"  handle force {k['handle_N_work']:.0f} N at 10 t, {k['handle_N_rated']:.0f} N at 20 t")
+    print(f"  handle force with {PUMP_EFF * 100:.0f} % pump and seal efficiency {k['handle_N_at_limit']:.0f} N at {k['t_at_limit']:.1f} t, {k['handle_N_work']:.0f} N at 10 t, {k['handle_N_rated']:.0f} N at 20 t; {HANDLE_LIMIT_N:.0f} N screening limit reached at {k['t_at_limit']:.1f} t, the working force limit (DDR-006 D4; D9, decided by Amish 2026-10-25)")
+    print(f"  mean pressure on the pot at the {k['t_at_limit']:.1f} t limit {k['t_at_limit'] * T / (g['a_proj'] * 1e6):.2f} MPa; the force for the 1.05 MPa of the pre-shrink design would be {1.05 * g['a_proj'] * 1e6 / T:.1f} t")
     print("6 Cycle")
     print("  " + ", ".join(f"{kk} {v:.0f} s" for kk, v in c.items() if kk not in ("total_s", "total_min", "pots_6h")))
     print(f"  total {c['total_s']:.0f} s = {c['total_min']:.1f} min; {c['pots_6h']:.0f} pots per 6 h of pressing")
@@ -551,7 +562,7 @@ def main():
     print("12 Envelope")
     print(f"  frame {P['BEAM_L']:.0f} x {P['FOOT_L']:.0f} mm; rail extension folded inside the feet ({P['RAIL_HINGE'] + P['RAIL_H']:.0f} mm in front of the axis); deployed for demolding {P['BEAM_L']:.0f} x {P['RAIL_BACK'] + P['CARRIAGE_OUT'] + P['FOOT_L'] / 2:.0f} mm; height {L['overall']:.0f} mm")
     qw = 2 * P["QC_PITCH"]
-    print(f"  QC rack {qw:.0f} x {qw:.0f} x {P['QC_SHELF_Z']:.0f} mm; minimum for 4 rims in one row {4*(P['RIM_OD']+20):.0f} mm")
+    print(f"  QC rack {qw:.0f} x {qw:.0f} x {P['QC_SHELF_Z']:.0f} mm; minimum for 4 rims in one row {4*(FP['RIM_OD']+20):.0f} mm")
     print("13 Cost (USD)")
     print("  " + ", ".join(f"{i}: {v:.0f}" for i, v in cost.items() if isinstance(i, int)))
     print(f"  estimate: press {cost['press']:.0f}, QC {cost['qc']:.0f}, total {cost['total']:.0f}; pump slot shield {cost['shield']:.2f}")

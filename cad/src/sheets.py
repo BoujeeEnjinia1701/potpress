@@ -15,11 +15,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from drawing import Sheet, project_views  # noqa: E402
 from model import PARAMS as P, build_parts, levels, press_only  # noqa: E402
 
-from model import components, pump_handle, box  # noqa: E402
+from model import press_components, pump_handle, box  # noqa: E402
 from build123d import Compound  # noqa: E402
 
 # Drawn from the floor up: the floor anchors, which go 80 mm into the concrete, are left out of the views
-comps = [c for c in components() if c.key != "anchors"]
+comps = [c for c in press_components(detail=True) if c.key != "anchors"]   # kit 1.9: ISO fasteners drawn
 parts = build_parts(comps=comps)
 press = press_only(parts)
 bb = press.bounding_box()
@@ -39,7 +39,7 @@ work = ROOT / "cad/drawings/_views"
 views = project_views(Compound(children=[press, op_space]), work)
 
 s = Sheet(project="PotPress", title="General arrangement, press closed, guarded", dwg_no="PPR-DWG-001",
-          rev="P7", author="Amish Chadha", date="2026-10-03", concept=True, scale=None,
+          rev="P9", author="Amish Chadha", date="2026-10-24", concept=True, scale=None,
           material="S275 channel and plate; molds cast Al-Si (lead-free scrap); pin 42CrMo4 QT. See bom/bom.csv",
           revisions=[("P1", "Preliminary GA from the TRL 3 model (PPR-CAL-001)", "2026-09-25", "AC"),
                      ("P2", "Recommendations accepted (DDR-002): bolted joints, hinged rails", "2026-09-25", "AC"),
@@ -47,7 +47,9 @@ s = Sheet(project="PotPress", title="General arrangement, press closed, guarded"
                      ("P4", "Budget raised to $1,060 (DDR-003); R10 met; note only", "2026-09-27", "AC"),
                      ("P5", "Design for construction (DDR-004); cost note removed", "2026-09-30", "AC"),
                      ("P6", "Pump slot shield; handle operating space on the floor", "2026-10-02", "AC"),
-                     ("P7", "Guard fixes: 6.35 mesh front and roof, plates, covers", "2026-10-03", "AC")])
+                     ("P7", "Guard fixes: 6.35 mesh front and roof, plates, covers", "2026-10-03", "AC"),
+                     ("P8", "Clay shrink allowance: molds x1.087, 480 flanges, lift holes", "2026-10-23", "AC"),
+                     ("P9", "Kit 1.9 detail: ISO fasteners; guard panel corners", "2026-10-24", "AC")])
 s.add_ortho(views, ["front", "top", "right"])
 s.add_svg(views["iso"], 276, 57, 140, 62, label="Isometric view", sublabel="Not to scale; mesh drawn at every 8th wire")
 s.add_notes("Key dimensions (mm) and data", [
@@ -59,10 +61,10 @@ s.add_notes("Key dimensions (mm) and data", [
     f"Uprights at {P['SPAN']:.0f} centers, 16 x M{P['JOINT_BOLT_D']:.0f} 10.9, shims; beams 2 x {P['BEAM_SEC']}",
     f"Top beam {L['top0']:.0f} to {L['top1']:.0f}; load pin {P['PIN_D']:.0f} dia at {L['pin']:.0f}",
     f"20 t jack, stroke {P['JACK_STROKE']:.0f}, travel {P['PRESS_TRAVEL']:.0f}; crank lift {P['CRANK_LIFT']:.0f}, open gap {L['open_gap']:.0f}",
-    f"Pot: inner rim {2 * P['R_IN_RIM']:.0f}, depth {P['D_IN']:.0f}, wall {P['WALL']:.0f}, rim {P['RIM_OD']:.0f}",
+    f"Pot fired: rim 280, depth 240, wall 15; molds x{1 / (1 - P['CLAY_SHRINK']):.3f} for {P['CLAY_SHRINK'] * 100:.0f} % clay shrink",
     f"Molds {P['FM_FLANGE_D']:.0f} dia flanges, located by 2 x {P['LOC_PIN_D']:.0f} mm pins",
-    f"At 294 kN: frame 190, pin 272, bolts 117, {P['MM_FLANGE_T']:.0f} mm male flange 62 MPa",
-    "Press about 344 kg plus about 51 kg of guards; heaviest part 40 kg",
+    f"At 294 kN: frame 190, pin 272, bolts 117, {P['MM_FLANGE_T']:.0f} mm male flange 60 MPa",
+    "Press about 352 kg plus 51 kg of guards; parts over 25 kg on a chain block",
     f"Mesh {P['MESH_PITCH']:.1f} x {P['MESH_WIRE']:.1f} sides, rear; {P['FINE_PITCH']:.2f} x {P['FINE_WIRE']:.1f} front, gate, roof",
     f"Plates at release shaft and cable; covers on top beam and crank bracket",
     f"Gate {2 * P['GATE_HALF']:.0f} wide, hinged left; lock rod holds jack release open",

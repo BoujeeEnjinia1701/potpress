@@ -26,7 +26,7 @@ from model import PARAMS as P, levels, box  # noqa: E402
 
 OUT = ROOT / "docs" / "05-build-plan"
 DWG = ROOT / "cad" / "drawings"
-DATE = "2026-10-03"                  # guard pictures redrawn for the four guard fixes
+DATE = "2026-10-23"                  # molds redrawn with the clay shrink allowance (DDR-006)
 L = levels()
 _C = None
 
@@ -34,7 +34,11 @@ _C = None
 def comps():
     global _C
     if _C is None:
-        _C = {c.key: c for c in m.components()}
+        import build123d as b
+        _C = {c.key: c for c in m.press_components(detail=True)}     # kit 1.9: ISO bolts, nuts, washers and studs
+        for side in ("left", "right"):                                 # the studs are welded under the foot's web
+            f_, s_ = _C[f"foot_{side}"], _C.pop(f"studs_{side}")
+            f_.shape = b.Compound(children=[f_.shape, s_.shape])
     return _C
 
 
@@ -139,11 +143,21 @@ def overview():
 
 # ----------------------------------------------------------------- making sketches
 # Sheets revised after their first issue on 2026-09-30: (rev, date, revision rows)
-SHEET_REVS = {110: ("P3", "2026-10-03", [("P1", "First issue", "2026-09-30", "AC"),
+TALLER = ("", "Frame 22 mm taller for the larger molds (DDR-006)", "2026-10-23", "AC")
+SHEET_REVS = {103: ("P2", "2026-10-23", [("P1", "First issue", "2026-09-30", "AC"), ("P2",) + TALLER[1:]]),
+              109: ("P2", "2026-10-23", [("P1", "First issue", "2026-09-30", "AC"), ("P2",) + TALLER[1:]]),
+              112: ("P2", "2026-10-23", [("P1", "First issue", "2026-09-30", "AC"), ("P2",) + TALLER[1:]]),
+              110: ("P5", "2026-10-24", [("P1", "First issue", "2026-09-30", "AC"),
                                         ("P2", "Pump slot lengthened; fixed inner shield added", "2026-10-02", "AC"),
-                                        ("P3", "Guard fixes: 6.35 mm mesh, plates and covers", "2026-10-03", "AC")]),
-              111: ("P2", "2026-10-03", [("P1", "First issue", "2026-09-30", "AC"),
-                                        ("P2", "6.35 mm mesh (guard fix)", "2026-10-03", "AC")])}
+                                        ("P3", "Guard fixes: 6.35 mm mesh, plates and covers", "2026-10-03", "AC"),
+                                        ("P4",) + TALLER[1:],
+                                        ("P5", "Panel corners stop at the next frame (kit 1.9 fit check)", "2026-10-24", "AC")]),
+              107: ("P2", "2026-10-23", [("P1", "First issue", "2026-09-30", "AC"),
+                                        ("P2", "Clay shrink allowance; 480 flange; eye bolts; melt check", "2026-10-23", "AC")]),
+              108: ("P2", "2026-10-23", [("P1", "First issue", "2026-09-30", "AC"),
+                                        ("P2", "Clay shrink allowance; 480 flange; eye bolts", "2026-10-23", "AC")]),
+              111: ("P3", "2026-10-23", [("P1", "First issue", "2026-09-30", "AC"),
+                                        ("P2", "6.35 mm mesh (guard fix)", "2026-10-03", "AC"), ("P3",) + TALLER[1:]])}
 
 
 def sheet(n, key_or_shape, name, color, neighbours, title, material, notes, view_shape=None, inset=(24, -58)):
@@ -192,12 +206,12 @@ def sheets(which=None):
          "  90 degrees; leave the right front open for the release valve.",
          "Check: webs parallel within 1 mm; the uprights slide in with shims."], inset=(28, -55))
     S[103] = lambda: sheet(103, ("upright_right", "tubes_right", "shims_right"), "Upright pair", COL["upright"],
-        grey("base", "top", "platen"), "upright pair (make 2)", "Two UPN 100 channels 1,401 mm; 25 x 3 tube; 2 mm sheet; S275",
-        ["Make two (drawn lying down). Two UPN 100 channels 1,401 mm, square ends,",
+        grey("base", "top", "platen"), "upright pair (make 2)", "Two UPN 100 channels 1,423 mm; 25 x 3 tube; 2 mm sheet; S275",
+        ["Make two (drawn lying down). Two UPN 100 channels 1,423 mm, square ends,",
          "  webs back to back, flanges pointing sideways. Stitch weld the two",
          "  web seams, 50 mm welds every 300 mm. The pair is 100 x 100 mm.",
          "Holes, 18 mm, through all four flanges, 28 mm each side of the web",
-         "  seam, at 50, 110, 1,291 and 1,351 mm up from the bottom end.",
+         "  seam, at 50, 110, 1,313 and 1,373 mm up from the bottom end.",
          "Spacer tubes: 25 x 3 mm tube cut 83 mm long (flange to flange inside),",
          "  eight per pair, slid in from the open side of each channel.",
          "Shims: 2 mm steel, 100 x 120 mm, two 18 mm holes 56 mm apart;",
@@ -262,40 +276,42 @@ def sheets(which=None):
          "Check: slides the full rail length without catching at the hinge."], inset=(30, -55))
     S[107] = lambda: sheet(107, ("fm_cup", "fm_plate", "loc_pins", "fm_screws"), "Female mold", COL["fm"], grey("carriage", "platen"),
         "female mold", "Sand-cast aluminium (lead-free scrap); 15 mm S275 plate; 16 mm dowels",
-        ["Cast cup: flange 450 mm dia x 40, cavity the pot's outside (257 mm",
-         "  at the floor, 310 mm at the rim, 255 deep), 20 mm shell, 15 mm floor,",
-         "  rim counterbore 345 x 15, flash groove to 360 x 3 deep.",
+        ["Cast cup: flange 480 mm dia x 40, cavity the pressed pot's outside",
+         "  (279 at the floor, 337 at the rim, 277 deep: fired size / 0.92 for",
+         "  8 % clay shrink), 20 shell, 16.3 floor, rim 375 x 16.3, flash to 390.",
          "Pattern: printed in PLA, flat-back, flange face down on the board;",
          "  the cavity forms its own sand core. Add 1.3 % shrink, 3 mm to",
          "  lap off the flange face and the base, 2 degree draft on the rim.",
-         "Finish: lap the flange face (stop ring 360 to 450) flat on abrasive",
+         "Finish: lap the flange face (stop ring 390 to 480) flat on abrasive",
          "  paper on float glass; finish the cavity to printed templates.",
          "Base plate: 350 x 350 x 15 mm, four 9 mm countersunk holes on the",
          "  diagonals, 137 mm from the middle; 14 mm holes 20 deep in two edges.",
          "  Bed the cup on steel epoxy putty and hold it with 4 x M8 screws.",
-         "Dowels: 16 mm hardened, 50 long, pressed 30 deep at 202 mm each",
+         "Dowels: 16 mm hardened, 50 long, pressed 30 deep at 216 mm each",
          "  side; drilled with the male mold clamped on (see the joint picture).",
-         "Check: templates within 0.3 mm; lead-free note from the foundry."], inset=(30, -55))
+         "Eye bolts: 2 x M12 tapped through the base plate on a diagonal, 215 mm.",
+         "Check: templates within 0.3 mm; foundry melt check (XRF or OES)."], inset=(30, -55))
     S[108] = lambda: sheet(108, ("mm", "bushes"), "Male mold", COL["mm"], grey("fm", "stem"),
         "male mold and its casting pattern", "Sand-cast aluminium (lead-free scrap); 22 mm steel bushes",
-        ["Cast plug: 230 mm dia at the tip to 280 at the flange, 240 long; 15",
-         "  mm shell, 30 mm tip; flange 450 dia x 45. Open at the top: the",
-         "  inside is a cone 206 dia at the floor to 259 at the top (draft 6 deg).",
+        ["Cast plug: 250 mm dia at the tip to 304 at the flange, 261 long (fired",
+         "  size / 0.92); 15 shell, 30 tip; flange 480 dia x 45. Open at the top:",
+         "  the inside is a cone 226 dia at the floor to 284 at the top.",
          "Pattern: printed PLA, flat-back, flange top face down on the board,",
          "  plug pointing up; the inside forms its own sand core, so no core",
          "  box. Add 1.3 % shrink, 3 mm to lap off the flange underside,",
          "  2 degree draft on the flange rim. Print in 8 segments, glue, seal.",
          "Finish: lap the flange underside flat; plug to printed templates.",
-         "Bushes: 22 mm holes through the flange at 202 mm each side, steel",
+         "Bushes: 22 mm holes through the flange at 216 mm each side, steel",
          "  bushes 22 x 16 x 45 set in retaining compound; 16 mm bore reamed.",
          "Floor: four M12 holes (drill 10.2, tap 20 deep) at 75 mm from the",
          "  middle, square to the axes, for the stem's adapter disc.",
-         "Check: plug to templates within 0.3 mm; bushes slide on the dowels."], inset=(28, -50))
+         "Eye bolts: 2 x M12 holes, 26 deep, at 214 mm in the flange top.",
+         "Check: plug to templates; bushes slide on the dowels; melt checked."], inset=(28, -50))
     S[109] = lambda: sheet(109, ("stem", "nut", "pin", "bracket", "screw"), "Stem, pin and crank", COL["stem"], grey("top", "mm"),
         "male mold slide: stem, load pin and crank", "SHS 90 x 90 x 8; 42CrMo4 bar; 10 and 15 mm plate; Tr24 x 5 screw",
-        ["Stem: SHS 90 x 90 x 8, 670 mm, welded square on a 190 x 20 mm disc with",
+        ["Stem: SHS 90 x 90 x 8, 691 mm, welded square on a 190 x 20 mm disc with",
          "  four 13 mm holes at 75 mm. Pin block 74 x 74 x 120 mm inside, centre",
-         "  530 mm up; bore 62 mm across it, then a 28 mm hole down its middle.",
+         "  551 mm up; bore 62 mm across it, then a 28 mm hole down its middle.",
          "Nut box: captive Tr24 nut (60 x 60 x 40) under a 10 mm cap plate",
          "  (26 mm hole), a 10 mm floor with a 28 mm hole 8 mm below the nut.",
          "  The nut lifts the stem by the cap; the 8 mm gap is the float.",
@@ -309,10 +325,12 @@ def sheets(which=None):
          "Check: the pin slides through beam and stem together by hand."], inset=(20, -55))
     S[110] = lambda: sheet(110, _right_guard(), "Right side guard", COL["guard"], grey("uprights", "base", "top", "jack"),
         "fixed mesh guards (right side guard drawn)", "Welded mesh 12.7 x 1.6 and 6.35 x 0.9 mm; 25 x 25 x 3 angle; 2 and 3 mm steel sheet",
-        ["Seven panels, mesh on a welded frame of 25 x 25 x 3 angle: sides 635",
-         "  (right) and 675 (left) x 1,391; rear 940 x 1,391 in 12.7 x 1.6 mesh.",
-         "  Front strips 180 x 1,391, lower front 580 x 320 and roof 940 x 675",
-         "  (cut-out round the top beam) in 6.35 x 0.9 mesh. Every 8th wire drawn.",
+        ["Seven panels, mesh on a welded frame of 25 x 25 x 3 angle: sides 607",
+         "  (right) and 675 (left) x 1,413; rear 884 x 1,413 in 12.7 x 1.6 mesh.",
+         "  Front strips 152 (left) and 180 (right) x 1,413, lower front 580 x 320",
+         "  and roof 940 x 675 (cut-out round the top beam) in 6.35 x 0.9 mesh.",
+         "Corners: rear, left strip and right side stop at the next frame's leg.",
+         "Every 8th wire drawn.",
          "Pump slot (right side): 30 x 272 mm, 174 to 446 mm up, centred 218 mm",
          "  in front of the middle, framed with 3 mm strip. Shield behind it:",
          "  2 mm sheet tunnel 30 mm wide inside to 3 mm off the jack body, roof",
@@ -329,7 +347,7 @@ def sheets(which=None):
          "Check: flat within 3 mm; no panel over about 10 kg."], inset=(18, -40))
     S[111] = lambda: sheet(111, ("gate",), "Front gate", COL["gate"], grey("guards", "lock"),
         "front gate", "20 x 20 x 2 square tube; 6.35 x 0.9 mm welded mesh; lift-off hinges",
-        ["Frame: 20 x 20 x 2 square tube, 572 wide x 1,063 tall outside, with a",
+        ["Frame: 20 x 20 x 2 square tube, 572 wide x 1,085 tall outside, with a",
          "  mid rail. Weld square; diagonals equal within 2 mm.",
          "Mesh: 6.35 x 6.35 x 0.9 mm welded mesh on the front face, clamped.",
          "Hinges: two weld-on lift-off hinges on the left, 120 mm in from the",
@@ -338,7 +356,7 @@ def sheets(which=None):
          "  905 mm up.",
          "Tongue: an arm off the right-hand post and a 6 mm plate reaching",
          "  over the lock rod, with a 14 mm hole centred on the rod.",
-         "Fit: the gate closes in the opening between 380 and 1,451 mm up;",
+         "Fit: the gate closes in the opening between 380 and 1,473 mm up;",
          "  the lower 320 mm is the fixed lower front panel.",
          "Opens outward to the left, about 105 degrees.",
          "Check: swings without touching the folded rail extension; the",
@@ -351,7 +369,7 @@ def sheets(which=None):
          "Lock disc: 80 mm dia x 6 mm on the shaft just behind the knob, with",
          "  one notch 12.5 wide x 15.5 deep, 120 degrees round from the top",
          "  (check the angle against the jack you buy: open about 1/3 turn).",
-         "Post: 20 x 8 mm flat bar from 60 to 1,451 mm up, bolted to the right",
+         "Post: 20 x 8 mm flat bar from 60 to 1,473 mm up, bolted to the right",
          "  front strip frame, 330 mm right of the middle, with guide tabs.",
          "Lock rod: 12 mm bar standing on the disc rim, a lift handle at 680 mm",
          "  and a 24 mm collar. Valve open: the rod drops 15 mm into the notch.",
@@ -609,10 +627,10 @@ def steps(which=None):
     frame3o = [feet, base, jpl, jack_low, upr, plat_out, spr_low, top, stem_up, pin_park, crank]
     car_out, fm_out, mm_out = shift(car), shift(fm), shift(mm)
     E[10] = lambda: st(10, frame3o, [mv(car_out, (0, -150, 150)), mv(fm_out, (0, 0, 350))], "carriage and female mold, out on the extension",
-                       "Swing the extension out; slide the carriage onto it against the tipping pins; lift the mold in; retaining pins in",
+                       "Swing the extension out; slide the carriage onto it against the tipping pins; lower the 40 kg mold in on the chain block; retaining pins in",
                        elev=22, azim=-55, label_done=False)
     E[11] = lambda: st(11, frame3o + [car_out, fm_out], [mv(mm_out, (0, 0, 350))], "male mold onto the female mold",
-                       "Two people, 23 kg: lower it onto the dowels until the flanges meet. No pot, no clay",
+                       "26 kg: lower it on the chain block and eye bolts onto the dowels until the flanges meet. No pot, no clay",
                        elev=22, azim=-55, label_done=False)
     E[12] = lambda: st(12, frame3o, [part("Carriage with both molds", b.Pos(0, 0, -dz) * b.Compound(children=[car.shape, fm.shape, mm.shape]),
                                           COL["mm"], (0, yo, 0))],

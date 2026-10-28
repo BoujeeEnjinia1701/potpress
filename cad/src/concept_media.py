@@ -3,7 +3,7 @@
 Run from the repo root:  python cad/src/concept_media.py [hero|cutaway|exploded|flow|web|blueprint ...]
 With no argument it draws everything, but on a small machine run one picture per process (each
 one rebuilds the model and frees its memory when the process ends). Geometry comes from
-cad/src/model.py; the material flow values come from PPR-CAL-001 (docs/04-calcs/sizing.py).
+cad/src/model.py (press_components(detail=True): option A with every ISO fastener); the material flow values come from PPR-CAL-001 (docs/04-calcs/sizing.py).
 The pictures are made with the pieces of .kit/concept.py render_all, one at a time.
 
 Axes: X across the press, Y front (-Y, operator side) to back, Z up. The press is shown
@@ -20,9 +20,9 @@ sys.path.insert(0, str(ROOT / "cad/src"))
 sys.path.insert(0, str(ROOT / "docs/04-calcs"))
 import concept as K  # noqa: E402
 from concept import Part  # noqa: E402
-from model import build_parts, components  # noqa: E402
+from model import build_parts, press_components  # noqa: E402
 
-PROJECT, TITLE, DWG, DATE = "PotPress", "Filter press and QC rig concept", "PPR-DWG-010", "2026-10-03"
+PROJECT, TITLE, DWG, DATE = "PotPress", "Filter press and QC rig concept", "PPR-DWG-010", "2026-10-25"
 MD = ROOT / "media"
 NO_CUT = ("Return springs", "Printed T-gauge", "Fixed mesh guards and pump slot shield",
           "Front gate, mesh in a tube frame, with hinges and tongue")
@@ -31,7 +31,7 @@ NO_CUT = ("Return springs", "Printed T-gauge", "Fixed mesh guards and pump slot 
 def parts():
     # Floor anchors go into the concrete; they are left out so the press stands on the floor line
     return [Part(name, shape, color, bom, explode)
-            for name, shape, color, bom, explode in build_parts(comps=[c for c in components() if c.key != "anchors"])]
+            for name, shape, color, bom, explode in build_parts(comps=[c for c in press_components(detail=True) if c.key != "anchors"])]
 
 
 def hero():
@@ -70,25 +70,27 @@ def blueprint():
     import sizing
     from build123d import Compound
     from drawing import Sheet, project_views
-    g = sizing.geometry(); m = sizing.mix(g); k = sizing.kinematics(g, m); c = sizing.cycle(k)
+    g = sizing.geometry(); gf = sizing.geometry(sizing.FP); m = sizing.mix(g); k = sizing.kinematics(g, m); c = sizing.cycle(k)
     ps = parts()
     shown = K.with_scale_figure(ps)
     views = project_views(Compound(children=[p.shape for p in ps]), MD / "_views")
     views["iso"] = project_views(Compound(children=[p.shape for p in shown]), MD / "_views_fig")["iso"]
-    s = Sheet(project=PROJECT, title=TITLE, dwg_no=DWG, rev="P3", author="Amish Chadha", date=DATE, theme="blueprint",
-              material="Massing model for concept communication",
+    s = Sheet(project=PROJECT, title=TITLE, dwg_no=DWG, rev="P6", author="Amish Chadha", date=DATE, theme="blueprint",
+              material="Detailed model (kit 1.9, D3) for concept communication",
               revisions=[("P1", "Concept sheet", "2026-09-25", "AC"), ("P2", "Pump slot shield; trial force from 2 t", "2026-10-02", "AC"),
-                         ("P3", "Guard fixes: finer front and roof mesh, plates, covers", DATE, "AC")])
+                         ("P3", "Guard fixes: finer front and roof mesh, plates, covers", "2026-10-03", "AC"),
+                         ("P4", "Clay shrink allowance in the molds (DDR-006)", "2026-10-23", "AC"),
+                         ("P5", "Kit 1.9 detailed model: ISO fasteners, guard corners", "2026-10-24", "AC"),
+                         ("P6", "Working force limit 5.4 t (D9)", DATE, "AC")])
     s.add_ortho(views)
     s.add_svg(views["iso"], 276, 37, 140, 113, label="Isometric view", sublabel="Not to scale; figure is a 1.75 m person")
     s.add_notes("Key figures", [
-        "20 t bottle jack; working force found in trials from about 2 t",
-        "Mean pressure on the pot 0.21 MPa at 2 t, 1.05 MPa at 10 t",
-        f"Filter 280 mm inner rim, 240 mm deep, {g['v_work']:.1f} L working",
+        "20 t jack; working force from about 2 t, limited to 5.4 t (handle)",
+        f"Filter 280 rim, 240 deep fired, {gf['v_work']:.1f} L; molds x{1 / (1 - sizing.P['CLAY_SHRINK']):.3f} for {sizing.P['CLAY_SHRINK'] * 100:.0f} % shrink",
         f"About {m['charge']:.1f} kg mix per pot; about {m['fired']:.1f} kg fired (est.)",
         f"Cycle about {c['total_min']:.1f} min; about {c['pots_6h']:.0f} pots per 6 h (est.)",
         "QC: 1.0 to 2.5 L/h in the first hour, at 25 C",
-        "Press 940 x 700 x 1,806 mm guarded, rails folded; about 395 kg (est.)",
+        "Press 940 x 700 x 1,828 mm guarded, rails folded; about 403 kg (est.)",
         "Mesh guards, 6.35 mm front and roof; plates, covers; gate interlocked"], x=276, y=168, width=140)
     s.save(MD / "concept-blueprint")
     import shutil

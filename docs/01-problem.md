@@ -3,9 +3,9 @@ doc_id: PPR-PRB-001
 title: PotPress problem statement
 project: PotPress
 doc_type: Problem statement
-version: "0.6"
+version: "0.7"
 status: Draft
-date: '2026-09-27'
+date: '2026-10-23'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -33,6 +33,10 @@ revisions:
   date: '2026-09-27'
   author: Amish Chadha
   change: Budget raised by Amish on 2026-09-27; budget constraint $1,060
+- version: "0.7"
+  date: '2026-10-23'
+  author: Amish Chadha
+  change: 'Kit 1.8 upgrade: users and needs table with use scenarios and pain points, stakeholders table; user requirements now in PPR-URS-001'
 ---
 
 # PotPress problem statement
@@ -54,13 +58,28 @@ The technology is proven, but making it well is hard for a small workshop:
 
 ## Users and context
 
-| User | Need | Context |
+Table 1. Users and needs. The user requirements drawn from this table are in PPR-URS-001 (`03a-user-requirements.md`).
+
+| User type | Goals and needs | Typical use scenario | Pain points and challenges |
+| --- | --- | --- | --- |
+| Small filter factory or pottery cooperative | Press 50 or more filters a day with even walls; replace or repair the press locally | Three to four workers press, trim and rack filters through a shift beside the mixing area and kiln | Imported presses cost $3,000 to $3,500; uneven walls give flow rejects; spare parts are far away |
+| NGO or social enterprise starting a factory | A press and QC rig it can build or commission locally instead of importing | Plans a new factory on a start-up grant, often where no filter factory exists yet | Capital cost, lead time and no local know-how for imported equipment |
+| Local fabrication shop | Build the frame and have the molds cast from open drawings | Builds the frame with a stick welder and drill press; sends patterns to a city foundry | Unclear drawings, parts too heavy for two people, foundry access uncertain |
+| QC technician | Test every fired filter for flow and record the result the same way each time | Soaks fired filters, fills them and reads the flow over an hour, four at a time | Results vary with water temperature and with how each test is timed and read |
+| University or research lab | A repeatable press to study mix, pressing and firing variables | Presses small batches while changing one variable at a time | Needs to know and repeat the pressing force, which factory presses do not record |
+
+### Stakeholders
+
+Table 2. Stakeholders who are not day-to-day users.
+
+| Stakeholder group | Role or interest | Engagement needed |
 | --- | --- | --- |
-| Small filter factory or pottery cooperative | Press 50 or more filters a day with even walls; replace or repair the press locally | Three to four workers, a kiln, a mixing area and drying racks |
-| NGO or social enterprise starting a factory | A press and QC rig it can build or commission locally instead of importing | Start-up budget, often in a region without a filter factory yet |
-| Local fabrication shop | Build the frame and have the molds cast from open drawings | Stick welder, drill press, hand tools; access to an aluminum foundry is uncertain |
-| QC technician | Test every fired filter for flow and record the result the same way each time | Soaking tanks, buckets, a timer; results logged by hand |
-| University or research lab | A repeatable press to study mix, pressing and firing variables | Lab bench or workshop; needs repeatability more than throughput |
+| Households using the filters | Safe water from a filter that flows in the factory's band | Through the partner factory's field follow-up; not contacted by this project directly |
+| Filter networks and trainers (for example Potters for Peace, CMWG members) | Set factory practice and train new factories | Review of the press against their practice before any field trial |
+| Funders and NGOs buying filters | Cost per filter and evidence of quality | Shown the QC records and the cost model (PPR-MKT-001) |
+| Health and water regulators | Product claims and evaluation, for example the WHO scheme | None by this project; the factory owns its filter certification (out of scope) |
+| Foundries and steel stockists | Supply castings and sections | Quote and pattern review before TRL 4 |
+| Workshop safety authority or competent person | Machine safety of the press | Signs the ISO 13857 desk check before any force above hand pressure (decided 2026-10-02) |
 
 ### Operating environment
 
@@ -105,4 +124,4 @@ This design is for communities the author is not part of, so requirements come f
 - [ ] Identify a local partner organization (Helpful Engineering network, NGO or university)
 - [ ] Run co-design sessions with intended users; record who, where and what was learned
 - [ ] Validate filter size, throughput, pressing and cost assumptions with a working filter factory
-- [ ] Revise requirements (REQ) from findings before freezing the design
+- [ ] Revise the user and product requirements (URS, PRS) from findings before freezing the design
